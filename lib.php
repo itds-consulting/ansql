@@ -35,7 +35,7 @@ function include_classes()
 			if (substr($file,-4) != '.php')
 				continue;
 			else
-				require_once("classes/$file");
+				require_once($classes_dirs[$i]."/$file");
 		}
 	}
 }
