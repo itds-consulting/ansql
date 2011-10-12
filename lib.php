@@ -50,6 +50,21 @@ if (!function_exists("stripos")) {
 
 escape_page_params();
 
+function get_default_function()
+{
+	global $module, $method, $action;
+
+	if(!$method)
+		$method = $module;
+	if(substr($method,0,4) == "add_")
+		$method = str_replace("add_","edit_",$method);
+	if($action)
+		$call = $method.'_'.$action;
+	else
+		$call = $method;
+	return $call;
+}
+
 function testpath($path)
 {
 	if (ereg("[^A-Za-z0-9_]",$path)) 
