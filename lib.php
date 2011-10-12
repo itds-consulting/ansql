@@ -35,7 +35,7 @@ function include_classes()
 			if (substr($file,-4) != '.php')
 				continue;
 			else
-				require_once($classes_dirs[$i]."/$file");
+				require_once("classes/$file");
 		}
 	}
 }
@@ -320,7 +320,7 @@ function pages($total = NULL, $params = array())
 
 	if(substr($link, -1) != "?")
 		$link .= "&";
-	$link .= "module=$module&method=$method&action=$action";
+	$link .= "module=$module&method=$method";
 
 	$pages = floor($total/$limit);
 	print '<center>';
@@ -442,7 +442,7 @@ function addHidden($action=NULL, $additional = array())
 			print '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $value . '">';
 	if (isset($_SESSION["previous_page"])) {
 		foreach ($_SESSION["previous_page"] as $param=>$value)
-			if (!in_array($param, $additional) && $param!="module" && $param!="method" && $param!="action")
+			if (!isset($additional[$param]) && $param!="module" && $param!="method" && $param!="action")
 				print '<input type="hidden" name="' . $param . '" value="' . $value . '">';
 	}
 }
@@ -575,11 +575,6 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 				print '&nbsp;&nbsp;';
 				print '<input class="'.$css.'" type="submit" name="'.$submit[$i].'" value="'.$submit[$i].'"/>';
 			}
-			if(!$no_reset) {
-				$cancel_but = cancel_button($css);
-				if ($cancel_but)
-					print "&nbsp;&nbsp;$cancel_but";
-			}
 		}else
 			print '<input class="'.$css.'" type="submit" name="'.$submit.'" value="'.$submit.'"/>';
 		if(!$no_reset) {
@@ -600,7 +595,7 @@ function cancel_button($css="", $name="Cancel")
 	if (isset($_SESSION["previous_page"])) {
 		$link = $_SESSION["main"]."?";
 		foreach ($_SESSION["previous_page"] as $param=>$value)
-			$link.= "$param=$value&";
+			$link.= "$param=".urlencode($value)."&";
 		$res = '<input class="'.$css.'" type="button" value="'.$name.'" onClick="location.href=\''.$link.'\'"/>';
 	}
 	return $res;
@@ -610,7 +605,7 @@ function cancel_params()
 {
 	$link = "";
 	foreach ($_SESSION["previous_page"] as $param=>$value)
-		$link.= "$param=$value&";
+		$link.= "$param=".urlencode($value)."&";
 	return $link;
 }
 
@@ -1133,7 +1128,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		$link = '';
 		foreach($vars as $var_name => $var)
 			if (strlen($objects[$i]->{$var_name}) < 30)
-				$link .= "&$var_name=".htmlentities($objects[$i]->{$var_name});
+				$link .= "&$var_name=".htmlentities(urlencode($objects[$i]->{$var_name}));
 		$link_no = 0;
 		foreach($object_actions as $methd=>$methd_name)
 		{
@@ -1354,7 +1349,7 @@ function table($array, $formats, $element_name, $id_name, $element_actions =arra
 		$link = '';
 		foreach($array[$i] as $col_name => $col_value)
 			if (strlen($col_value)<55)
-				$link .= "&$col_name=".htmlentities($col_value);
+				$link .= "&$col_name=".htmlentities(urlencode($col_value));
 		$link_no = 0;
 		foreach($element_actions as $methd=>$methd_name)
 		{
@@ -1438,9 +1433,12 @@ function ack_delete($object, $value=NULL, $message=NULL, $object_id=NULL, $value
 
 	print "<br/><br/>Are you sure you want to delete ".str_replace("_","&nbsp;",$object)." $value?";
 	if ($message) {
-		if(substr($message,0,1) == ",")
-			$message = substr($message, 1, strlen($message));
-		print " If you delete it you will also delete or set to NULL it's associated objects from $message.";
+		if(substr($message,0,2)!="__") {
+			if(substr($message,0,1) == ",")
+				$message = substr($message, 1, strlen($message));
+			print " If you delete it you will also delete or set to NULL it's associated objects from $message.";
+		} else
+			print substr($message,2);
 	}
 
 	print "<br/><br/>";
@@ -1516,10 +1514,18 @@ function params_date($date, $default_today=false, $begin_hour=null)
 {
 	$month = $day = $year = $hour = "";
 	if ((!$date || $date == '') && $default_today) {
-		$today = explode("-",date('F-j-Y-H-i',time()));
+		/*$today = explode("-",date('F-j-Y-H-i',time()));
 		$month = $today[0]; 
 		$day = $today[1]; 
-		$year = $today[2];
+		$year = $today[2];*/
+		$today = date("Y-m-d H:i:s");
+		$today = check_timezone($today);
+		$expl = explode(" ",$today);
+		$date = explode("-",$expl[0]);
+		$time = explode(":",$expl[1]);
+		$month = $date[1];
+		$day = $date[2];
+		$year = $date[0];
 		if ($begin_hour === true)
 			$hour = "0";
 		elseif ($begin_hour === false)
@@ -1529,7 +1535,7 @@ function params_date($date, $default_today=false, $begin_hour=null)
 	} elseif($date && $date!="") {
 		$today = explode(" ",$date);
 		$hour = explode(":",$today[1]);
-		$hour = $hour[1];
+		$hour = $hour[0];
 		$today = explode("-",$today[0]); 
 		$year = $today[0];
 		$month = $today[1]; 
@@ -1708,6 +1714,30 @@ function check_timezone($timestamp, $reverse_apply=false)
 	return $new_timestamp;
 }
 
+function get_timezone_diff($reverse_apply=false)
+{
+	global $system_standard_timezone;
+
+	// check if $_SESSION["timezone"] is set and if is different from system timezone
+	if (!isset($_SESSION["timezone"]))
+		return $timestamp;
+
+	$timezone = str_replace("GMT","",$_SESSION["timezone"]);
+	if ($timezone == "")
+		$timezone = 0;
+/*	$system_tz = str_replace("0","",date("P"));
+	$system_tz = str_replace(":","",$system_tz);*/
+	$system_tz = str_replace("GMT","",$system_standard_timezone);
+	if ($system_tz == "")
+		$system_tz = 0;
+
+	$diff = $timezone - $system_tz;
+	if ($reverse_apply)
+		$diff = -$diff;
+
+	return $diff;
+}
+
 function add_interval($timestamp, $unit, $nr)
 {
 	$timestamp = explode(" " ,$timestamp);
@@ -1758,8 +1788,10 @@ function get_date($key='',$_hour='00',$min='00',$sec='00')
 	$month = getmonthnumber($month);
 	$year = getparam($key."year");
 	$hour = getparam($key."hour");
-	if (!$hour)
+	if (strlen(!$hour))
 		$hour = $_hour;
+	if (strlen($hour)==1)
+		$hour = "0".$hour;
 
 	if (!checkdate($month,$day,$year)) {
 		errormess("This date does not exit : day=".$day.' month='.$month.' year='.$year,'no');
@@ -1769,7 +1801,7 @@ function get_date($key='',$_hour='00',$min='00',$sec='00')
 		$month = '0'.$month;
 	if(strlen($day) == 1)
 		$day = '0'.$day;
-	if($_hour)
+	if(strlen($_hour))
 		$date = "$year-$month-$day $hour:$min:$sec";
 	else
 		$date = "$year-$month-$day";
@@ -2243,6 +2275,8 @@ function formTable($rows, $th=null, $title = null, $submit = null, $width=null, 
 			if(is_array($row)) {
 				for($j=0; $j<count($row); $j++) {
 					$css = ($i%2 == 0) ? "formtable evenrow_ftable $dif_css" : "formtable $dif_css";
+					if (!$th && $i==0 && $j==0)
+						$css .= "firsttd";
 			//		if($j == 0)
 			//			$css .= " $css_first_column"."";
 					if($i%2 == 0)
@@ -2363,7 +2397,7 @@ function return_button($method=null, $_module=null, $align="right", $name="Retur
 	} elseif (isset($_SESSION["previous_page"])) {
 		$link = $_SESSION["main"]."?";
 		foreach ($_SESSION["previous_page"] as $param=>$value)
-			$link.= "$param=$value&";
+			$link.= "$param=".urlencode($value)."&";
 	} else
 		$link = $_SESSION["main"]. "?"."module=".$module;
 	print '<div style="float:'.$align.'"><a class="llink" href="'.$link.'">'.$name.'</a></div>';
