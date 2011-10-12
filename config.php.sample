@@ -1,0 +1,18 @@
+<?
+
+$db_host =   "localhost"; //   /*  database server hostname   */
+$db_user = "root";      /*  database server username   */
+$db_database = "dmname";   /*  database name   */
+$db_passwd = '';	//
+$db_type = "mysql";	// or "postgresql"
+
+$limit = 20;  //max number of objects to display on page
+$enable_logging = "on"; // possible values: "on"/"off", true/false, "yes"/"no" 
+
+date_default_timezone_set('Europe/Bucharest');
+$system_standard_timezone = "GMT+3";
+
+// default format id y-m-d
+$date_format = "y-m-d"; // year month day
+
+?>
