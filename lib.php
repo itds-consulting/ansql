@@ -291,7 +291,7 @@ function items_on_page($nrs = array(20,50,100))
 	$link .= "module=$module&method=$method";
 	if ($action) {
 		$call = get_default_function();
-		if (function_exists($action))
+		if (function_exists($call))
 			$link .= "&action=$action";
 	}
 
