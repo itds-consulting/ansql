@@ -275,7 +275,7 @@ function dateCheck($year,$month,$day,$hour,$end)
 
 function items_on_page($nrs = array(20,50,100))
 {
-	global $module, $method;
+	global $module, $method, $action;
 
 	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
 	$link .= "?";	
@@ -289,6 +289,11 @@ function items_on_page($nrs = array(20,50,100))
 	if(substr($link,-1) != "?")
 		$link .= "&";
 	$link .= "module=$module&method=$method";
+	if ($action) {
+		$call = get_default_function();
+		if (function_exists($action))
+			$link .= "&action=$action";
+	}
 
 	for($i=0; $i<count($nrs); $i++)
 	{
