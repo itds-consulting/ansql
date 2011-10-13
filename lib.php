@@ -283,7 +283,7 @@ function items_on_page($nrs = array(20,50,100))
 	{
 		if($param == "page" || $param == "PHPSESSID" || $param == "action")
 			continue;
-		$link .= "&$param=$value";
+		$link .= "&$param=".urlencode($value);
 	}
 
 	if(substr($link,-1) != "?")
@@ -316,7 +316,7 @@ function pages($total = NULL, $params = array())
 			continue;
 		if($link != $slink)
 			$link .= "&";
-		$link .= "$param=$value";
+		$link .= "$param=".urlencode($value);
 		if($param == "total")
 		{
 			$total = $value;
@@ -336,6 +336,12 @@ function pages($total = NULL, $params = array())
 	if(substr($link, -1) != "?")
 		$link .= "&";
 	$link .= "module=$module&method=$method";
+	if ($action) {
+		// if action param is set, check that $method_$action function exists before adding it to link
+		$function_to_call = get_default_function();
+		if (function_exists($function_to_call))
+			$link .= "&action=$action";
+	}
 
 	$pages = floor($total/$limit);
 	print '<center>';
