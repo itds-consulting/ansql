@@ -34,12 +34,18 @@ function include_classes()
 		while (false !== ($file = readdir($handle))) {
 			if (substr($file,-4) != '.php')
 				continue;
-			else
+			else {
+				if ($classes_dirs[$i] == "ansql/default_classes") {
+					$file_name = substr($file,0,strlen($file)-4);
+					global ${"custom_$file_name"};
+					if (isset(${"custom_$file_name"}) && ${"custom_$file_name"})
+						continue;
+				}
 				require_once($classes_dirs[$i]."/$file");
+			}
 		}
 	}
 }
-
 if (!function_exists("stripos")) {
 	// PHP 4 does not define stripos
 	function stripos($haystack,$needle,$offset=0)
