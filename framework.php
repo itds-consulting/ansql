@@ -77,7 +77,7 @@ class Variable
 	{
 		global $db_type;
 
-		if (!strlen($value))
+		if (!strlen($value) && $value!==false)
 			return 'NULL';
 
 		$value = trim($value);
@@ -96,7 +96,7 @@ class Variable
 						return "'f'";
 					break;
 			} 
-		} elseif (substr($this->_type,0,3) == "int" || substr($this->_type,0,5) == "float" || substr($this->_type,0,7)=="tinyint" || $this->_type == "serial" || $this->_type == "bigserial" || substr($this->_type,0,6) == "bigint") {
+		} elseif ( (substr($this->_type,0,3) == "int" && $this->_type!="interval") || substr($this->_type,-3) == "int" || substr($this->_type,0,5) == "float" || substr($this->_type,0,7)=="tinyint" || $this->_type == "serial" || $this->_type == "bigserial" || substr($this->_type,0,6) == "bigint") {
 			$value = str_replace(',','',$value);
 			return 1*$value;
 		} elseif (($this->_type == "timestamp" || $this->_type == "date") && $value == "now()")
@@ -123,6 +123,8 @@ class Database
 				"int2" => "int(4)",
 				"int4" => "int(11)",
 				"int8" => "bigint(20)",
+				"float4" => "float",
+				"float8" => "double precision",
 				"bool" => "tinyint(1)",
 				"int" => "int(11)",
 				// mysql doesn't know bigserial
@@ -144,22 +146,22 @@ class Database
 		switch ($db_type) {
 			case "mysql":
 				if (!function_exists("mysql_connect"))
-					die("You don't have mysql package for php installed.");
+					die(_("You don't have mysql package for php installed."));
 				if (self::$_connection === true) {
 					self::$_connection = mysql_connect($db_host, $db_user, $db_passwd);
 					if (!self::$_connection)
-						die("Could not connect to the database");
+						die(_("Could not connect to the database"));
 					mysql_select_db($db_database,self::$_connection);
 				}
 				break;
 			case "postgresql":
 				if (!function_exists("pg_connect"))
-					die("You don't have php-pgsql package installed.");
+					die(_("You don't have php-pgsql package installed."));
 				if (self::$_connection === true)
-					self::$_connection = pg_connect("host='$db_host' dbname='$db_database' user='$db_user' password='$db_passwd'") or die("Could not connect to the database");
+					self::$_connection = pg_connect("host='$db_host' dbname='$db_database' user='$db_user' password='$db_passwd'") or die(_("Could not connect to the database"));
 				break;
 			default:
-				die("Unsupported or unspecified database type: db_type='$db_type'");
+				die(_("Unsupported or unspecified database type: db_type='")."$db_type'");
 				break;
 		}
 		return self::$_connection;
@@ -382,7 +384,7 @@ class Database
 			if(is_numeric($name))
 			{
 				//  do not allow numeric names of columns
-				exit("You are trying to add a column named $name, numeric names of columns are not allowed.");
+				exit(_("You are trying to add a column named ").$name.", "._("numeric names of columns are not allowed").".");
 			}
 			$type = $var->_type;
 			if (isset(self::$_translate_sql_types[$db_type][$type]))
@@ -421,11 +423,17 @@ class Database
 		// do not allow creation of tables with more than one serial field
 		// protection is inforced here because i rely on the fact that there is just one numeric id or none
 		if($nr_serial_fields > 1)
-			exit("Error: Table $table has $nr_serial_fields serial or bigserial fields. You can use 1 serial or bigserial field per table or none.");
+			exit(_("Error").": "._("Table ").$table." "._("has")." ".$nr_serial_fields." ".("serial or bigserial fields. You can use 1 serial or bigserial field per table or none."));
 
 		$query = "CREATE TABLE $table ($query)";
 		if ($db_type == "postgresql")
 			$query.= " WITH OIDS";
+		elseif ($db_type == "mysql") {
+			$class = get_class(Model::getObject($table));
+			$engine = call_user_func(array($class,"getDbEngine"));
+			if ($engine)
+				$query.= "ENGINE $engine";
+		}
 		return self::db_query($query) !== false;
 	}
 
@@ -473,6 +481,7 @@ class Database
 			if (isset(self::$_translate_sql_types[$db_type][$type]))
 				$type = self::$_translate_sql_types[$db_type][$type];
 			$type = strtolower($type);
+
 			if (!isset($cols[$name]))
 			{
 				if ($type == "timestamp")
@@ -512,7 +521,7 @@ class Database
 					continue;
 				elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
 					continue;
-				Model::warning("Field '$name' in table '$table' is of type '$dbtype' but should be '$type'\n");
+				Debug::output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'\n");
 				return false;
 			}
 		}
@@ -670,7 +679,7 @@ class Model
 		$this->_retrieved = false;
 		foreach ($this->_model as $name => $var) {
 			if($name == "__sql_relation")
-				exit("Invalid column name: __sql_relation.");
+				exit(_("Invalid column name").": __sql_relation.");
 			$this->$name = $var->_value;
 		}
 	}
@@ -705,7 +714,7 @@ class Model
 		$res = Database::query($query);
 		if($res === false)
 		{ 
-			self::warning("Could not select $class from database in selection.");
+			self::warning(_("Could not select")." "._($class)." "._("from database in selection").".");
 			return null;
 		}
 	//	$object = new $class;
@@ -764,7 +773,7 @@ class Model
 		$query = self::buildSelect($fields, $from_clause, $where, $order, NULL, NULL, $group_by);
 		$res = Database::query($query);
 		if ($res === false) { 
-			self::warning("Could not select $class from database");
+			self::warning(_("Could not select")." "._($class)." "._("from database"));
 			return null;
 		}
 		if (count($res) == 1 && count($res[0]) == 1) {
@@ -814,7 +823,7 @@ class Model
 		$res = Database::query($query);
 		if($res===false)
 		{ 
-			self::warning("Could not select $class from database. Query: $query");
+			self::warning(_("Could not select")." $class "._("from database").". Query: $query");
 			$this->invalidate();
 			return ;
 		} elseif(!count($res)) {
@@ -822,7 +831,7 @@ class Model
 			return;
 		} elseif(count($res)>1) {
 			$this->invalidate();
-			self::warning('More results for a single id.');
+			self::warning(_("More results for a single id."));
 			return;
 		} else
 			$this->populateObject($res);
@@ -929,7 +938,7 @@ class Model
 				// if i get here then the object was wrongly extended OR user wanted to get a cartesion product of the two tables: 
 				// $table does not have a foreign key to $foreign_key_to table
 				// $foreign_key_to table oes not have a foreign key to $table
-				self::warning("No rule for extending table '$table' with field '$var_name' from table '$foreign_key_to'. Generating cartesian product.");
+				self::warning(_("No rule for extending table")." '$table' "._("with field")." '$var_name' "._("from table")." '$foreign_key_to'. "._("Generating cartesian product."));
 				$from_clause .= ", ".esc($foreign_key_to)." ";
 			}elseif($foreign_key_to && $foreign_key_to == $table) {
 				// this defines a recursive relation inside the same table, just 1 level
@@ -978,7 +987,7 @@ class Model
 		if($res===false)
 		{
 			$this->invalidate(); 
-			self::warning("Could not select ".get_class($this)." from database. Query: $query");
+			self::warning(_("Could not select")." ".get_class($this)." "._("from database").". Query: $query");
 			return ;
 		}
 
@@ -1092,7 +1101,7 @@ class Model
 			if (!$var)
 				continue;
 			if (!strlen($value) && $var->isRequired()) {
-				$error .= " Required field '".$var_name."' not set.";
+				$error .= " "._("Required field")." '"._($var_name)."' "._("not set").".";
 				$error_fields[] = $var_name;
 				// gather other errors as well
 				continue;
@@ -1112,19 +1121,19 @@ class Model
 		$table = $this->getTableName();
 
 		if($error != "")
-			return array(false, "Failed to insert into $table.".$error, $error_fields);
+			return array(false, _("Failed to insert into ")._($table).".".$error, $error_fields);
 
 		$query = "INSERT INTO ".esc($table)."($columns) VALUES($values)";
 		$retrieve_last_id = ($retrieve_id && count($serials)) ? array($this->getIdName(),$table) : false;
 		$res = Database::query($query, $retrieve_last_id);
 		if ($res===false)
-			return array(false,"Failed to insert into $table.",$error_fields);
+			return array(false,_("Failed to insert into ")._($table).".",$error_fields);
 		if ($retrieve_id && count($serials))
 			$this->{$this->getIdName()} = $res[2];
 		$log = "inserted ".$this->getNameInLogs().": $insert_log";
 		if($keep_log === true)
 			self::writeLog($log,$query);
-		return array(true,"Succesfully inserted into ".ucwords(str_replace("_"," ",$table)),array());
+		return array(true,_("Successfully inserted into ")._(ucwords(str_replace("_"," ",$table))),array());
 	}
 
 	/**
@@ -1172,10 +1181,10 @@ class Model
 		$error_fields = array();
 		if (!count($conditions))  {
 			if($this->isInvalid())
-				return array(false, "Update was not made. Object was invalidated previously.",$error_fields, 0);
+				return array(false, _("Update was not made. Object was invalidated previously."),$error_fields, 0);
 			$id = $this->getIdName();
 			if(!$id || !$this->{$id})
-				return array(false, "Don't have conditions to perform update.",$error_fields,0);
+				return array(false, _("Don't have conditions to perform update."),$error_fields,0);
 			$conditions = array($id=>$this->{$id});
 		}
 		// add the received verifications to the conditions
@@ -1194,7 +1203,7 @@ class Model
 			}
 
 			if(!strlen($this->{$var_name}) && $var->isRequired()) {
-				$error .= " Required field '".$var_name."' not set.";
+				$error .= " "._("Required field")." '"._($var_name)."' "._("not set").".";
 				$error_fields[] = $var_name;
 				continue;
 			}
@@ -1205,16 +1214,16 @@ class Model
 		}
 		$obj_name = $this->getObjectName();
 		if($error != "")
-			return array(false,'Failed to update '.$obj_name.".".$error, $error_fields,0);
+			return array(false,_("Failed to update").' '._($obj_name).".".$error, $error_fields,0);
 		$table = $this->getTableName();
 		$query = "UPDATE ".esc($table)." SET $variables $where";
 		//print "query-update:$query";
 		$res = Database::query($query);
 		if($res===false || $res[0]===false) 
-			return array(false,'Failed to update '.$obj_name.".",array(),0);
+			return array(false,_('Failed to update ')._($obj_name).".",array(),0);
 		else {
 			$affected = $res[1];
-			$message = 'Succesfully updated '.$affected.' ' .$obj_name;
+			$message = _('Successfully updated ').$affected.' ' ._($obj_name);
 			if ($affected != 1)
 				$message .= 's';
 			$update_log = "updated ".$this->getNameInLogs().": $update_log $where";
@@ -1239,10 +1248,10 @@ class Model
 
 		if(!count($conditions)) {
 			if($this->isInvalid())
-				return array(false, "Update was not made. Object was invalidated previously.",array(),0);
+				return array(false, _("Update was not made. Object was invalidated previously."),array(),0);
 			$id = $this->getIdName();
 			if(!$id || !$this->{$id})
-				return array(false, "Don't have conditions to perform update.", array(),0);
+				return array(false, _("Don't have conditions to perform update."), array(),0);
 			$conditions = array($id=>$this->{$id});
 		}
 		if($verifications)
@@ -1251,7 +1260,7 @@ class Model
 		$where = $this->makeWhereClause($conditions, true);
 		$vars = self::getVariables(get_class($this));
 		if (!count($fields))
-			return array(false,"Update was not made. No fields were specified.",array(),0);
+			return array(false,_("Update was not made. No fields were specified."),array(),0);
 		foreach($vars as $var_name=>$var) 
 		{
 			if(!in_array($var_name,$fields))
@@ -1283,11 +1292,11 @@ class Model
 		$query = "UPDATE ".esc($this->getTableName())." SET $variables $where";
 		$res = Database::query($query);
 		if($res===false || $res[0]===false) 
-			return array(false,'Failed to update '.$obj_name,array(),0);
+			return array(false,_('Failed to update ')._($obj_name),array(),0);
 		else
 		{
 			$affected = $res[1];
-			$mess = 'Succesfully updated '.$affected.' ' .$obj_name;
+			$mess = _('Successfully updated ').$affected.' ' ._($obj_name);
 			if ($affected != 1)
 				$mess .= 's';
 			$update_log = "update ".$this->getNameInLogs().": $update_log $where";
@@ -1313,7 +1322,7 @@ class Model
 			if ($var->_required === true && (!strlen($param_value) || $param_value =='')) {
 				if ($error != "")
 					$error .= ", ";
-				$error .= "Field '".str_replace("_"," ",$param_name)."' is required";
+				$error .= _("Field")." '"._(str_replace("_"," ",$param_name))."' "._("is required");
 				$error_fields[] = $param_name;
 			}
 		}
@@ -1345,7 +1354,7 @@ class Model
 			$query = "SELECT $id FROM $table WHERE ".esc($param)."='".Database::escape($value)."' $additional";
 		$res = Database::query($query);
 		if ($res===false)
-			exit("Could not do: $query");
+			exit(_("Could not do").": $query");
 		if (count($res))
 			return true;
 		return false;
@@ -1368,7 +1377,7 @@ class Model
 		$class = get_class($this);
 		if(!$id_name || !$this->variable($id_name))
 		{
-			self::warning("$id_name is not a defined variable inside the $class object.");
+			self::warning("$id_name "._("is not a defined variable inside the")." $class "._("object."));
 			exit();
 		}
 
@@ -1401,7 +1410,7 @@ class Model
 		$res = Database::query($query);
 		if($res === false || $res === NULL) {
 //			print ("Operation was blocked because query failed: '$query'.");
-			Debug::output("Operation was blocked because query failed: '$query'.");
+			Debug::output(_("Operation was blocked because query failed").": '$query'.");
 			return true;
 		}
 		if(count($res)) {
@@ -1428,7 +1437,7 @@ class Model
 		$table = $this->getTableName();
 		if (!count($conditions)) {
 			if ($this->isInvalid())
-				return array(false, "Could not delete object of class ".get_class($this).". Object was previously invalidated.");
+				return array(false, _("Could not delete object of class")." "._(get_class($this)).". "._("Object was previously invalidated").".");
 			
 			if (($id_name = $this->GetIdName())) {
 				$var = $this->variable($id_name);
@@ -1446,7 +1455,7 @@ class Model
 	//	Debug::output("entered objDelete ".get_class($this)." with conditions ".$where);
 
 		if ($where == '') 
-			return array(false, "Don't have any condition for deleting for object ".get_class($this));
+			return array(false, _("Don't have any condition for deleting for object")." "._(get_class($this)));
 
 		// array of pairs object_name=>array(array(var_name=>var_value),array(var_name2=>var_value2)) in which we have to check for deleting on cascade
 		$to_delete = array();
@@ -1493,24 +1502,25 @@ class Model
 		}
 		$query = "DELETE FROM ".esc($table)." $where";
 		$res = Database::query($query);
-		$cnt = count($seen);
 		array_push($seen,strtolower(get_class($this)));
+		$cnt = count($seen);
 
 		foreach ($to_delete as $object_name=>$conditions) {
 			$obj = new $object_name;
 			for ($i=0;$i<count($conditions);$i++)
 				$obj->objDelete($conditions[$i],$seen);
 		}
+
 		if ($res && $res[0]) {
 			if ($cnt) {
 				self::writeLog("deleted ".$this->getNameInLogs()." $where","$query");
-			} else
-				return array(true, "Succesfully deleted ".$res[1]." object(s) of type ".get_class($this));
+			}// else
+				return array(true, _("Successfully deleted ")._($res[1])._(" object(s) of type ")._(get_class($this)));
 		} else {
 			if ($cnt)
-				Debug::output("Could not delete object of class ".get_class($this));
+				Debug::output(_("Could not delete object of class ")._(get_class($this)));
 			else
-				return array(false, "Could not delete object of class ".get_class($this));
+				return array(false, _("Could not delete object of class ")._(get_class($this)));
 		}
 		return;
 	}
@@ -1531,7 +1541,7 @@ class Model
 		if (!self::$_models)
 			self::init();
 		if (!self::$_models)
-			exit("Don't have modeles after init() was called.");
+			exit(_("Don't have modeles after init() was called."));
 
 		$dump_description = array();
 
@@ -1660,7 +1670,7 @@ class Model
 		if(!count($conditions)) 
 		{
 			if($this->isInvalid())
-				return array(false, "Could not try to delete object of class ".get_class($this).". Object was previously invalidated.");
+				return array(false, _("Could not try to delete object of class")." "._(get_class($this)).". "._("Object was previously invalidated").".");
 			
 			if(($id_name = $this->GetIdName()))
 			{
@@ -1746,13 +1756,13 @@ class Model
 
 			if(isset($this->_model[$var_name]))
 			{
-				self::warning("Trying to override existing variable $var_name. Ignoring this field when extending.");
+				self::warning(_("Trying to override existing variable")." $var_name. "._("Ignoring this field when extending").".");
 				continue;
 			}
 			// don't let user extend the object using a numeric key
 			if(is_numeric($var_name))
 			{
-				exit("$var_name is not a valid variable name. Please do not use numbers or numeric strings as names for variables.");
+				exit("$var_name "._("is not a valid variable name. Please do not use numbers or numeric strings as names for variables").".");
 			}
 			if(!is_array($table_name))
 				$this->_model[$var_name] = new Variable("text",null,$table_name,false,$references);
@@ -1824,7 +1834,7 @@ class Model
 				if ($i>200) 
 				{
 //					print "<br/>\n<br/>\nInfinit loop<br/>\n<br/>\n";
-					Debug::output("Infinit loop");
+					Debug::output(_("Infinit loop"));
 					return;
 				}
 			}	
@@ -1995,7 +2005,7 @@ class Model
 			$table = $object->getTableName();
 			if (!Database::updateTable($table,$vars))
 			{
-				Debug::output("Could not update table of class $class\n");
+				Debug::output(_("Could not update table of class")." $class\n");
 				return false;
 			}
 			else
@@ -2117,7 +2127,7 @@ class Model
 	{
 		if(isset($_SESSION["warning_on"]))
 //			print "<br/>\nWarning : $warn<br/>\n";
-			Debug::output("Warning : $warn");
+			Debug::output(_("Warning")." : $warn");
 	}
 
 	/**
@@ -2128,7 +2138,7 @@ class Model
 	{
 		if(isset($_SESSION["notice_on"]))
 //			print "<br/>\nNotice : $note<br/>\n";
-			Debug::output("Notice : $note");
+			Debug::output(_("Notice")." : $note");
 	}
 
 	/**
@@ -2173,7 +2183,7 @@ class Model
 	 */
 	protected function invalidate()
 	{
-		self::warning("Invalidating object: ".get_class($this).".");
+		self::warning(_("Invalidating object").": ".get_class($this).".");
 		$this->_invalid = true;
 	}
 
@@ -2543,7 +2553,7 @@ class Model
 		for($i=0; $i<count($compulsory); $i++)
 		{
 			if (!isset($inner_query[$compulsory[$i]]))
-				$error .= 'Field '.$compulsory[$i].' is not defined. ';
+				$error .= _("Field").' '.$compulsory[$i].' '._("is not defined").". ";
 		}
 		if ($error != '')
 			exit($error);
@@ -2560,7 +2570,7 @@ class Model
 		$outer_column = $this->getColumnName($column,$table,false,false);
 		if (!isset($inner_query["options"])) {
 			if (!isset($inner_query["other_table"]) && !isset($inner_query["inner_table"]))
-				exit("You must either insert 'other_table' or 'inner_table'");
+				exit(_("You must either insert")." 'other_table' "._("or")." 'inner_table'");
 
 			$inner_table = (isset($inner_query["inner_table"])) ? $inner_query["inner_table"] : $inner_query["other_table"];
 			$inner_column = (isset($inner_query["inner_column"])) ? $inner_query["inner_column"] : $inner_query["column"];
@@ -2569,7 +2579,7 @@ class Model
 			$inner_where = '';
 
 			if(!($obj = self::getObject($inner_table)))
-				exit("Quit when wanting to create object from table $inner_table");
+				exit(_("Quit when wanting to create object from table")." $inner_table");
 
 			if(isset($inner_query["conditions"]))
 				$inner_where .= $obj->makeWhereClause($inner_query["conditions"],true);
@@ -2594,7 +2604,7 @@ class Model
 	{
 		if(count($result) != 1)
 		{
-			self::warning("Trying to build single object from sql that has ".count($result)." rows. Invalidating object.");
+			self::warning(_("Trying to build single object from sql that has")." ".count($result)." "._("rows")."." ._("Invalidating object").".");
 			$this->invalidate();
 			return;
 		}
@@ -2728,8 +2738,6 @@ class Model
 		ActionLog::writeLog($log, $query);
 	}
 
-	
-
 	/**
 	 * Verify if an object is a performer or not
 	 * This function should be reimplemented in the classes that you wish to mark as performers
@@ -2749,6 +2757,21 @@ class Model
 	public function getNameInLogs()
 	{
 		return get_class($this);
+	}
+
+	/**
+	 * Get the engine to use when creting mysql table
+	 * Setting should be made in $db_engine in config.php
+	 * Default engine is innodb. If engine without transaction support is used, then transaction(), rollback() and commit() should not be used
+	 * Function can be reimplemented in classes to use different database engine if desired
+	 */
+	public function getDbEngine()
+	{
+		global $db_engine;
+
+		if (isset($db_engine))
+			return $db_engine;
+		return "innodb";
 	}
 }
 
