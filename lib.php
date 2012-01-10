@@ -1044,14 +1044,16 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		$base = "$main?module=$module";
 	}
 
+	$ths = "";
 	print '<table class="'.$css.'" cellspacing="0" cellpadding="0">';
+
 	if(count($objects))
 	{
-		print '<tr class="'.$css.'">';
+		$ths .= '<tr class="'.$css.'">';
 		$no_columns = 0;
 		if($insert_checkboxes)
 		{
-			print '<th class="'.$css.' first_th checkbox">&nbsp;</th>';
+			$ths .= '<th class="'.$css.' first_th checkbox">&nbsp;</th>';
 			$no_columns++;
 		}
 		// print the name of the columns + add column for each action on object
@@ -1068,28 +1070,33 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 					$name = $var_name;
 			}
 			$ucss = ($no_columns == 0) ? "$css first_th" : $css;
-			print '<th class="'.$ucss.'">';
-			print str_replace("_","&nbsp;",ucfirst($name));
-			print '</th>';
+			$ths .= '<th class="'.$ucss.'">';
+			$ths .= str_replace("_","&nbsp;",ucfirst($name));
+			$ths .= '</th>';
 			$no_columns++;
 		}
 		for($i=0; $i<count($object_actions); $i++)
 		{
-			print '<th class="'.$css.'">';
+			$ths .= '<th class="'.$css.'">';
 			if  (!isset($object_actions_names) || !isset($object_actions_names[$i]))
-				print '&nbsp;';
+				$ths .= '&nbsp;';
 			else
-				print $object_actions_names[$i];
-			print '</th>';
+				$ths .= $object_actions_names[$i];
+			$ths .= '</th>';
 			$no_columns++;
 		}
-		print '</tr>';
+		$ths .= '</tr>';
 
 		$vars = $objects[0]->extendedVariables();
 		$class = get_class($objects[0]);
 		$id_name = $objects[0]->getIdName();
 	}else
 		$no_columns = 2;
+
+	if(count($general_actions) && in_array("__top",$general_actions))
+		links_general_actions($general_actions, $no_columns, $css, $base, true);
+
+	print $ths;
 
 	for($i=0; $i<count($objects); $i++)
 	{
@@ -1178,15 +1185,26 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		}
 		print '</tr>';
 	}
-	if(count($general_actions))
-	{
+	if(count($general_actions) && !in_array("__top",$general_actions))
+		links_general_actions($general_actions, $no_columns, $css, $base);
+
+	print "</table>";
+}
+
+function links_general_actions($general_actions, $no_columns, $css, $base, $on_top=false)
+{
+	if (!count($general_actions))
+		return;
+    
+	$pos_css = ($on_top) ? "starttable" : "endtable";
+
 		print '<tr>';
 		if(isset($general_actions["left"]))
 		{
 			$left_actions = $general_actions["left"];
 			$columns_left = floor($no_columns/2);
 			$no_columns -= $columns_left;
-			print '<td class="'.$css.' allleft endtable" colspan="'.$columns_left.'">';
+			print '<td class="'.$css.' allleft '.$pos_css.'" colspan="'.$columns_left.'">';
 			$link_no = 0;
 			if (is_array($left_actions)) {
 				foreach($left_actions as $methd=>$methd_name)
@@ -1205,12 +1223,14 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 				$general_actions = array();
 		}
 		
-		print '<td class="'.$css.' allright endtable" colspan="'.$no_columns.'">';
+		print '<td class="'.$css.' allright '.$pos_css.'" colspan="'.$no_columns.'">';
 		$link_no = 0;
 		if(!count($general_actions))
 			print "&nbsp;";
 		foreach($general_actions as $methd=>$methd_name)
 		{
+			if ($methd_name == "__top")
+				continue;
 			if($link_no)
 				print '&nbsp;&nbsp;';
 			print '<a class="'.$css.'" href="'.$base.$methd.'">'.$methd_name.'</a>';
@@ -1218,8 +1238,6 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		}
 		print '</td>';
 		print '</tr>';
-	}
-	print "</table>";
 }
 
 function get_plural_form($object_name)
