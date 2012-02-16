@@ -817,7 +817,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "checkbox":
 			print '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if($value == "t" || $value == "on")
-				print " CHECKED";
+				print " CHECKED ";
 			if(isset($field_format["javascript"]))
 		                print $field_format["javascript"];
 			print '/>';
