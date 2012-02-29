@@ -137,33 +137,57 @@ class Database
 
 	/**
 	 * Make database connection
-	 * @return The connection to the database. If the connection is not possible, page dies
+	 * @param $connection_index Numeric. Mark connection index in case backup connection is available
+	 * Default value is ''. Valid values '',2,3 .. (1 is excluded)
+	 * @return The connection to the database. If the connection is not possible, backup connection is tried if set, else page dies
 	 */
-	public static function connect()
+	public static function connect($connection_index="")
 	{
-		global $db_host,$db_user,$db_database,$db_passwd,$db_type;
+		global $db_type;
+
+		if (self::$_connection && self::$_connection!==true)
+			return self::$_connection;
+
+		$db_data = array("db_host","db_user","db_database","db_passwd","db_type");
+		for ($i=0; $i<count($db_data); $i++) {
+			$db_setting = $db_data[$i].$connection_index;
+			global ${$db_setting};
+			if (!isset(${$db_setting}) && isset(${$db_data[$i]}) && $db_data[$i]!="db_host")
+				${$db_setting} = ${$db_data[$i]};
+			if ($db_data[$i]=="db_type" && $connection_index!="")
+				$db_type = ${$db_setting};
+			if (!isset(${$db_setting}))
+				return;
+		}
+
+		$next_index = ($connection_index=="") ? 2 : $connection_index+1;
 
 		switch ($db_type) {
 			case "mysql":
 				if (!function_exists("mysql_connect"))
-					die(_("You don't have mysql package for php installed."));
-				if (self::$_connection === true) {
-					self::$_connection = mysql_connect($db_host, $db_user, $db_passwd);
-					if (!self::$_connection)
-						die(_("Could not connect to the database"));
-					mysql_select_db($db_database,self::$_connection);
-				}
+					die("You don't have mysql package for php installed.");
+				if (self::$_connection === true || !self::$_connection) 
+					self::$_connection = mysql_connect(${"db_host$connection_index"}, ${"db_user$connection_index"}, ${"db_passwd$connection_index"});
 				break;
 			case "postgresql":
 				if (!function_exists("pg_connect"))
-					die(_("You don't have php-pgsql package installed."));
-				if (self::$_connection === true)
-					self::$_connection = pg_connect("host='$db_host' dbname='$db_database' user='$db_user' password='$db_passwd'") or die(_("Could not connect to the database"));
+					die("You don't have php-pgsql package installed.");
+				if (self::$_connection === true || !self::$_connection)
+					self::$_connection = pg_connect("host='".${"db_host$connection_index"}."' dbname='".${"db_database$connection_index"}."' user='".${"db_user$connection_index"}."' password='".${"db_passwd$connection_index"}."'");
 				break;
 			default:
-				die(_("Unsupported or unspecified database type: db_type='")."$db_type'");
+				die("Unsupported or unspecified database type: db_type='$db_type'");
 				break;
 		}
+		if (!self::$_connection) {
+			self::$_connection = self::connect($next_index);
+			if (!self::$_connection) {
+				if (!self::$_connection)
+					die("Could not connect to the database");
+			}
+		} else if ($db_type == "mysql")
+			mysql_select_db(${"db_database$connection_index"},self::$_connection);
+
 		return self::$_connection;
 	}
 
@@ -172,14 +196,7 @@ class Database
 	 */
 	public static function transaction()
 	{
-		global $db_type;
-
-		switch ($db_type) {
-			case "mysql":
-				return Database::query("START TRANSACTION");
-			case "postgresql":
-				return Database::query("BEGIN WORK");
-		}
+		return Database::query("BEGIN WORK");
 	}
 
 	/**
