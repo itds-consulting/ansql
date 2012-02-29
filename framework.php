@@ -143,7 +143,7 @@ class Database
 	 */
 	public static function connect($connection_index="")
 	{
-		global $db_type;
+		global $db_type, $callback_when_backup, $exit_gracefully;
 
 		if (self::$_connection && self::$_connection!==true)
 			return self::$_connection;
@@ -182,9 +182,12 @@ class Database
 		if (!self::$_connection) {
 			self::$_connection = self::connect($next_index);
 			if (!self::$_connection) {
-				if (!self::$_connection)
+				if (!isset($exit_gracefully) || !$exit_gracefully)
 					die("Could not connect to the database");
-			}
+				else
+					return; 
+			} elseif (isset($callback_when_backup) && function_exists($callback_when_backup))
+				$callback_when_backup($next_index);
 		} else if ($db_type == "mysql")
 			mysql_select_db(${"db_database$connection_index"},self::$_connection);
 
