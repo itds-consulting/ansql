@@ -23,52 +23,43 @@
 
 require_once "set_debug.php";
 require_once "lib.php";
+require_once "../config.php";
 ?>
 <html>
 <head>
 	<title> Debug Page </title>
-	<link type="text/css" rel="stylesheet" href="css/main.css" />
+	<link type="text/css" rel="stylesheet" href="../css/main.css" />
 </head>
 <body>
 <?
-//session_start();
-/*
-if(isset($_SESSION["debug_all"])){
-	unset($_SESSION["debug_all"]);
-	print 'Debug OFF';
-}else{
-	$_SESSION["debug_all"] = "on";
-	print 'Debug ON';
-}*/
 
-
-	$array = array(
-				1 => "E_ERROR",
-				2 => "E_WARNING",
-				4 => "E_PARSE",
-				8 => "E_NOTICE",
-				16 => "E_CORE_ERROR",
-				32 => "E_CORE_WARNING",
-				64 => "E_COMPILE_ERROR",
-				128 =>	"E_COMPILE_WARNING",
-				256 =>  "E_USER_ERROR",
-				512 =>	"E_USER_WARNING",
-				1024 =>	"E_USER_NOTICE",
-				2048 =>	"E_STRICT",
-				4096 =>	"E_RECOVERABLE_ERROR",
-				8191 => "E_ALL",
-				6183 => "E_ALL ^ E_NOTICE",
-				10239 => "E_ALL | E_STRICT",
-				0 => "disable"
-			);
+$array = array(
+	1 => "E_ERROR",
+	2 => "E_WARNING",
+	4 => "E_PARSE",
+	8 => "E_NOTICE",
+	16 => "E_CORE_ERROR",
+	32 => "E_CORE_WARNING",
+	64 => "E_COMPILE_ERROR",
+	128 =>	"E_COMPILE_WARNING",
+	256 =>  "E_USER_ERROR",
+	512 =>	"E_USER_WARNING",
+	1024 =>	"E_USER_NOTICE",
+	2048 =>	"E_STRICT",
+	4096 =>	"E_RECOVERABLE_ERROR",
+	8191 => "E_ALL",
+	6183 => "E_ALL ^ E_NOTICE",
+	10239 => "E_ALL | E_STRICT",
+	0 => "disable"
+);
 
 $action = getparam("action");
 if($action) 
 	$call = "debug_".$action;
 else
 	$call = "debug";
-
 $call();
+
 
 function debug()
 {
@@ -82,19 +73,23 @@ function debug()
 		$errors[$error] = $error;
 		$errors["selected"] = $errors[$error];
 	}
-		
+
 	$display_errors = (ini_get("display_errors")) ? 't' : 'f';
 
 	$debug_queries = (isset($_SESSION["debug_all"])) ? "t" : "f";
 	$log_errors = (ini_get("log_errors")) ? "t" : "f";
 	$error_log = ($a = ini_get("error_log")) ? $a : '';
 	$arr = array(
-					"debug_queries"=>array("value"=>$debug_queries, "display"=>"checkbox"),
-					"error_reporting"=>array($errors, "display"=>"select"), 
-					"display_errors"=>array($display_errors, "display"=>"checkbox"),
-					"log_errors"=>array("value"=>$log_errors, "display"=>"checkbox"),
-					"error_log"=>array("value"=>$error_log, "display"=>"checkbox")
-				);
+		"pass_debug"=>array("compulsory"=>true, "column_name"=>"Password"),
+		"debug_queries"=>array("value"=>$debug_queries, "display"=>"checkbox"),
+		"error_reporting"=>array($errors, "display"=>"select"), 
+		"display_errors"=>array("value"=>$display_errors, "display"=>"checkbox"),
+		"log_errors"=>array("value"=>$log_errors, "display"=>"checkbox"),
+		"error_log"=>array("value"=>$error_log, "display"=>"checkbox")
+	);
+
+	if (is_auth("debug"))
+		unset($arr["pass_debug"]);
 
 ?>	<br/><br/>
 	<form action="debug_all.php" method="post"><?
@@ -106,7 +101,13 @@ function debug()
 
 function debug_database()
 {
-	global $array;
+	global $array, $pass_debug_page;
+
+	if (!check_auth("debug")) {
+		print "Error! Please insert debug password to see this page.";
+		debug();
+		return;
+	}
 
 	if(getparam("debug_queries") == "on")
 		$_SESSION["debug_all"] = "on";

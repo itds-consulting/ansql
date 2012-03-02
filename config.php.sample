@@ -19,6 +19,9 @@ $custom_actionlog = false; // if true you can define your own action log class s
 // log_used_backup_conn(2); // 2/3.. - index of backup connection used 
 // $callback_when_backup = "log_used_backup_conn";
 
+// password to be allowed to control error reporting and displaying of the queries
+$pass_debug_page = "secret_debug";
+
 $limit = 20;  //max number of objects to display on page
 $enable_logging = "on"; // possible values: "on"/"off", true/false, "yes"/"no" 
 

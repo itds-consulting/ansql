@@ -2932,5 +2932,32 @@ function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true)
 	}
 }
 
+// function used to check on_page authentication
+// used in debug_all.php
+function is_auth($identifier)
+{
+	global ${"pass_".$identifier."_page"};
+
+	if (isset($_SESSION["pass_$identifier"]) || !isset(${"pass_".$identifier."_page"}) || !strlen(${"pass_".$identifier."_page"}))
+		return true;
+	return false;
+}
+
+// function used to check on_page authentication/authenticate
+// used in debug_all.php
+function check_auth($identifier)
+{
+	global ${"pass_".$identifier."_page"};
+
+	if (strlen(${"pass_".$identifier."_page"}) && !isset($_SESSION["pass_$identifier"])) {
+		$pass = (isset($_REQUEST["pass_$identifier"])) ? $_REQUEST["pass_$identifier"] : '';
+		if ($pass != ${"pass_".$identifier."_page"}) 
+			return false;
+		$_SESSION["pass_$identifier"] = true;
+	}
+	return true;
+}
+
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
