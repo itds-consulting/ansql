@@ -287,7 +287,7 @@ function items_on_page($nrs = array(20,50,100))
 	$link .= "?";
 	foreach($_REQUEST as $param=>$value)
 	{
-		if($param=="page" || $param=="PHPSESSID" || ($param=="action" && $action) || ($param=="method" && $method) || ($param=="module" && $module) || $param == "limit")
+		if($param=="page" || $param=="PHPSESSID" || ($param=="action" && $action) || ($param=="method" && $method) || ($param=="module" && $module) || $param == "limit" || !strlen($value))
 			continue;
 		if (substr($link,-1)!="?")
 			$link .= "&";
@@ -325,7 +325,7 @@ function pages($total = NULL, $params = array())
 	$page = 0;
 	foreach($_REQUEST as $param=>$value)
 	{
-		if(($param=="action" && $action) || ($param=="module" && $module) || ($param=="method" && $method) || $param=="PHPSESSID")
+		if(($param=="action" && $action) || ($param=="module" && $module) || ($param=="method" && $method) || $param=="PHPSESSID" || !strlen($value))
 			continue;
 		if($param=="page")
 		{
