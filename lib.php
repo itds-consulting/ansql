@@ -284,17 +284,19 @@ function items_on_page($nrs = array(20,50,100))
 	global $module, $method, $action;
 
 	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
-	$link .= "?";	
+	$link .= "?";
 	foreach($_REQUEST as $param=>$value)
 	{
-		if($param == "page" || $param == "PHPSESSID" || $param == "action")
+		if($param=="page" || $param=="PHPSESSID" || ($param=="action" && $action) || ($param=="method" && $method) || ($param=="module" && $module) || $param == "limit")
 			continue;
-		$link .= "&$param=".urlencode($value);
+		if (substr($link,-1)!="?")
+			$link .= "&";
+		$link .= "$param=".urlencode($value);
 	}
-
-	if(substr($link,-1) != "?")
-		$link .= "&";
-	$link .= "module=$module&method=$method";
+	if ($module)
+		$link .= "&module=$module";
+	if ($method)
+		$link .= "&method=$method";
 	if ($action) {
 		$call = get_default_function();
 		if (function_exists($call))
@@ -323,8 +325,13 @@ function pages($total = NULL, $params = array())
 	$page = 0;
 	foreach($_REQUEST as $param=>$value)
 	{
-		if($param == "action")
+		if(($param=="action" && $action) || ($param=="module" && $module) || ($param=="method" && $method) || $param=="PHPSESSID")
 			continue;
+		if($param=="page")
+		{
+			$page = $value;
+			continue;
+		}
 		if($link != $slink)
 			$link .= "&";
 		$link .= "$param=".urlencode($value);
@@ -332,8 +339,7 @@ function pages($total = NULL, $params = array())
 		{
 			$total = $value;
 			$found_total = true;
-		}elseif($param == "page")
-			$page = $value;
+		}
 	}
 
 	if(!$total)
@@ -343,12 +349,12 @@ function pages($total = NULL, $params = array())
 
 	if(!$found_total)
 		$link .= "&total=$total";
-
-	if(substr($link, -1) != "?")
-		$link .= "&";
-	$link .= "module=$module&method=$method";
+	if($module)
+		$link .= "&module=$module";
+	if($method)
+		$link .= "&method=$method";
 	if ($action) {
-		// if action param is set, check that $method_$action function exists before adding it to link
+		/* if action param is set, check that $method_$action function exists before adding it to link */
 		$function_to_call = get_default_function();
 		if (function_exists($function_to_call))
 			$link .= "&action=$action";
@@ -358,8 +364,18 @@ function pages($total = NULL, $params = array())
 	print '<center>';
 	if($page != 0)
 	{
-		$prev_page = $page - $limit;
-		print '<a class="pagelink" href="'.$link.'&page='.$prev_page.'"><<</a>&nbsp;&nbsp;';
+		/* jump to first page */
+		print '<a class="pagelink" href="'.$link.'&page=0">|<</a>&nbsp;&nbsp;';
+
+		/* jump back 5 pages */
+		$prev5 = $page - 5*$limit;
+		if ($prev5>0)
+			print '<a class="pagelink" href="'.$link.'&page='.$prev5.'"><<</a>&nbsp;&nbsp;';
+
+		/* jump to previous page */
+		/*$prev_page = $page - $limit;
+		print '<a class="pagelink" href="'.$link.'&page='.$prev_page.'"><</a>&nbsp;&nbsp;';*/
+
 		$diff = floor(($total - ($page + $limit * 2))/$limit) * $limit;
 		$sp = $page - $limit * 2;
 		if($diff < 0){
@@ -392,10 +408,20 @@ function pages($total = NULL, $params = array())
 			$next_page += $limit;
 		}
 
-		$next_page = $page + $limit;
-
+		/* jump to next page */
+		/*$next_page = $page + $limit;
 		if($next_page<$total)
-			print '<a class="pagelink" href="'.$link.'&page='.$next_page.'">>></a>&nbsp;&nbsp;';
+			print '<a class="pagelink" href="'.$link.'&page='.$next_page.'">></a>&nbsp;&nbsp;';*/
+
+		$next5 = $page + $limit*5;
+		$last_page = floor($total/$limit) * $limit;
+
+		/* jump 5 pages */
+		if ($next5<$last_page)
+			print '<a class="pagelink" href="'.$link.'&page='.$next5.'">>></a>&nbsp;&nbsp;';
+
+		/* jump to last page */
+		print '<a class="pagelink" href="'.$link.'&page='.$last_page.'">>|</a>&nbsp;&nbsp;';
 	}
 
 	print '</center>';
@@ -460,18 +486,24 @@ function check_valid_mail($mail)
 	return eregi($pattern, $mail);
 }
 
-function addHidden($action=NULL, $additional = array())
+function addHidden($action=NULL, $additional = array(), $empty_page_params=false)
 {
 	global $method,$module;
-	print "<input type=\"hidden\" name=\"method\" id=\"method\" value=\"$method\" />\n";
-	if(is_array($module))
+
+	if (($method || $empty_page_params) && !isset($additional["method"]))
+		print "<input type=\"hidden\" name=\"method\" id=\"method\" value=\"$method\" />\n";
+
+	if (is_array($module) && !isset($additional["module"]))
 		print "<input type=\"hidden\" name=\"module\" id=\"module\" value=\"$module[0]\" />\n";
-	else
+	elseif (($module || $empty_page_params) && !isset($additional["module"]))
 		print "<input type=\"hidden\" name=\"module\" id=\"module\" value=\"$module\" />\n";
+
 	print "<input type=\"hidden\" name=\"action\" id=\"action\" value=\"$action\" />\n";
+
 	if(count($additional))
 		foreach($additional as $key=>$value) 
 			print '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $value . '">';
+
 	if (isset($_SESSION["previous_page"])) {
 		foreach ($_SESSION["previous_page"] as $param=>$value)
 			if (!isset($additional[$param]) && $param!="module" && $param!="method" && $param!="action")
@@ -2485,9 +2517,9 @@ function save_page_info()
 
 	$_SESSION["previous_page"] = array();
 
-	$param_exceptions = array("__utma", "__utmz", "PHPSESSID", "old_submit");
+	$param_exceptions = array("PHPSESSID", "old_submit");
 	foreach ($_REQUEST as $param=>$value) {
-		if (in_array($param, $param_exceptions))
+		if (in_array($param, $param_exceptions) || substr($param,0,5)=="__utm")
 			continue;
 		if ($param == "module")
 			$value = $module;
