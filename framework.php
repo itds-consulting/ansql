@@ -101,6 +101,12 @@ class Variable
 			return 1*$value;
 		} elseif (($this->_type == "timestamp" || $this->_type == "date") && $value == "now()")
 			return $value;
+		elseif ($this->_type == "bit(1)") {
+			if ($value == 1 || $value == "1" || $value == "bit(1)")
+				return 1;
+			else
+				return 0;
+		}
 		return "'" . Database::escape($value) . "'";
 	}
 
@@ -730,14 +736,21 @@ class Model
 		$where = ($given_where) ? $given_where : $obj->makeWhereClause($conditions,true);
 		if ($inner_query)
 			$where = $obj->makeInnerQuery($inner_query, $table, $where);
-		$query = self::buildSelect("*", esc($table), $where, $order, $limit, $offset);
+		$add_to_select = "";
+		foreach ($vars as $var_name=>$var) {
+			if (substr($var->_type,0,4) == "bit(") {
+				$add_to_select .= ", bin(".esc($var_name).") as ".esc($var_name);
+			}
+		}
+
+		$query = self::buildSelect("*$add_to_select", esc($table), $where, $order, $limit, $offset);
 		$res = Database::query($query);
 		if($res === false)
 		{ 
 			self::warning(_("Could not select")." "._($class)." "._("from database in selection").".");
 			return null;
 		}
-	//	$object = new $class;
+		$object = new $class;
 		return $obj->buildArrayOfObjects($res);
 	}
 
@@ -889,6 +902,7 @@ class Model
 			// name of variable in table $foreign_key_to $var_name references 
 			$references_var = $var->_matchkey;
 			$join_type = $var->_join_type;
+			$var_type = $var->_type;
 			if(!$join_type)
 				$join_type = "LEFT";
 			if ($columns != '')
@@ -904,16 +918,30 @@ class Model
 			}
 
 			// if this is not a foreign key to another table and is a valid variable inside the corresponding object
-			if(!$foreign_key_to && self::inTable($var_name,$table))
-				$columns .= " ".esc($table).".".esc($var_name);
+			if(!$foreign_key_to && self::inTable($var_name,$table)) {
+				$col = esc($table).".".esc($var_name);
+				$columns .= " ";
+				if (substr($var_type,0,4) != "bit(")
+					$columns .= $col;
+				else
+					$columns .= "bin($col) as ".esc($var_name);
 			// if this is a foreign key to another table, but does not define a recursive relation inside the $table
-			elseif($foreign_key_to && $foreign_key_to != $table) {
-				if($references_var)
+			} elseif($foreign_key_to && $foreign_key_to != $table) {
+				$columns .= " ";
+				if($references_var) {
 					// when extending one might need to use another name than the one used in the actual table
 					// prime reason: common field names as status or date are found in both tables
-					$columns .= " ".esc($foreign_key_to).".".esc($references_var)." as ".esc($var_name)." ";
-				else
-					$columns .= " ".esc($foreign_key_to).".".esc($var_name);
+					if (substr($var_type,0,4) != "bit(")
+						$columns .= esc($foreign_key_to).".".esc($references_var)." as ".esc($var_name)." ";
+					else
+						$columns .= "bin(".esc($foreign_key_to).".".esc($references_var).") as ".esc($var_name)." ";
+				} else {
+					$col = esc($foreign_key_to).".".esc($var_name);
+					if (substr($var_type,0,4) != "bit(")
+						$columns .= $col;
+					else
+						$columns .= "bin($col) as ".esc($var_name);
+				}
 				// this table was already added in the FROM clause
 				if(isset($from_tables[$foreign_key_to])) {
 					if($join_type != "LEFT") {
@@ -963,11 +991,23 @@ class Model
 			}elseif($foreign_key_to && $foreign_key_to == $table) {
 				// this defines a recursive relation inside the same table, just 1 level
 				if(self::inTable($var_name,$table)) {
-					$columns .= " $table".'1'.".".esc($references_var)." as ".esc($var_name);
+					$col = "$table".'1'.".".esc($references_var);
+					$columns .= " ";
+					if (substr($var_type,0,4)!="bit(")
+						$columns .= $col;
+					else
+						$columns .= "bin($col) as ".esc($var_name);
+					$columns .= " as ".esc($var_name);
 					$from_clause .= "$join_type OUTER JOIN ".esc($foreign_key_to)." as $foreign_key_to" . "1" . " ON ".esc($table).".".esc($var_name)."=$foreign_key_to"."1".".".esc($references_var);
 				} else {
 					// 1 level recursive relation
-					$columns .= " $table".'1'.".".esc($references_var)." as ".esc($var_name);
+					$col = "$table".'1'.".".esc($references_var);
+					$columns .= " ";
+					if (substr($var_type,0,4)!="bit(")
+						$columns .= $col;
+					else
+						$columns .= "bin($col)";
+					$columns .= " as ".esc($var_name);
 				}
 			}
 		}
@@ -1784,10 +1824,15 @@ class Model
 			{
 				exit("$var_name "._("is not a valid variable name. Please do not use numbers or numeric strings as names for variables").".");
 			}
-			if(!is_array($table_name))
-				$this->_model[$var_name] = new Variable("text",null,$table_name,false,$references);
-			else{
-				$this->_model[$var_name] = new Variable("text",null,$table_name["table"],false,$references,$table_name["join"]);}
+			$tb_name = (!is_array($table_name)) ? $table_name : $table_name["table"];
+			$obj = Model::getObject($tb_name);
+			if (!$obj)
+				exit(_("Can't get object for table $tb_name"));	
+			$ref_var = ($references) ? $obj->variable($references) : $obj->variable($var_name);
+			if (!$ref_var)
+				exit(_("Can't get referenced variable for var_name=$var_name"));
+			$join_type = (is_array($table_name)) ? $table_name["join"] : NULL;	
+			$this->_model[$var_name] = new Variable($ref_var->_type,null,$tb_name,false,$references,$join_type);
 			$this->{$var_name} = NULL;
 		}
 	}
