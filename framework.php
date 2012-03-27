@@ -828,6 +828,11 @@ class Model
 	public function select($condition = NULL)
 	{
 		$vars = self::getVariables(get_class($this));
+		$add_select = "";
+		foreach ($vars as $var_name=>$var) {
+			if (substr($var->_type,0,4)=="bit(")
+				$add_select .= ",bin(".esc($var_name).") as ".esc($var_name);
+		}
 		$table = $this->getTableName();
 		$class = get_class($this);
 		if (!is_array($condition))
@@ -852,7 +857,7 @@ class Model
 		} else
 			$where_clause = $this->makeWhereClause($condition, true);
 
-		$query = self::buildSelect("*", esc($table), $where_clause);
+		$query = self::buildSelect("*$add_select", esc($table), $where_clause);
 		$res = Database::query($query);
 		if($res===false)
 		{ 
