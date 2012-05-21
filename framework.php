@@ -240,8 +240,8 @@ class Database
 //			print "<br/>\n<br/>\nquery :'.$query.'<br/>\n<br/>\n";
 			Debug::output("query: $query");
 
-		if (!self::is_single_query($query))
-			return false;
+//		if (!self::is_single_query($query))
+//			return false;
 
 		$res = self::db_query($query);
 		$res = self::query_result($query, $res, $retrieve_last_id);
@@ -264,7 +264,7 @@ class Database
 	 * @param $query String that will be verified
 	 * @return Bool - true if single query, false otherwise
 	 */
-	public static function is_single_query($query)
+	/*public static function is_single_query($query)
 	{
 	 	$pattern = "/'[^']*'/";
 		$replacement = "";
@@ -274,7 +274,7 @@ class Database
 		if (strpos($mod_query,";"))
 			return false;   
 		return true;
-	}
+	}*/
 
 	/**
 	 * Make query taking into account the database type
@@ -384,8 +384,8 @@ class Database
 		if(isset($_SESSION["debug_all"]))
 //			print "queryRaw: $query\n<br/>\n<br/>\n";
 			Debug::output("queryRaw: $query");
-		if (!self::is_single_query($query))
-			return false;
+		//if (!self::is_single_query($query))
+		//	return false;
 		$res = self::db_query($query);
 		$res = self::query_result($query, $res, $retrieve_last_id);
 		return $res;
@@ -1091,7 +1091,14 @@ class Model
 			if(!$res[0])
 				return $res;
 		}
-		return $this->insert($retrieve_id, $keep_log);
+		if (count($res)>3) {
+			unset($res[0]); // true/false
+			unset($res[1]); // message
+			unset($res[2]); // possible error fields
+		}
+		$res_insert = $this->insert($retrieve_id, $keep_log);
+		// in some cases we need to add custom fields to result for setObj. Added them to result from insert
+		return array_merge($res_insert,$res);
 	}
 
 	/**
@@ -1111,7 +1118,14 @@ class Model
 			if(!$res[0])
 				return $res;
 		}
-		return $this->update($conditions, $verifications);
+		if (count($res)>3) {
+			unset($res[0]); // true/false
+			unset($res[1]); // message
+			unset($res[2]); // possible error fields
+		}
+		$res_update = $this->update($conditions, $verifications);
+		// in some cases we need to add custom fields to result from setObj, keep them when returning answer from update
+		return array_merge($res_update,$res);
 	}
 
 	/**
@@ -2300,7 +2314,7 @@ class Model
 	 * @param $null_exception Enables a verification 
 	 * @return Text representing the WHERE clause or '' if the count($conditions) is 0
 	 */
-	protected function makeWhereClause($conditions, $only_one_table = false, $without_table = false)
+	public function makeWhereClause($conditions, $only_one_table = false, $without_table = false)
 	{
 		$where = ' WHERE ';
 		if(!count($conditions))
