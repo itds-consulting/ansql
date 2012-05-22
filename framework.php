@@ -305,7 +305,11 @@ class Database
 	 */
 	private static function query_result($query, $res, $retrieve_last_id)
 	{
-		global $db_type;
+		global $db_type, $func_query_result;
+
+		if (!isset($func_query_result))
+			$func_query_result = "htmlentities";
+
 		if (!$res)
 			return false;
 		$query = strtolower($query);
@@ -353,7 +357,7 @@ class Database
 					{
 						$array[$i] = array();
 						foreach ($row as $var_name=>$value)
-							$array[$i][$var_name] = htmlentities(self::unescape($value));
+							$array[$i][$var_name] = ($func_query_result && function_exists($func_query_result)) ? $func_query_result(self::unescape($value)) : self::unescape($value);
 						$i++;
 					}
 					break;
@@ -362,7 +366,7 @@ class Database
 					{
 						$array[$i] = array();
 						for($j=0; $j<pg_num_fields($res); $j++)
-							$array[$i][pg_field_name($res,$j)] = htmlentities(self::unescape(pg_fetch_result($res,$i,$j)));
+							$array[$i][pg_field_name($res,$j)] = ($func_query_result && function_exists($func_query_result)) ? $func_query_result(self::unescape(pg_fetch_result($res,$i,$j))) : self::unescape(pg_fetch_result($res,$i,$j));
 					}
 					break;
 			}
