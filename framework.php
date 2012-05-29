@@ -106,7 +106,8 @@ class Variable
 				return 1;
 			else
 				return 0;
-		}
+		} elseif (substr($this->_type,0,4) == "bit(") 
+			return 1*$value;
 		return "'" . Database::escape($value) . "'";
 	}
 
