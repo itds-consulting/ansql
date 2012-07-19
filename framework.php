@@ -1122,12 +1122,14 @@ class Model
 			$res = $this->setObj($params);
 			if(!$res[0])
 				return $res;
-		}
-		if (count($res)>3) {
-			unset($res[0]); // true/false
-			unset($res[1]); // message
-			unset($res[2]); // possible error fields
-		}
+			if (count($res)>3) {
+				unset($res[0]); // true/false
+				unset($res[1]); // message
+				unset($res[2]); // possible error fields
+			}
+		} else
+			$res = array();
+
 		$res_update = $this->update($conditions, $verifications);
 		// in some cases we need to add custom fields to result from setObj, keep them when returning answer from update
 		return array_merge($res_update,$res);
