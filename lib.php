@@ -748,7 +748,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		if(isset($field_format["compulsory"]))
 			if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || $field_format["compulsory"] == "t" || $field_format["compulsory"] == "true")
 				print '<font class="compulsory">*</font>';
-		print '</td>';
+		print '&nbsp;</td>';
 		print '<td class="'.$css.' right_td"';
 		if(isset($td_width["right"]))
 			print ' style="width:'.$td_width["right"].'"';
@@ -1051,7 +1051,7 @@ function tableOfObjects_objectnames($objects, $formats, $object_name, $object_ac
  * @param $css Name of the css to use for this table. Default value is 'content'
  * @param $conditional_css Array ("css_name"=>$conditions) $css is the to be applied on certain rows in the table if the object corresponding to that row complies to the array of $conditions
  */
-function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array())
+function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $select_all = false)
 {
 	global $db_true, $db_false, $module;
 
@@ -1085,11 +1085,18 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 	{
 		$ths .= '<tr class="'.$css.'">';
 		$no_columns = 0;
+
 		if($insert_checkboxes)
 		{
-			$ths .= '<th class="'.$css.' first_th checkbox">&nbsp;</th>';
+			$ths .= '<th class="'.$css.' first_th checkbox">';
+			if ($select_all)
+				$ths .= '<input type="checkbox" name="select_all" id="select_all" onclick="toggle_column(this);">';
+			else
+				$ths .= '&nbsp;';
+			$ths .= '</th>';
 			$no_columns++;
 		}
+
 		// print the name of the columns + add column for each action on object
 		foreach($formats as $column_name => $var_name)
 		{
