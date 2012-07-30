@@ -1304,7 +1304,7 @@ function trim_value(&$value)
 	$value = trim($value); 
 }
 
-function table($array, $formats, $element_name, $id_name, $element_actions =array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $table_id=null)
+function table($array, $formats, $element_name, $id_name, $element_actions =array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $table_id=null, $select_all=false)
 {
 	global $module;
 
@@ -1340,9 +1340,17 @@ function table($array, $formats, $element_name, $id_name, $element_actions =arra
 	{
 		print '<tr class="'.$css.'">';
 		$no_columns = 0;
+
+		$ths ="";
 		if($insert_checkboxes)
 		{
-			print '<th class="'.$css.'">&nbsp;</th>';
+			$ths .= '<th class="'.$css.' first_th checkbox">';
+			if ($select_all)
+				$ths .= '<input type="checkbox" name="select_all" id="select_all" onclick="toggle_column(this);">';
+			else
+				$ths .= '&nbsp;';
+			$ths .= '</th>';
+			print $ths;
 			$no_columns++;
 		}
 		// print the name of the columns + add column for each action on object
@@ -2995,6 +3003,17 @@ function check_auth($identifier)
 		$_SESSION["pass_$identifier"] = true;
 	}
 	return true;
+}
+
+function generateNumericToken($length)
+{
+	$str = "";
+	for ($i=0; $i<$length; $i++)
+	{
+		$c = mt_rand(0,9);
+		$str .= $c;
+	}
+	return $str;
 }
 
 
