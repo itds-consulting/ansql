@@ -143,6 +143,25 @@ class Database
 		);
 
 	/**
+	 * Disconnect current database connection
+	 */
+	public static function disconnect()
+	{
+		global $db_type;
+
+		if (!self::$_connection)
+			return;
+
+		switch ($db_type) {
+			case "mysql":
+				mysql_close(self::$_connection);
+			case "postgresql":
+				pg_close(self::$_connection);
+		}
+		self::$_connection = NULL;
+	}
+
+	/**
 	 * Make database connection
 	 * @param $connection_index Numeric. Mark connection index in case backup connection is available
 	 * Default value is ''. Valid values '',2,3 .. (1 is excluded)
