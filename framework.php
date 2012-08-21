@@ -155,8 +155,10 @@ class Database
 		switch ($db_type) {
 			case "mysql":
 				mysql_close(self::$_connection);
+				break;
 			case "postgresql":
 				pg_close(self::$_connection);
+				break;
 		}
 		self::$_connection = NULL;
 	}
