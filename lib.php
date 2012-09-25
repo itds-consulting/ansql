@@ -1819,7 +1819,7 @@ function get_timezone_diff($reverse_apply=false)
 
 	// check if $_SESSION["timezone"] is set and if is different from system timezone
 	if (!isset($_SESSION["timezone"]))
-		return $timestamp;
+		return "0";
 
 	$timezone = str_replace("GMT","",$_SESSION["timezone"]);
 	if ($timezone == "")
