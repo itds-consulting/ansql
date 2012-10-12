@@ -2079,7 +2079,13 @@ class Model
 	{
 		if (self::$_models)
 			return;
+
 		$classes = get_declared_classes();
+		$db_identifier = self::getCurrentDbIdentifier();
+		$default_identifier = self::getDefaultDbIdentifier();
+
+		//print "db_identifier=$db_identifier\n";
+		//print "default_identifier=$default_identifier\n";
 		foreach ($classes as $class)
 		{
 			// calling static class methods is done using an array("class","method")		
@@ -2089,6 +2095,13 @@ class Model
 				$vars = @call_user_func(array($class,"variables"));
 				if (!$vars)
 					continue;
+
+				$identifier = @call_user_func(array($class,"getDbIdentifier"));
+				// if object doesn't have identifier and current identier if different than the default => skip
+				// if object has identifier but current identier is not in the object identifiers => skip
+				if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
+					continue;
+
 				foreach ($vars as &$var)
 					$var->_owner = $class;
 				self::$_models[strtolower($class)] = $vars;
@@ -2099,6 +2112,46 @@ class Model
 					self::$_performers[strtolower($class)] = $performer;
 			}
 		}
+	}
+
+	/**
+	 * Get the identifier of the current database connection
+	 * @return String representing the db identifier
+	 */ 
+	static function getCurrentDbIdentifier()
+	{
+		global $db_identifier;
+
+		if (isset($db_identifier))
+			return $db_identifier;
+
+		return self::getDefaultDbIdentifier();
+	}
+
+	/**
+	 * Get default identifier of the database connection, if set
+	 * @return String representing the identifier
+	 */ 
+	static function getDefaultDbIdentifier()
+	{
+		global $servers;
+		global $default_server;
+
+		if (isset($servers[$default_server])) {
+			foreach ($servers[$default_server] as $type=>$data)
+				if (isset($data["db_identifier"]))
+					return $data["db_identifier"];
+		}
+		return NULL;
+	}
+
+	/**
+	 * Default function that will be reimplemented from objects that will not be in the default database
+	 * @return Array empty from here, Array with identier keys from the derivated classes
+	 */ 
+	public function getDbIdentifier()
+	{
+		return array();
 	}
 
 	/**
