@@ -572,7 +572,8 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 			$value = NULL;
 		if(isset($field_format["value"]))
 			$value = $field_format["value"];
-
+		if (!$object)
+			break;
 		$variable = $object->variable($field_name);
 		if((!$variable && $value && !$hide_advanced))
 		{
@@ -735,7 +736,10 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	}
 
 	if($display != "hidden") {
-		print '<td class="'.$css.' left_td"';
+		print '<td class="'.$css.' left_td ';
+		if (isset($field_format["custom_css_left"]))
+			print $field_format["custom_css_left"];
+		print '"';
 		if(isset($td_width["left"]))
 			print ' style="width:'.$td_width["left"].'"';
 		print '>';
@@ -749,7 +753,10 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || $field_format["compulsory"] == "t" || $field_format["compulsory"] == "true")
 				print '<font class="compulsory">*</font>';
 		print '&nbsp;</td>';
-		print '<td class="'.$css.' right_td"';
+		print '<td class="'.$css.' right_td ';
+		if (isset($field_format["custom_css_right"]))
+			print $field_format["custom_css_right"];
+		print '"';
 		if(isset($td_width["right"]))
 			print ' style="width:'.$td_width["right"].'"';
 		print '>';
@@ -848,7 +855,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			break;
 		case "checkbox":
 			print '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
-			if($value == "t" || $value == "on")
+			if($value == "t" || $value == "on" || $value=="1")
 				print " CHECKED ";
 			if(isset($field_format["javascript"]))
 		                print $field_format["javascript"];
@@ -2297,7 +2304,7 @@ function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", 
 		if(substr($name,-2) == "[]")
 			$res .= " multiple=\"multiple\" size=\"3\"";
 		$res .= $javascript.'>'."\n";
-	}else
+	} else
 		$res = '';
 	if($show_not_selected)
 		$res .= '<option value=""> - </option>'."\n";
@@ -2308,7 +2315,7 @@ function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", 
 			$value = $arr[$i]["field_id"];
 			$value_name = $arr[$i]["field_name"];
 			$css = (isset($arr[$i]["css"])) ? 'class="'.$arr[$i]["css"].'"' : "";
-			$res .= "<option value=\"$value\" $css ";
+			$res .= "<option value=\"$value\" $css";
 			if(is_array($selected)) {
 				if(in_array($value,$selected))
 					$res .= " SELECTED";
@@ -3016,6 +3023,123 @@ function generateNumericToken($length)
 	return $str;
 }
 
+function display_bit_field($val)
+{
+	if ($val=="1")
+		return "yes";
+	return "no";
+}
 
+function display_field($field_name,$field_format)
+{
+	if(isset($field_format["value"]))
+		$value = $field_format["value"];
+
+	$display = (isset($field_format["display"])) ? $field_format["display"] : "text";
+	$var_name = (isset($field_format[0])) ? $field_format[0] : $field_name;
+
+	$res = "";
+	switch($display)
+	{
+		case "select":
+		case "mul_select":
+		case "select_without_non_selected":
+			$res .= '<select class="'.$css.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'" ';
+			if(isset($field_format["javascript"]))
+				$res .= $field_format["javascript"];
+			if($display == "mul_select")
+				$res .= ' multiple="multiple" size="5"';
+			$res .=  '>';
+			if($display != "mul_select" && $display != "select_without_non_selected")
+				$res .=  '<option value="">Not selected</option>';
+			$options = (is_array($var_name)) ? $var_name : array();
+			if(isset($options["selected"]))
+				$selected = $options["selected"];
+			elseif(isset($options["SELECTED"]))
+				$selected = $options["SELECTED"];
+			else
+				$selected = '';
+			foreach ($options as $var=>$opt) {
+				if ($var === "selected" || $var === "SELECTED")
+					continue;
+				$css = (is_array($opt) && isset($opt["css"])) ? 'class="'.$opt["css"].'"' : "";
+				if(is_array($opt) && isset($opt[$field_name.'_id'])) {
+					$optval = $field_name.'_id';
+					$name = $field_name;
+
+					$printed = trim($opt[$name]);
+					if (substr($printed,0,4) == "<img") {
+						$expl = explode(">",$printed);
+						$printed = $expl[1];
+						$jquery_title = " title=\"".str_replace("<img","",$expl[0])."\"";
+					} else
+						$jquery_title = '';
+
+					if ($opt[$optval] === $selected || (is_array($selected) && in_array($opt[$optval],$selected))) {
+						$res .= '<option value=\''.$opt[$optval].'\' '.$css.' SELECTED ';
+						if($opt[$optval] == "__disabled")
+							print ' disabled="disabled"';
+						$res .= $jquery_title;
+						$res .= '>' . $printed . '</option>';
+					} else {
+						$res .= '<option value=\''.$opt[$optval].'\' '.$css;
+						if($opt[$optval] == "__disabled")
+							print ' disabled="disabled"';
+						$res .= $jquery_title;
+						$res .= '>' . $printed . '</option>';
+					}
+				}else{
+					if ($opt == $selected ||  (is_array($selected) && in_array($opt[$optval],$selected)))
+						$res .= '<option '.$css.' SELECTED >' . $opt . '</option>';
+					else
+						$res .= '<option '.$css.'>' . $opt . '</option>';
+				}
+			}
+			$res .= '</select>';
+			break;
+		case "checkbox":
+			$res .= '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
+			if($value == "t" || $value == "on" || $value=="1")
+				$res .= " CHECKED ";
+			if(isset($field_format["javascript"]))
+		                $res .= $field_format["javascript"];
+			$res .= '/>';
+			break;
+		case "text":
+		case "password":
+		case "file":
+		case "hidden":
+		case "text-nonedit":
+			$res .= '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
+			if($display != "file" && $display != "password")
+				$res .= ' value="'.$value.'"';
+			if(isset($field_format["javascript"]))
+				$res .= $field_format["javascript"];
+			if($display == "text-nonedit")
+				$res .= " readonly=''";
+			if(isset($field_format["autocomplete"]))
+				$res .= " autocomplete=\"".$field_format["autocomplete"]."\"";
+			if($display != "hidden" && isset($field_format["comment"])) {
+				$q_mark = true;
+				$res .= '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';;
+			} else
+				$res .= '>';
+			break;
+		case "fixed":
+			if(strlen($value))
+				$res .= $value;
+			else
+				$res .= "&nbsp;";
+			break;
+	}
+	if(isset($field_format["comment"]))
+	{
+		$comment = $field_format["comment"];
+		if(!$q_mark)
+			$res .= '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+		$res .= '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
+	}
+	return $res;
+}
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
