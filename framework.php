@@ -149,7 +149,7 @@ class Database
 	{
 		global $db_type;
 
-		if (!self::$_connection)
+		if (!self::$_connection || self::$_connection===true)
 			return;
 
 		switch ($db_type) {
@@ -729,6 +729,8 @@ class Model
 		$this->_model = self::getVariables(get_class($this));
 		$this->_setted = false;
 		$this->_retrieved = false;
+		if (!is_array($this->_model))
+			return;
 		foreach ($this->_model as $name => $var) {
 			if($name == "__sql_relation")
 				exit(_("Invalid column name").": __sql_relation.");
@@ -2099,8 +2101,10 @@ class Model
 				$identifier = @call_user_func(array($class,"getDbIdentifier"));
 				// if object doesn't have identifier and current identier if different than the default => skip
 				// if object has identifier but current identier is not in the object identifiers => skip
-				if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
-					continue;
+
+				// gave up on this -- very confusing for developer when classes are not loaded in modules
+			//	if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
+			//		continue;
 
 				foreach ($vars as &$var)
 					$var->_owner = $class;
