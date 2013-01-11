@@ -2103,8 +2103,9 @@ class Model
 				// if object has identifier but current identier is not in the object identifiers => skip
 
 				// gave up on this -- very confusing for developer when classes are not loaded in modules
-			//	if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
-			//		continue;
+				// now all classes are loaded but they won't be updated and if query for wrong class is made we'd rather seen the error
+				//if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
+				//	continue;
 
 				foreach ($vars as &$var)
 					$var->_owner = $class;
@@ -2167,8 +2168,21 @@ class Model
 		if (!Database::connect())
 			return false;
 		self::init();
+
+		$db_identifier = self::getCurrentDbIdentifier();
+		$default_identifier = self::getDefaultDbIdentifier();
+
 		foreach (self::$_models as $class => $vars)
 		{
+			$identifier = @call_user_func(array($class,"getDbIdentifier"));
+			// if object doesn't have identifier and current identier if different than the default => skip
+			// if object has identifier but current identier is not in the object identifiers => skip
+			// even if classes are loaded, they won't be updated
+			// because it would build all tables on call connections
+
+			if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
+				continue;
+
 			$object = new $class;
 
 			$table = $object->getTableName();
