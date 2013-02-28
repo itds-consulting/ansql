@@ -24,12 +24,12 @@
 
 global $module, $method, $action, $vm_base, $limit, $db_true, $db_false, $limit, $page;
 
-function include_classes()
+function include_classes($path='')
 {
 	$classes_dirs = array("classes/", "ansql/default_classes");
 
 	for ($i=0; $i<count($classes_dirs); $i++) {
-		$handle = opendir($classes_dirs[$i]);
+		$handle = opendir($path.$classes_dirs[$i]);
 
 		while (false !== ($file = readdir($handle))) {
 			if (substr($file,-4) != '.php')
@@ -41,7 +41,7 @@ function include_classes()
 					if (isset(${"custom_$file_name"}) && ${"custom_$file_name"})
 						continue;
 				}
-				require_once($classes_dirs[$i]."/$file");
+				require_once($path.$classes_dirs[$i]."/$file");
 			}
 		}
 	}
