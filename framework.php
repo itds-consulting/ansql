@@ -161,6 +161,7 @@ class Database
 				break;
 		}
 		self::$_connection = NULL;
+		Model::reset_modified();
 	}
 
 	/**
@@ -2052,6 +2053,14 @@ class Model
 	public static function modified()
 	{
 		return self::$_modified;
+	}
+
+	/**
+	 * Resed modified flag. Automatically done when Database::disconnect() is called
+	 */
+	public static function reset_modified()
+	{
+		self::$_modified = false;
 	}
 
 	/**
