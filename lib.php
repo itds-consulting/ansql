@@ -854,11 +854,14 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			}
 			break;
 		case "checkbox":
+		case "checkbox-readonly":
 			print '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if($value == "t" || $value == "on" || $value=="1")
 				print " CHECKED ";
 			if(isset($field_format["javascript"]))
-		                print $field_format["javascript"];
+				print $field_format["javascript"];
+			if($display=="checkbox-readonly")
+				print " readonly=''";
 			print '/>';
 			break;
 		case "text":
@@ -2536,7 +2539,7 @@ function save_page_info()
 	global $method, $module, $exceptions_to_save;
 
 	// don't save info for edit/add/delete pages
-	if (substr($method,0,4) == "edit" || substr($method,0,4) == "add_" || substr($method,0,6) == "delete" || exception_to_save()) {
+	if (substr($method,0,4) == "edit" || substr($method,0,4) == "add_" || substr($method,0,6) == "delete" || exception_to_save() || substr($method,0,6)=="import" || substr($method,0,6)=="export") {
 		return;
 	}
 
@@ -3101,11 +3104,14 @@ function display_field($field_name,$field_format)
 			$res .= '</select>';
 			break;
 		case "checkbox":
+		case "checkbox-readonly":
 			$res .= '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if($value == "t" || $value == "on" || $value=="1")
 				$res .= " CHECKED ";
 			if(isset($field_format["javascript"]))
-		                $res .= $field_format["javascript"];
+				$res .= $field_format["javascript"];
+			if ($display=="checkbox-readonly")
+				$res .= " readonly=''";
 			$res .= '/>';
 			break;
 		case "text":
