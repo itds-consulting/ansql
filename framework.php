@@ -2210,6 +2210,9 @@ class Model
 		}
 		if(self::$_modified)
 			foreach(self::$_models as $class => $vars) {
+				$identifier = @call_user_func(array($class,"getDbIdentifier"));
+				if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)))
+					continue;
 				$object = new $class;
 				if(method_exists($object, "defaultObject"))
 					$res = call_user_func(array($object,"defaultObject"));
