@@ -281,7 +281,7 @@ function dateCheck($year,$month,$day,$hour,$end)
 
 function items_on_page($nrs = array(20,50,100))
 {
-	global $module, $method, $action;
+	global $module, $method, $action, $limit;
 
 	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
 	$link .= "?";
@@ -303,13 +303,18 @@ function items_on_page($nrs = array(20,50,100))
 			$link .= "&action=$action";
 	}
 
+	print "<div class=\"items_on_page\">";
 	for($i=0; $i<count($nrs); $i++)
 	{
 		$option = $link."&limit=".$nrs[$i];
 		if ($i>0)
 			print '|';
-		print '&nbsp;<a class="pagelink" href="'.$option.'">'.$nrs[$i].'</a>&nbsp;';
+		print '&nbsp;<a class="pagelink';
+		if ($nrs[$i]==$limit)
+			print " selected_pagelink";
+		print '" href="'.$option.'">'.$nrs[$i].'</a>&nbsp;';
 	}
+	print "</div>";
 }
 
 function pages($total = NULL, $params = array())
@@ -362,6 +367,7 @@ function pages($total = NULL, $params = array())
 
 	$pages = floor($total/$limit);
 	print '<center>';
+	print '<div class="pages">';
 	if($page != 0)
 	{
 		/* jump to first page */
@@ -392,7 +398,7 @@ function pages($total = NULL, $params = array())
 		}
 	}
 	$pg_nr = $page/$limit + 1;
-	print '<font class="pagelink" href="#">'.$pg_nr.'</font>&nbsp;&nbsp;';
+	print '<font class="pagelink selected_pagelink" href="#">'.$pg_nr.'</font>&nbsp;&nbsp;';
 	if(($page+$limit)<=$total)
 	{
 		if($pg_nr>=3)
@@ -423,7 +429,7 @@ function pages($total = NULL, $params = array())
 		/* jump to last page */
 		print '<a class="pagelink" href="'.$link.'&page='.$last_page.'">>|</a>&nbsp;&nbsp;';
 	}
-
+	print '</div>';
 	print '</center>';
 }
 
@@ -1166,6 +1172,8 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 			if($add_css)
 				$cond_css .= " $css_name ";
 		}
+		if ($i==(count($objects)-1))
+			$cond_css.= " pre_end"; 
 		print '<tr class="'.$css.'">';
 		if($insert_checkboxes && $id_name)
 		{
@@ -1249,7 +1257,7 @@ function links_general_actions($general_actions, $no_columns, $css, $base, $on_t
     
 	$pos_css = ($on_top) ? "starttable" : "endtable";
 
-		print '<tr>';
+		print '<tr class="'.$css.' endtable">';
 		if(isset($general_actions["left"]))
 		{
 			$left_actions = $general_actions["left"];
@@ -1415,6 +1423,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions =arra
 			if($add_css)
 				$cond_css .= " $css_name ";
 		}
+		if ($i==(count($array)-1))
+			$cond_css.= " pre_end";
 		print '<tr class="'.$css.'">';
 		if($insert_checkboxes && $id_name)
 		{
