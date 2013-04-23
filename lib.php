@@ -822,7 +822,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 						print '>' . $printed . '</option>';
 					}
 				}else{
-					if ($opt == $selected ||  (is_array($selected) && in_array($opt[$optval],$selected)))
+					if ($opt == $selected ||  (is_array($selected) && in_array($opt,$selected)))
 						print '<option '.$css.' SELECTED >' . $opt . '</option>';
 					else
 						print '<option '.$css.'>' . $opt . '</option>';
