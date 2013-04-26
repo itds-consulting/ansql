@@ -1625,7 +1625,7 @@ class Model
 			if ($cnt) {
 				self::writeLog("deleted ".$this->getNameInLogs()." $where","$query");
 			}// else
-				return array(true, _("Successfully deleted ")._($res[1])._(" object(s) of type ")._(get_class($this)));
+				return array(true, _("Successfully deleted ")._($res[1])._(" object(s) of type ")._(get_class($this)),$res[1]);
 		} else {
 			if ($cnt)
 				Debug::output(_("Could not delete object of class ")._(get_class($this)));
