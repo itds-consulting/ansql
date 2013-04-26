@@ -146,6 +146,9 @@ function check_response($out)
 
 function translate_error_to_code($res, $exception_true=false)
 {
+	if (is_array($res) && count($res)==1 && $res[0]===true)
+		return $res;
+
 	if (!is_array($res) || count($res)<2 || !isset($res[0]))
 		return array(false, "code"=>"99"); // Internal Server Error: wrong result format from called function
 
@@ -154,9 +157,9 @@ function translate_error_to_code($res, $exception_true=false)
 			return array(true);
 		return array(true, "code"=>$res["code"]);  // this code will define a user/contact not success of request
 	}
-	elseif ($res[0]/* && !$exception_true*/)
-		return array(true); // normal success case
-	elseif (!$res[0] && $exception_true) {
+	elseif ($res[0]/* && !$exception_true*/) {
+		return $res; // normal success case
+	} elseif (!$res[0] && $exception_true) {
 		if (!isset($res["code"])) // succes and default contact already existed
 			return array(true);
 		return array(true, "code"=>$res["code"]);  // this code will define a user/contact not success of request
@@ -245,7 +248,7 @@ function write_response($out)
 	send_content();
 	$o_json = json_encode($out);
 	print $o_json;
-	if (in_array($page,$add_newline))
+	if (in_array($func_name,$add_newline))
 		print "\n";
 
 	$end_time = microtime(true);
@@ -315,6 +318,7 @@ function process_request($inp, $func="arr_to_db", $class_name=NULL, $exit_after_
 	if (!isset($res[0]))
 		return array(false, "code"=>"99");  // Internal server error: wrong result format from called function
 
+	$res = translate_error_to_code($res);
 	if ($res[0] && $exit_after_func_ok)
 		// for get_captcha type of request: don't return anything by default
 		exit;
