@@ -85,7 +85,7 @@ function debug()
 		"error_reporting"=>array($errors, "display"=>"select"), 
 		"display_errors"=>array("value"=>$display_errors, "display"=>"checkbox"),
 		"log_errors"=>array("value"=>$log_errors, "display"=>"checkbox"),
-		"error_log"=>array("value"=>$error_log, "display"=>"checkbox")
+		"error_log"=>array("value"=>$error_log/*, "display"=>"checkbox"*/)
 	);
 
 	if (is_auth("debug"))

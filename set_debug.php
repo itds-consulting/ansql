@@ -28,13 +28,15 @@ if(isset($_SESSION["error_reporting"]))
 
 if(isset($_SESSION["display_errors"]))
 	ini_set("display_errors",true);
-else
-	ini_set("display_errors",false);
+//if this was set then errors will be hidden unless set from debug_all.php page
+//else
+//	ini_set("display_errors",false);
 
 if(isset($_SESSION["log_errors"]))
 	ini_set("log_errors",$_SESSION["log_errors"]);
-else
-	ini_set("log_errors",false);
+//if this was set then errors will be logged unless set from debug_all.php page
+//else
+//	ini_set("log_errors",false);
 
 if(isset($_SESSION["error_log"]))
 	ini_set("error_log", $_SESSION["error_log"]);
