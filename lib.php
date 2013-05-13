@@ -3162,5 +3162,26 @@ function display_field($field_name,$field_format)
 	}
 	return $res;
 }
+
+function stdClassToArray($d) {
+	if (is_object($d)) {
+		// Gets the properties of the given object
+		// with get_object_vars function
+		$d = get_object_vars($d);
+	}
+
+	if (is_array($d)) {
+		/*
+		* Return array converted to object
+		* Using __FUNCTION__ (Magic constant)
+		* for recursive call
+		*/
+		return array_map(__FUNCTION__, $d);
+	}
+	else {
+		// Return array
+		return $d;
+	}
+}
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
