@@ -29,6 +29,8 @@ function include_classes($path='')
 	$classes_dirs = array("classes/", "ansql/default_classes");
 
 	for ($i=0; $i<count($classes_dirs); $i++) {
+		if (!is_dir($path.$classes_dirs[$i]))
+			continue;
 		$handle = opendir($path.$classes_dirs[$i]);
 
 		while (false !== ($file = readdir($handle))) {
