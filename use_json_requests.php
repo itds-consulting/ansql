@@ -171,7 +171,7 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 		$type = curl_getinfo($curl,CURLINFO_CONTENT_TYPE);
 		if ($type == "application/json") {
 			$inp = json_decode($ret,true);
-			if (!$inp) {
+			if (!$inp || $inp==$ret) {
 				$resp = array("code"=>"-101", "message"=>_("Could not parse json response. Please try again later."));
 				write_error($request, $out, $ret, $http_code, $resp);
 				curl_close($curl);
@@ -197,7 +197,7 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 			curl_close($curl);
 			print $ret;
 		} else {
-			print $ret;
+			//print $ret;
 			$resp = array("code"=>"-101", "message"=>_("Could not parse response. Please try again later."));
 			write_error($request, $out, $ret, $http_code, $resp);
 			curl_close($curl);
