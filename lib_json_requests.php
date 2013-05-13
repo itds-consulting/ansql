@@ -138,7 +138,7 @@ function check_response($out)
 		else {
 			if ($name == "error_code" && $val=="")
 				$val = "0";
-			$arr[$name] = $val;	
+			$arr[$name] = $val;
 		}
 	}
 	return $arr;
@@ -146,13 +146,13 @@ function check_response($out)
 
 function translate_error_to_code($res, $exception_true=false)
 {
-	if (is_array($res) && count($res)==1 && $res[0]===true)
-		return $res;
+//	if (is_array($res) && count($res)==1 && $res[0]===true)
+//		return $res;
 
-	if (!is_array($res) || count($res)<2 || !isset($res[0]))
+	if (!is_array($res) || (count($res)<2 && (($res[0]===false) || !isset($res[0]))) || !isset($res[0]))
 		return array(false, "code"=>"99"); // Internal Server Error: wrong result format from called function
 
-	if ($res[0] && $exception_true) {	
+	if ($res[0] && $exception_true) {
 		if (!isset($res["code"]))
 			return array(true);
 		return array(true, "code"=>$res["code"]);  // this code will define a user/contact not success of request
