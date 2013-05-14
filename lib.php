@@ -3048,8 +3048,9 @@ function display_bit_field($val)
 	return "no";
 }
 
-function display_field($field_name,$field_format)
+function display_field($field_name,$field_format,$form_identifier='',$css=null)
 {
+	$q_mark = false;
 	if(isset($field_format["value"]))
 		$value = $field_format["value"];
 
@@ -3182,6 +3183,16 @@ function stdClassToArray($d) {
 		// Return array
 		return $d;
 	}
+}
+
+function get_param($array,$name)
+{
+	return isset($array[$name]) ? $array[$name] : null;
+}
+
+function missing_param($param)
+{
+	return ($param === null) || ($param == "");
 }
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
