@@ -175,6 +175,14 @@ function translate_error_to_code($res, $exception_true=false)
 	else
 		$new_res["code"] = "99";
 
+	// even if error, if more fields set in result (with non numeric key) copy them to response
+	if (count($res)>2 || (count($res)>1 && !isset($res[1]))) {
+		foreach ($res as $key=>$val) {
+			if (!is_numeric($key))
+				$new_res[$key] = $val;
+		}
+	}
+
 	return $new_res;
 }
 
