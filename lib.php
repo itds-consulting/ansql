@@ -2508,6 +2508,10 @@ function error_handle($error, &$fields, &$error_fields, $field_prefix='')
 		set_error_fields($error, $error_fields);
 		set_form_fields($fields, $error_fields, $field_prefix);
 	}
+	if ($error===false) {
+		set_error_fields($error, $error_fields);
+		set_form_fields($fields, $error_fields, $field_prefix);
+	}
 }
 
 function return_button($method=null, $_module=null, $align="right", $name="Return")
@@ -2932,14 +2936,14 @@ function mysql_in_file($fh, $formats, $array, $sep)
 	}
 }
 
-function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true)
+function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_header=true)
 {
 	$col_nr = 0;
 	
 	if (!$formats && count($array))
 		foreach($array[0] as $name=>$val)
 			$formats[$name] = $name;
-	if ($formats!="no") {
+	if ($col_header && $formats!="no") {
 		foreach($formats as $column_name => $var_name)
 		{
 			$exploded = explode(":",$column_name);
