@@ -180,7 +180,7 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 			check_errors($inp);
 			curl_close($curl);
 			if (($inp["code"]=="215" || $inp["code"]=="226") && $recursive) {
-				$res = make_curl_request(array(),"get_user",true,false);
+				$res = make_curl_request(array(),"get_user",$response_is_array,false);
 				if ($res["code"]=="0" && isset($res["user"])) 
 					$_SESSION["site_user"] = $res["user"];
 				// else
