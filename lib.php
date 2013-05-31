@@ -869,7 +869,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			if(isset($field_format["javascript"]))
 				print $field_format["javascript"];
 			if($display=="checkbox-readonly")
-				print " readonly=''";
+				print " disabled=''";
 			print '/>';
 			break;
 		case "text":
