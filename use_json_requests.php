@@ -70,6 +70,11 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 		$func_build_request_url = "build_request_url";
 
 	$url = $func_build_request_url($out,$request);
+	if (!$url) {
+		$resp = array("code"=>"-104", "message"=>_("Please specify where to send request."));
+		write_error($request, $out, "", "", $resp);
+		return $resp;
+	}
 
 	$curl = curl_init($url);
 	if ($curl === false) {
