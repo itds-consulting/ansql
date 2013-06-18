@@ -3198,5 +3198,110 @@ function missing_param($param)
 {
 	return ($param === null) || ($param == "");
 }
+
+function generic_tabbed_settings($options,$config,$section_to_open=array(),$show_advanced=false, $form_name=null,$form_submit=true,$specif_ind="",$custom_css=null)
+{
+	global $module, $tabs_callback;
+
+	if (!$form_name)
+		$form_name = $module;
+
+        print '<table class="sections '.$custom_css.'" cellspacing="0" cellpadding="0">'."\n";
+        print '<tr>'."\n";
+	$total_options = count($options);
+	$disp_show = "";
+	$disp_hide = ' style="display:none;"';
+
+	if (!isset($section_to_open["-"]))
+		$show_advanced = true;
+
+	$first_open = NULL;
+	foreach($section_to_open as $sect_name=>$def) {
+		$first_open = $sect_name;
+		$first_subsec = (!strlen($def)) ? "-" : $def;
+		break;
+	}
+
+        for ($i=0; $i<$total_options; $i++) {
+		$name = $options[$i];
+		$js_name = $specif_ind.$i;
+
+		$css = ($first_open!=$name && !(!$i && $first_open=="-")) ? "section" : "section_selected";
+		if (!$i)
+			$css .= " basic";
+		$css .= " $custom_css";
+		if ($first_open==$name || ($first_open=="-" && !$i))
+			$css .= "_selected";
+		$td_css = (!$i) ? "section basic $custom_css" : "$custom_css";
+
+		print '<td class="'.$td_css.'" id="td_'.$js_name.'">';
+		if ($i) {
+			print '<div class="fill_section" id="fill_'.$js_name.'" ';
+			if ($show_advanced)
+				print $disp_hide;
+			print '>&nbsp;</div>';
+		}
+
+
+		print '<div class="'.$css.'" onClick="show_section(\''.$i.'\','.$total_options.',\''.$specif_ind.'\',\''.$custom_css.'\');" id="tab_'.$js_name.'" ';
+		if ($i && !$show_advanced)
+			print $disp_hide;
+		print '>'.ucwords($name);
+
+		if (!$i) {
+			$img = ($show_advanced) ? "sm_hide.png" : "sm_show.png";
+			print "&nbsp;&nbsp;<img src=\"images/$img\" class=\"pointer\" id=\"img_show_tabs$specif_ind\" onclick=\"show_all_tabs($total_options,'$specif_ind');\" width=\"11px\" height=\"11px\"/>";
+		}
+
+		print '</div></td>'."\n";
+                print '<td class="space_section">&nbsp;</td>'."\n";
+        }
+	print '<td class="fillspace_section">&nbsp;</td>'."\n";
+        print '</tr>'."\n";
+        print '<tr>'."\n";
+	$colspan = $total_options*2+1;
+        print '<td class="section_content" colspan="'.$colspan.'">'."\n";
+
+	for ($i=0; $i<$total_options; $i++) {
+		$name = $options[$i];
+		$js_name = $specif_ind.$i;
+		$current_fields = $config[$options[$i]];
+		$disp = ($first_open!=$options[$i] && !(!$i && $first_open=="-")) ? " style='display:none;'" : '';
+
+		print "<div class='section_fields' id='sect_$js_name'$disp>";
+		if (isset($current_fields["subsections"])) {
+			$sub_sections = $current_fields["subsections"];
+			$names = array();
+			foreach ($sub_sections as $name=>$fields)
+				$names[] = $name;
+			generic_tabbed_settings($names, $sub_sections, array("$first_subsec"=>""), false, "", false, $js_name."_", "subsec");
+		} else {
+			if (isset($tabs_callback))
+				$tabs_callback($name, $current_fields);
+			editObject(NULL,$current_fields,NULL,"no");
+		}
+		print "</div>";
+	}
+
+	if ($form_submit===true) {
+		print '<div class="section_submit">';
+		//print '<input type="button" value="Save" onClick="submit_form(\''.$form_name.'\')" />&nbsp;';
+		//print '<input type="reset" value="Reset" onClick="reset_form(\''.$form_name.'\')"/>&nbsp;';
+		print '<input type="submit" value="Save" />&nbsp;';
+		print '<input type="reset" value="Reset" />&nbsp;';
+		print cancel_button('','Cancel');
+		print '&nbsp;</div>';
+	} elseif (is_array($form_submit)) {
+		print '<div class="section_submit">';
+		foreach($form_submit as $name=>$func)
+			print '<input type="button" value="'.$name.'" onClick="'.$func.'(\''.$form_name.'\')" />&nbsp;';
+		print cancel_button('','Cancel');
+		print '&nbsp;</div>';
+	}
+	print '</td>';
+	print '</tr>';
+	print '</table>';
+}
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>

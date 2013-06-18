@@ -9,3 +9,74 @@ function toggle_column(element)
 		form[z].checked = element.checked;
 	}
 }
+
+function show_all_tabs(count_sections,partids)
+{
+	if (partids==null)
+		partids="";
+	var img = document.getElementById("img_show_tabs"+partids);
+	if (img.src.substr(-12)=="/sm_show.png")
+		img.src = "images/sm_hide.png";
+	else
+		img.src = "images/sm_show.png";
+	var i;
+	for (i=1; i<count_sections; i++) {
+		section_tab = document.getElementById("tab_"+partids+i);
+		section_fill = document.getElementById("fill_"+partids+i);
+		if (section_tab==null) {
+			alert("Don't have section tab for "+partids+i);
+			continue;
+		}
+		if (section_tab.style.display=="") {
+			section_tab.style.display = "none";
+			if (section_fill!=null)
+				section_fill.style.display = "";
+		} else {
+			section_tab.style.display = "";
+			if (section_fill!=null)
+				section_fill.style.display = "none";
+		}
+	}
+}
+
+function show_section(section_name,count_sections,partids,custom_css)
+{
+	//alert(section_name);
+
+	if (partids==null)
+		partids="";
+	if (custom_css==null)
+		custom_css="";
+
+	var i, section_div, section_tab;
+	for (i=0; i<count_sections; i++) {
+		section_tab = document.getElementById("tab_"+partids+i);
+		section_div = document.getElementById("sect_"+partids+i);
+		if (section_tab==null) {
+			alert("Don't have section tab for "+i);
+			continue;
+		}
+		if (section_div==null) {
+			alert("Don't have section div for "+i);
+			continue;
+		}
+		if (i==section_name) {
+			if (i==0)
+				section_tab.className = "section_selected basic "+custom_css+"_selected";
+			else
+				section_tab.className = "section_selected "+custom_css+"_selected";
+			section_div.style.display = "";
+		} else {
+			cls = section_tab.className;
+			if (cls.substr(0,16)=="section_selected") {
+				if (i==0)
+					section_tab.className = "section basic "+custom_css;
+				else
+					section_tab.className = "section "+custom_css;
+				section_div.style.display = "none";
+			}
+		}
+	}
+}
+
+
