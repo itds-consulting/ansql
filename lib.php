@@ -3303,5 +3303,13 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 	print '</table>';
 }
 
+function load_page($page)
+{
+	if (headers_sent())
+		print "<meta http-equiv=\"REFRESH\" content=\"0;url=$page\">";
+	else
+		header("Location: $page");
+}
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
