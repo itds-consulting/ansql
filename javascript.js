@@ -79,4 +79,39 @@ function show_section(section_name,count_sections,partids,custom_css)
 	}
 }
 
+function show_hide_comment(id)
+{
+	var fontvr = document.getElementById("comment_"+id);
+	if(fontvr == null)
+		return;
+	if (fontvr.style.display == "none")
+		fontvr.style.display = "block";
+	else
+		if(fontvr.style.display == "block")
+			fontvr.style.display = "none";
+}
 
+function show_hide(element)
+{
+	var div = document.getElementById(element);
+
+	if (div.style.display == "none") {
+		if(div.tagName == "TR")
+			div.style.display = (ie > 1 && ie<8) ? "block" : "table-row";//"block";//"table-row";
+		else
+			if(div.tagName == "TD")
+				div.style.display = (ie > 1 && ie<8) ? "block" : "table-cell";
+			else
+				if (div.tagName=="IMG")
+					div.style.display="";
+				else
+					div.style.display = "block";
+	}else{
+		div.style.display = "none";
+	}
+}
+
+function submit_form(formid)
+{
+	document.getElementById(formid).submit();
+}
