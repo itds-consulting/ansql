@@ -3212,6 +3212,7 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 	$disp_show = "";
 	$disp_hide = ' style="display:none;"';
 
+	$initial_show_advanced = $show_advanced;
 	if (!isset($section_to_open["-"]))
 		$show_advanced = true;
 
@@ -3248,7 +3249,7 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 			print $disp_hide;
 		print '>'.ucwords($name);
 
-		if (!$i) {
+		if (!$i && $initial_show_advanced!==NULL) {
 			$img = ($show_advanced) ? "sm_hide.png" : "sm_show.png";
 			print "&nbsp;&nbsp;<img src=\"images/$img\" class=\"pointer\" id=\"img_show_tabs$specif_ind\" onclick=\"show_all_tabs($total_options,'$specif_ind');\" width=\"11px\" height=\"11px\"/>";
 		}
