@@ -3295,8 +3295,10 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 	} elseif (is_array($form_submit)) {
 		print '<div class="section_submit">';
 		foreach($form_submit as $name=>$func)
-			print '<input type="button" value="'.$name.'" onClick="'.$func.'(\''.$form_name.'\')" />&nbsp;';
-		print cancel_button('','Cancel');
+			if ($func!="no_cancel")
+				print '<input type="button" value="'.$name.'" onClick="'.$func.'(\''.$form_name.'\')" />&nbsp;';
+		if (!in_array("no_cancel",$form_submit))
+			print cancel_button('','Cancel');
 		print '&nbsp;</div>';
 	}
 	print '</td>';
