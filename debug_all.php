@@ -31,7 +31,7 @@ require_once "../config.php";
 	<link type="text/css" rel="stylesheet" href="../css/main.css" />
 </head>
 <body>
-<?
+<?php
 
 $array = array(
 	1 => "E_ERROR",
@@ -92,10 +92,10 @@ function debug()
 		unset($arr["pass_debug"]);
 
 ?>	<br/><br/>
-	<form action="debug_all.php" method="post"><?
+	<form action="debug_all.php" method="post"><?php
 	addHidden("database");
 	editObject(NULL,$arr, "Setting debug levels", "Save");
-?></form><?
+?></form><?php
 }
 
 

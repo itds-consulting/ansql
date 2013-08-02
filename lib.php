@@ -107,12 +107,12 @@ function start_form($action = NULL, $method = "post", $allow_upload = false, $fo
 			$action = "index.php";
 	}
 
-	?><form action="<?print $action;?>" name="<?print $form_name;?>" id="<?print $form_name;?>" class="<?print $class;?>" method="<?print $method;?>" <?if($allow_upload) print 'enctype="multipart/form-data"';?>><?
+	?><form action="<?php print $action;?>" name="<?php print $form_name;?>" id="<?php print $form_name;?>" class="<?php print $class;?>" method="<?php print $method;?>" <?php if($allow_upload) print 'enctype="multipart/form-data"';?>><?php
 }
 
 function end_form()
 {
-	?></form><?
+	?></form><?php
 }
 
 function note($note)
@@ -458,31 +458,31 @@ function navbuttons($params=array(),$class = "llink")
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
 			<td class="navbuttons">
-				<? $vl=$page-$step;
+				<?php $vl=$page-$step;
 				if ($vl>=0)
 				{ ?>
-					<font size="-1"><a class="<?print $class;?>" href="<?print ("$link"."page"."=$vl");?>">Previous</a>&nbsp;&nbsp;</font>
-				<? } ?>
+					<font size="-1"><a class="<?php print $class;?>" href="<?php print ("$link"."page"."=$vl");?>">Previous</a>&nbsp;&nbsp;</font>
+				<?php } ?>
 			</td>
 			<td class="navbuttons">
 				<font size="-3">
-				<?
+				<?php
 				$r=$page/$step+1;
  				print ("$r");
 				?>
 				</font>
 			</td>
 			<td class="navbuttons">
-			    <?
+			    <?php
 			    $vl=$page+$step;
 			    if ($vl<$total) { ?>
-				&nbsp;&nbsp;<font size="-1"><a class="<?print $class;?>" href="<?print ("$link"."page"."=$vl");?>">Next</a> </font><?
+				&nbsp;&nbsp;<font size="-1"><a class="<?php print $class;?>" href="<?php print ("$link"."page"."=$vl");?>">Next</a> </font><?php
 				} ?>
 			</td>
 		</tr>
 	</table>
 	</center>
-<?
+<?php
 }
 
 function check_valid_mail($mail)
