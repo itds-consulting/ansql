@@ -1,5 +1,5 @@
 #! /usr/bin/php -q
-<?
+<?php
 /**
  * force_update.php
  * This file is part of the FreeSentral Project http://freesentral.com
