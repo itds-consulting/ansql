@@ -226,9 +226,11 @@ function set_session()
 
 	if (isset($sesslife_json))
 		session_set_cookie_params($sesslife_json);
-	$res = session_start();
-	if (!$res)
-		return array(false,"code"=>"105");
+	if (!session_id()) {
+		$res = session_start();
+		if (!$res)
+			return array(false,"code"=>"105");
+	}
 	return array(true);
 }
 
