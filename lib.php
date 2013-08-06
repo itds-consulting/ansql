@@ -22,7 +22,7 @@
  */
 
 
-global $module, $method, $action, $vm_base, $limit, $db_true, $db_false, $limit, $page;
+global $module, $method, $action, $vm_base, $limit, $db_true, $db_false, $limit, $page, $system_standard_timezone;
 
 function include_classes($path='')
 {
@@ -57,6 +57,9 @@ if (!function_exists("stripos")) {
 }
 
 escape_page_params();
+
+if (!isset($system_standard_timezone))
+	$system_standard_timezone = "GMT".substr(date("O"),0,3);
 
 function get_default_function()
 {
