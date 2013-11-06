@@ -267,7 +267,7 @@ function write_response($out)
 		$file = str_replace(".txt","$day.txt",$logs_file);
 		$fh = fopen($file, "a");
 		if (!$fh) {
-			print ("Could not open logs file.");
+			print ("Could not open logs file $file");
 			exit;
 		}
 		$aprox_duration = round($end_time - $start_time,4);
