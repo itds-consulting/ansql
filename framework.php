@@ -77,7 +77,7 @@ class Variable
 	{
 		global $db_type;
 
-		if (!strlen($value) && $value!==false)
+		if (!strlen($value) && ($value!==false && $this->_type!="bool"))
 			return 'NULL';
 
 		$value = trim($value);
@@ -469,8 +469,15 @@ class Database
 				$query.= esc($name)." $type"; 
 				if ($type == "bigint(20) unsigned not null auto_increment")
 					$query.= ", primary key ($name)";
-			} else
+			} else {
 				$query.= esc($name)." $type";
+				if ($var->_required)
+					$query.= " NOT NULL";
+				if (strlen($var->_value) || $var->_value===true || $var->_value===false) {
+					$value = $var->escape($var->_value);
+					$query.= " DEFAULT ".$value;
+				}
+			}
 		}
 
 		// do not allow creation of tables with more than one serial field
@@ -487,6 +494,7 @@ class Database
 			if ($engine)
 				$query.= "ENGINE $engine";
 		}
+
 		return self::db_query($query) !== false;
 	}
 
@@ -498,9 +506,13 @@ class Database
 	 */
 	public static function updateTable($table,$vars)
 	{
-		global $db_type;
+		global $db_type, $critical_col_diff;
+
 		if (!self::connect())
 			return false;
+
+		if (!isset($critical_col_diff))
+			$critical_col_diff = false;
 
 		switch ($db_type) {
 			case "mysql":
@@ -513,21 +525,30 @@ class Database
 				}
 				$cols = array();
 				for ($i=0; $i<count($res); $i++)
-					foreach ($res[$i] as $name=>$val)
-						$cols[$res[$i]["Field"]] = $res[$i]["Type"];
+					$cols[$res[$i]["Field"]] = array("type"=>$res[$i]["Type"], "not_null"=>(($res[$i]["Null"]=="NO") ? true : false), "default"=>$res[$i]['Default']);
 				break;
 			case "postgresql":
-				$query = "SELECT * FROM $table WHERE false";
+				$query = "SELECT pg_attribute.attname as name, pg_type.typname as type, (CASE WHEN atthasdef IS TRUE THEN pg_get_expr(adbin,'pg_catalog.pg_class'::regclass) ELSE NULL END) as default, pg_attribute.attnotnull as not_null FROM pg_class, pg_type, pg_attribute LEFT OUTER JOIN pg_attrdef ON pg_attribute.attnum=pg_attrdef.adnum WHERE pg_class.oid=pg_attribute.attrelid and pg_class.relname='$table' and pg_class.relkind='r' and pg_type.oid=pg_attribute.atttypid";
 				$res = self::db_query($query);
-				if (!$res)
+				if (!$res || !pg_num_rows($res))
 				{
 				//	print "Table '$table' does not exist so we'll create it\n";
 					return self::createTable($table,$vars);
 				}
-				for ($i=0; $i<pg_num_fields($res); $i++)
-					$cols[pg_field_name($res,$i)] = pg_field_type($res,$i);
+				for ($i=0; $i<pg_num_rows($res); $i++) {
+					$row = pg_fetch_array($res,$i);
+					$default = $row["default"];
+					$default = explode("'::",$default);
+					if (count($default)>1) {
+						$default = $default[0];
+						$default = substr($default,1);
+					} else
+						$default = $default[0];
+					$cols[$row["name"]] = array("type"=>$row["type"], "not_null"=>(($row["not_null"]=="t") ? true : false), "default"=>$default);
+				}
 				break;
 		}
+
 		foreach ($vars as $name => $var)
 		{
 			$type = $var->_type;
@@ -547,6 +568,12 @@ class Database
 					$type = "bigint(20)";
 			//	print "No field '$name' in table '$table', we'll create it\n";
 				$query = "ALTER TABLE ".esc($table)." ADD COLUMN ".esc($name)." $type";
+				if ($var->_required)
+					$query.= " NOT NULL";
+				if (strlen($var->_value) || $var->_value===true || $var->_value===false) {
+					$value = $var->escape($var->_value);
+					$query.= " DEFAULT ".$value;
+				}
 				if (!self::queryRaw($query))
 					return false;
 				if ($var->_value !== null)
@@ -559,6 +586,7 @@ class Database
 			}
 			else
 			{
+				$orig_type = $type;
 				// we need to adjust what we expect for some types
 				switch ($type)
 				{
@@ -569,13 +597,48 @@ class Database
 						$type = "int8";
 						break;
 				}
-				$dbtype = $cols[$name];
-				if ($dbtype == $type)
-					continue;
-				elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
-					continue;
-				Debug::output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'\n");
+
+
+				if ($critical_col_diff) {
+					$dbtype = $cols[$name]["type"];
+					if ($dbtype=="bool")
+						$cols[$name]["default"] = ($cols[$name]["default"]=="true" || $cols[$name]["default"]=="1") ? true : false;
+					$db_default = $var->escape($cols[$name]["default"]);
+					$db_not_null = $cols[$name]["not_null"];
+					$class_default = $var->escape($var->_value);
+
+					if ($dbtype == $type && $db_default==$class_default && $db_not_null===$var->_required)
+						continue;
+					elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
+						continue;
+					elseif (($dbtype == "varchar" && substr($type,0,7)=="varchar" && $db_type=='postgresql') && $db_default==$class_default && $db_not_null===$var->_required)
+						continue;
+					elseif ($orig_type=="serial" || $orig_type=="bigserial")
+						continue;
+					$db_str_not_null = ($db_not_null) ? " NOT NULL" : "";
+					$db_str_default = (strlen($db_default)) ? " DEFAULT ".$db_default : "";
+					$str_not_null = ($var->_required) ? " NOT NULL" : "";
+					$str_default = (strlen($class_default)) ? " DEFAULT ".$class_default : "";
+
+					Debug::output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." $dbtype$db_str_not_null$db_str_default ".strtoupper(_("but should be"))." $type$str_not_null$str_default\n");
+				} else {
+					// Maintain compatibility with previous implementation
+					// Don't force user to set DEFAULT VALUES and NOT NULL for columns when their projects didn't need it
+					$dbtype = $cols[$name]["type"];
+					if ($dbtype == $type)
+						continue;
+					elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
+						continue;
+					elseif ($dbtype == "varchar" && substr($type,0,7)=="varchar" && $db_type=='postgresql')
+						continue;
+
+					Debug::output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'\n");
+
+				}
+
+
 				return false;
+
 			}
 		}
 		return true;
