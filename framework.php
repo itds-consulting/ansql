@@ -185,30 +185,38 @@ class Database
 				${$db_setting} = ${$db_data[$i]};
 			if ($db_data[$i]=="db_type" && $connection_index!="")
 				$db_type = ${$db_setting};
-			if (!isset(${$db_setting}))
+			if (!isset(${$db_setting})) {
+				Debug::Output(_("Missing setting")." '$".$db_setting."' ");
 				return;
+			}
 		}
 
 		$next_index = ($connection_index=="") ? 2 : $connection_index+1;
 
 		switch ($db_type) {
 			case "mysql":
-				if (!function_exists("mysql_connect"))
+				if (!function_exists("mysql_connect")) {
+					Debug::Output(_("You don't have mysql package for php installed."));
 					die("You don't have mysql package for php installed.");
+				}
 				if (self::$_connection === true || !self::$_connection) 
 					self::$_connection = mysql_connect(${"db_host$connection_index"}, ${"db_user$connection_index"}, ${"db_passwd$connection_index"});
 				break;
 			case "postgresql":
-				if (!function_exists("pg_connect"))
+				if (!function_exists("pg_connect")) {
+					Debug::Output(_("You don't have php-pgsql package installed."));
 					die("You don't have php-pgsql package installed.");
+				}
 				if (self::$_connection === true || !self::$_connection)
 					self::$_connection = pg_connect("host='".${"db_host$connection_index"}."' dbname='".${"db_database$connection_index"}."' user='".${"db_user$connection_index"}."' password='".${"db_passwd$connection_index"}."'");
 				break;
 			default:
+				Debug::Output(_("Unsupported or unspecified database type")." db_type='$db_type'");
 				die("Unsupported or unspecified database type: db_type='$db_type'");
 				break;
 		}
 		if (!self::$_connection) {
+			Debug::Output(_("Could not connect to the database")." $connection_index");
 			self::$_connection = self::connect($next_index);
 			if (!self::$_connection) {
 				if (!isset($exit_gracefully) || !$exit_gracefully)
@@ -261,7 +269,7 @@ class Database
 
 		if(isset($_SESSION["debug_all"]))
 //			print "<br/>\n<br/>\nquery :'.$query.'<br/>\n<br/>\n";
-			Debug::output("query: $query");
+			Debug::Output("query: $query");
 
 //		if (!self::is_single_query($query))
 //			return false;
@@ -410,7 +418,7 @@ class Database
 			return false;
 		if(isset($_SESSION["debug_all"]))
 //			print "queryRaw: $query\n<br/>\n<br/>\n";
-			Debug::output("queryRaw: $query");
+			Debug::Output("queryRaw: $query");
 		//if (!self::is_single_query($query))
 		//	return false;
 		$res = self::db_query($query);
@@ -495,7 +503,11 @@ class Database
 				$query.= "ENGINE $engine";
 		}
 
-		return self::db_query($query) !== false;
+		$res = self::db_query($query) !== false;
+		if (!$res)
+			Debug::Output(_("Could not create table")." '$table'. "._("Query failed").": $query");
+
+		return $res;
 	}
 
 	/**
@@ -506,7 +518,7 @@ class Database
 	 */
 	public static function updateTable($table,$vars)
 	{
-		global $db_type, $critical_col_diff;
+		global $db_type, $critical_col_diff, $error_sql_update;
 
 		if (!self::connect())
 			return false;
@@ -520,7 +532,7 @@ class Database
 				$res = self::queryRaw($query);
 				if (!$res)
 				{
-				//	print "Table '$table' does not exist so we'll create it\n";
+					Debug::Output(_("Table")." '$table' "._("does not exist, we'll create it"));
 					return self::createTable($table,$vars);
 				}
 				$cols = array();
@@ -532,7 +544,7 @@ class Database
 				$res = self::db_query($query);
 				if (!$res || !pg_num_rows($res))
 				{
-				//	print "Table '$table' does not exist so we'll create it\n";
+					Debug::Output(_("Table")." '$table' "._("does not exist, we'll create it"));
 					return self::createTable($table,$vars);
 				}
 				for ($i=0; $i<pg_num_rows($res); $i++) {
@@ -566,7 +578,7 @@ class Database
 					$type = "int8";
 				if ($type == "bigint(20) unsigned not null auto_increment")  
 					$type = "bigint(20)";
-			//	print "No field '$name' in table '$table', we'll create it\n";
+				Debug::Output(_("No field")." '$name' "._("in table")." '$table'".(", we'll create it"));
 				$query = "ALTER TABLE ".esc($table)." ADD COLUMN ".esc($name)." $type";
 				if ($var->_required)
 					$query.= " NOT NULL";
@@ -574,14 +586,19 @@ class Database
 					$value = $var->escape($var->_value);
 					$query.= " DEFAULT ".$value;
 				}
-				if (!self::queryRaw($query))
-					return false;
+				if (!self::queryRaw($query)) {
+					Debug::Output(_("Could not update table")." '$table'. ".("Query failed").": '$query'");
+					$error_sql_update = true;
+					continue;
+				}
 				if ($var->_value !== null)
 				{
 					$val = $var->escape($var->_value);
 					$query = "UPDATE ".esc($table)." SET ".esc($name)."=$val";
-					if (!self::queryRaw($query))
-						return false;
+					if (!self::queryRaw($query)) {
+						Debug::Output(_("Could not update table fields to default value for")." '$table'. "._("Query failed").": '$query'");
+						$error_sql_update = true;
+					}
 				}
 			}
 			else
@@ -620,7 +637,7 @@ class Database
 					$str_not_null = ($var->_required) ? " NOT NULL" : "";
 					$str_default = (strlen($class_default)) ? " DEFAULT ".$class_default : "";
 
-					Debug::output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." $dbtype$db_str_not_null$db_str_default ".strtoupper(_("but should be"))." $type$str_not_null$str_default\n");
+					Debug::Output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." $dbtype$db_str_not_null$db_str_default ".strtoupper(_("but should be"))." $type$str_not_null$str_default");
 				} else {
 					// Maintain compatibility with previous implementation
 					// Don't force user to set DEFAULT VALUES and NOT NULL for columns when their projects didn't need it
@@ -632,13 +649,11 @@ class Database
 					elseif ($dbtype == "varchar" && substr($type,0,7)=="varchar" && $db_type=='postgresql')
 						continue;
 
-					Debug::output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'\n");
+					Debug::Output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'");
 
 				}
 
-
-				return false;
-
+				$error_sql_update = true;
 			}
 		}
 		return true;
@@ -820,7 +835,7 @@ class Model
 		if (!$vars) 
 		{
 //			print '<font style="weight:bold;">You haven\'t included file for class '.$class.' try looking in ' . $class . 's.php</font>';
-			Debug::output('<font style="weight:bold;">You haven\'t included file for class '.$class.' try looking in ' . $class . 's.php</font>');
+			Debug::Output('You haven\'t included file for class '.$class.' try looking in ' . $class . 's.php');
 			return null;
 		}
 		$table = self::getClassTableName($class);
@@ -1583,7 +1598,7 @@ class Model
 		$res = Database::query($query);
 		if($res === false || $res === NULL) {
 //			print ("Operation was blocked because query failed: '$query'.");
-			Debug::output(_("Operation was blocked because query failed").": '$query'.");
+			Debug::Output(_("Operation was blocked because query failed").": '$query'.");
 			return true;
 		}
 		if(count($res)) {
@@ -1625,7 +1640,7 @@ class Model
 				$where = '';
 		} else
 			$where = $this->makeWhereClause($conditions, true);
-	//	Debug::output("entered objDelete ".get_class($this)." with conditions ".$where);
+	//	Debug::Output("entered objDelete ".get_class($this)." with conditions ".$where);
 
 		if ($where == '') 
 			return array(false, _("Don't have any condition for deleting for object")." "._(get_class($this)));
@@ -1691,7 +1706,7 @@ class Model
 				return array(true, _("Successfully deleted ")._($res[1])._(" object(s) of type ")._(get_class($this)),$res[1]);
 		} else {
 			if ($cnt)
-				Debug::output(_("Could not delete object of class ")._(get_class($this)));
+				Debug::Output(_("Could not delete object of class ")._(get_class($this)));
 			else
 				return array(false, _("Could not delete object of class ")._(get_class($this)));
 		}
@@ -2011,8 +2026,7 @@ class Model
 				$i++;
 				if ($i>200) 
 				{
-//					print "<br/>\n<br/>\nInfinit loop<br/>\n<br/>\n";
-					Debug::output(_("Infinit loop"));
+					Debug::Output(_("Infinit loop"));
 					return;
 				}
 			}	
@@ -2237,9 +2251,17 @@ class Model
 	 */
 	static function updateAll()
 	{
+		global $error_sql_update;		
+		
+		// Check the table columns
+		// We assume there are no changes
+		$error_sql_update = false;
+
 		if (!Database::connect())
 			return false;
 		self::init();
+
+		Debug::Output("------- "._("Entered")." updateAll()");
 
 		$db_identifier = self::getCurrentDbIdentifier();
 		$default_identifier = self::getDefaultDbIdentifier();
@@ -2260,8 +2282,9 @@ class Model
 			$table = $object->getTableName();
 			if (!Database::updateTable($table,$vars))
 			{
-				Debug::output(_("Could not update table of class")." $class\n");
-				return false;
+				Debug::Output(_("Could not update table of class")." $class");
+				//return false;
+				$error_sql_update = true;
 			}
 			else
 				self::$_modified = true;
@@ -2271,6 +2294,12 @@ class Model
 			if ($index = call_user_func(array($class,"index")))
 				Database::createIndex($table,$index);
 		}
+
+		if ($error_sql_update) {
+			Debug::Output(_("There were errors when updating your sql structure. Please check above logs for more details."));
+			return false;
+		}
+
 		if(self::$_modified)
 			foreach(self::$_models as $class => $vars) {
 				$identifier = @call_user_func(array($class,"getDbIdentifier"));
@@ -2280,6 +2309,8 @@ class Model
 				if(method_exists($object, "defaultObject"))
 					$res = call_user_func(array($object,"defaultObject"));
 			}
+
+
 		return true;
 	}
 
@@ -2385,7 +2416,7 @@ class Model
 	{
 		if(isset($_SESSION["warning_on"]))
 //			print "<br/>\nWarning : $warn<br/>\n";
-			Debug::output(_("Warning")." : $warn");
+			Debug::Output(_("Warning")." : $warn");
 	}
 
 	/**
@@ -2396,7 +2427,7 @@ class Model
 	{
 		if(isset($_SESSION["notice_on"]))
 //			print "<br/>\nNotice : $note<br/>\n";
-			Debug::output(_("Notice")." : $note");
+			Debug::Output(_("Notice")." : $note");
 	}
 
 	/**

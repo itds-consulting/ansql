@@ -22,12 +22,35 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-require_once ('lib.php');
-require_once ('framework.php');
+/*
+ * To use make symlink to it from main project directory (it can't be run from this directory)
+ *
+ * >> ln -s ansql/force_update.php force_update.php
+ * >> ./force_update.php
+ */
+
+require_once ('ansql/lib.php');
+require_once ('ansql/framework.php');
 
 include_classes();
-require_once ('set_debug.php');
+require_once ('ansql/set_debug.php');
 
-Database::query("select * from unexisting_table");
+
+$stdout = (php_sapi_name() == 'cli') ? 'php://stdout' : 'web';
+if (isset($logs_in)) {
+	if (is_array($logs_in)) {
+		if (!in_array($stdout,$logs_in))
+			$logs_in[] = $stdout;
+	} elseif ($logs_in!=$stdout)
+		$logs_in = array($logs_in, $stdout);
+} else 
+	$logs_in = $stdout;
+
+$res = Model::updateAll();
+if ($res)
+	Debug::Output("Succesfully performed sql structure update.");
+// Error is printed from framework
+//else
+//	Debug::Output("Errors update sql structure. Please see above messages.");
 
 ?>
