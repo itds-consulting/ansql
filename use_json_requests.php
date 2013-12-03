@@ -214,20 +214,33 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 
 function write_error($request, $out, $ret, $http_code, $displayed_response=null)
 {
-	global $parse_errors;
+	global $parse_errors, $display_parse_error;
+
+	$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : "-";
+	$text = "------".date("Y-m-d H:i:s").",request=$request,user_id=$user_id\n"
+		."Sent: ".json_encode($out)."\n"
+		."Received HTTP CODE=$http_code : ".$ret."\n";
+	if ($displayed_response)
+		$text .= "Displayed: ".json_encode($displayed_response)."\n";
 
 	if (isset($parse_errors) && strlen($parse_errors)) {
 		$fh = fopen($parse_errors, "a");
 		if ($fh) {
-			$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : "-";
+/*			$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : "-";
 			fwrite($fh,"------".date("Y-m-d H:i:s").",request=$request,user_id=$user_id\n");
 			fwrite($fh,"Sent: ".json_encode($out)."\n");
 			fwrite($fh,"Received HTTP CODE=$http_code : ".$ret."\n");
 			if ($displayed_response)
-				fwrite($fh,"Displayed: ".json_encode($displayed_response)."\n");
+				fwrite($fh,"Displayed: ".json_encode($displayed_response)."\n");*/
+			fwrite($fh,$text);
 			fclose($fh);
 		}
 	}
+	if ((isset($display_parse_error) && $display_parse_error) || (isset($_SESSION["debug_all"]) && $_SESSION["debug_all"]=="on")) {
+		$text = str_replace("\n", "<br/>", $text);
+		print $text;
+	}
+		
 }
 
 function write_text_error($message)
