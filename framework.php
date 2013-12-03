@@ -26,7 +26,8 @@
 * the base classes for the database framework
 */
 
-require_once("config.php");
+if (is_file("config.php"))
+	require_once("config.php");
 require_once("debug.php");
 
 // class for defining a variable that will be mapped to a column in a sql table
@@ -481,7 +482,7 @@ class Database
 				$query.= esc($name)." $type";
 				if ($var->_required)
 					$query.= " NOT NULL";
-				if (strlen($var->_value) || $var->_value===true || $var->_value===false) {
+				if ((strlen($var->_value) || $var->_value===true || $var->_value===false) && !in_array($var->_type,array("timestamp","date","datetime"))) {
 					$value = $var->escape($var->_value);
 					$query.= " DEFAULT ".$value;
 				}
@@ -582,7 +583,7 @@ class Database
 				$query = "ALTER TABLE ".esc($table)." ADD COLUMN ".esc($name)." $type";
 				if ($var->_required)
 					$query.= " NOT NULL";
-				if (strlen($var->_value) || $var->_value===true || $var->_value===false) {
+				if ((strlen($var->_value) || $var->_value===true || $var->_value===false) && !in_array($var->_type,array("timestamp","date","datetime"))) {
 					$value = $var->escape($var->_value);
 					$query.= " DEFAULT ".$value;
 				}

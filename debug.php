@@ -21,7 +21,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-require_once("config.php");
+if (is_file("config.php"))
+	include_once("config.php");
 
 class Debug
 {
