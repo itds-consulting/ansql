@@ -284,7 +284,10 @@ class Database
 			if(!Model::modified())
 			{
 				Model::updateAll();
-				return self::queryRaw($query, $retrieve_last_id);
+				$res = self::queryRaw($query, $retrieve_last_id);
+				if ($res===false || $res===NULL)
+					Debug::Output("query failed: $query");
+				return $res;
 			}
 			else
 				return $res;
