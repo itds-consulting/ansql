@@ -2273,7 +2273,7 @@ class ConfFile
 
 	function save($write_comments=false)
 	{
-		$file = fopen($this->filename,"w"); 
+		$file = fopen($this->filename,"w");
 		if (!$file)
 			return array(false, "Could not open ".$this->filename." for writing");
 		$wrote_something = false;
@@ -2281,7 +2281,7 @@ class ConfFile
 			fwrite($file, $this->initial_comment."\n");
 		foreach($this->structure as $name=>$value)
 		{
-			// make sure we don't write the initial comment over and over 
+			// make sure we don't write the initial comment over and over
 			if($this->initial_comment && !$wrote_something && in_array(substr($value,0,1),$this->chr_comment) && $write_comments)
 				continue;
 			if(!is_array($value)) {
@@ -2300,19 +2300,62 @@ class ConfFile
 			$section = $value;
 			foreach($section as $param=>$value)
 			{
-				//writing a comment
-				if(in_array(substr($value,0,1),$this->chr_comment) && is_numeric($param)) {
-					if ($write_comments)
-						fwrite($file, $value."\n");
-					continue;
+				if (is_array($value)) {
+					foreach($value as $key => $val)
+						fwrite($file, $param."=".ltrim($val)."\n");
+				} else {
+					//writing a comment
+					if (in_array(substr($value,0,1),$this->chr_comment) && is_numeric($param)) {
+						if ($write_comments)
+							fwrite($file, $value."\n");
+						continue;
+					}
+
+					$wrote_something = true;
+					fwrite($file, "$param=".ltrim($value)."\n");
 				}
-				$wrote_something = true;
-				fwrite($file, "$param=".ltrim($value)."\n");
 			}
 			fwrite($file, "\n");
 		}
 		fclose($file);
 		return array(true);
+	}
+
+	function create_backup()
+	{
+		$backup = $this->filename.".tmp";
+
+		if (!file_exists($this->filename))
+			return array(true);
+
+		if (!copy($this->filename, $backup))
+			return array(false, "The backup of the existing file: " .$this->filename. " failed.");
+
+		return array(true);
+	}
+
+	function restore_backup()
+	{
+
+		$backup_file = $this->filename.".tmp";
+
+		if (!file_exists($backup_file))
+			return array(true);
+
+		if (!copy($backup_file, $this->filename))
+			return array(false, "The backup of the existing file: " .$dest. " failed.");
+
+		$del_file = remove_backup_config($filename);
+		return array($del_file);
+	}
+
+	function remove_backup()
+	{
+
+		$bk_file = $this->filename.".tmp";
+
+		if (file_exists($bk_file))
+			return unlink($bk_file);
 	}
 }
 
