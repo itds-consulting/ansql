@@ -1,5 +1,6 @@
 <?php
 require_once("ansql/base_classes.php");
+require_once("ansql/debug.php");
 
 class GenericFile extends GenericStatus
 {
@@ -179,8 +180,6 @@ class ConfFile extends GenericFile
 
 	public function save()
 	{
-		global $write_comments;
-
 		$this->openForWrite();
 		if (!$this->status())
 			return;
@@ -226,6 +225,145 @@ class ConfFile extends GenericFile
 				}
 			}
 			fwrite($this->write_handler, "\n");
+		}
+
+		$this->close();
+	}
+}
+
+
+class JsObjFile extends GenericFile
+{
+	protected $block;
+	protected $prefix = "";
+	protected $suffix = "";
+
+	public function __construct($filename, $prefix="", $suffix="", $block=array())
+	{
+		parent::__construct($filename, false);
+
+		$this->block = $block;
+		$this->prefix = $prefix;
+		$this->suffix = $suffix;
+	}
+
+	public function read($close=true)
+	{
+		$this->openForRead();
+		if (!$this->status())
+			return;
+
+		$content = "";
+		while (!feof($this->read_handler)) {
+			$row = fgets($this->read_handler);
+			$row = trim($row);
+			if (!strlen($row))
+				continue;
+			if ($row=="" || $row==$this->prefix || $row==$this->suffix)
+				continue;
+
+			$content .= $row;
+		}
+
+		$content = "{".$content."}";
+		$this->block = json_decode($content,true);
+		if (!$this->block)
+			$this->setError("Could not decode file: ".$this->filename);
+
+		if ($close)
+			$this->close();
+	}
+
+	public function save()
+	{
+		$this->openForWrite();
+		if (!$this->status())
+			return;
+
+		if (strlen($this->prefix))
+			fwrite($this->write_handler, $this->prefix."\n");
+
+		$arr_index = 0;
+		$count = count($this->block);
+		foreach ($this->block as $index=>$obj) {
+			++$arr_index;
+			fwrite($this->write_handler, json_encode($index).":".json_encode($obj));
+			if ($count>$arr_index)
+				fwrite($this->write_handler,",\n");
+			else
+				fwrite($this->write_handler,"\n");
+		}
+		//fwrite($this->write_handler, json_encode($this->block));
+		if (strlen($this->suffix))
+			fwrite($this->write_handler, $this->suffix."\n");
+
+		$this->close();
+	}
+
+	public static function runUnitTests()
+	{
+		$test_path = "";
+
+		$files = array(
+			"Default test" => "test_js1.js"); //, "Defaul2" => "test_js2.js");
+
+		$objects = array(
+			"Default test" => array(
+				"block" => array(
+				    "0010155667788" => array("ki"=>"8383838202fklndsiri", "op"=>NULL, "active"=>1),
+				    "0010155667789" => array("ki"=>"8383838202fklndaaai", "op"=>NULL, "active"=>1),
+				    "0010155667790" => array("ki"=>"8383838202fklbbbbbbbi", "op"=>NULL, "active"=>0)
+				),
+				"prefix" => "var subscribers = {",
+				"suffix" => "};"
+			)
+		);
+
+		// write
+		foreach ($objects as $test_name=>$obj_arr) {
+
+			$test_file = $test_path.$files[$test_name];
+			$output_file = $test_path."write/".str_replace("test_","",$files[$test_name]);
+
+			Debug::Output("Running writing test '$test_name'");
+			$js_objs = new JsObjFile($output_file, $obj_arr["prefix"], $obj_arr["suffix"], $obj_arr["block"]);
+			$js_objs->safeSave();
+			$ok = true;
+			if (!$js_objs->status()) {
+				Debug::output($js_objs->getError());
+				$ok = false;
+			} elseif (file_get_contents($test_file)!=file_get_contents($output_file)) {
+				Debug::output("Test file $test_file and output file $output_file don't match.");
+				$ok = false;
+			}
+			if ($ok)
+				Debug::output("-------------------- OK");
+			else
+				Debug::output("-------------------- Failed");
+		}
+
+		// read
+		foreach ($objects as $test_name=>$obj_arr) {
+
+			$test_file = $test_path.$files[$test_name];
+			$js_objs = new JsObjFile($test_file, $obj_arr["prefix"], $obj_arr["suffix"]);
+			$js_objs->read();
+
+			Debug::Output("Running reading test '$test_name'");
+
+			$ok = true;
+			if (!$js_objs->status()) {
+				Debug::output($js_objs->getError());
+				$ok = false;
+			} elseif ($js_objs->block!=$objects[$test_name]["block"]) {
+				Debug::output("Parsed block doesn't match test. parsed block=".print_r($js_objs->block,true). ", test block=".print_r($objects[$test_name]["block"],true));
+				$ok = false;
+			}
+
+			if ($ok)
+				Debug::output("-------------------- OK");
+			else
+				Debug::output("-------------------- Failed");
 		}
 	}
 }

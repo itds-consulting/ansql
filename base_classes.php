@@ -31,9 +31,9 @@ class GenericStatus
 		if (!$this->status) {
 			if (is_numeric($p1)) {
 				$this->code = $p1;
-				$this->message = $p2;
+				$this->error_message = $p2;
 			} else {
-				$this->message = $p2;
+				$this->error_message = $p2;
 				$this->code = $p1;
 			}
 		}
@@ -49,10 +49,10 @@ class GenericStatus
 		$this->status = false;
 		if (is_numeric($p1)) {
 			$this->code = $p1;
-			$this->message = $p2;
+			$this->error_message = $p2;
 		} else {
-			$this->message = $p2;
-			$this->code = $p1;
+			$this->error_message = $p1;
+			$this->code = $p2;
 		}
 	}
 
@@ -62,10 +62,10 @@ class GenericStatus
 	 */
 	private function setErrorMessage($message)
 	{
-		if (isset($this->message) && strlen($this->message))
-			$this->message .= "\n".$message;
+		if (isset($this->error_message) && strlen($this->error_message))
+			$this->error_message .= "\n".$message;
 		else
-			$this->message = $message;
+			$this->error_message = $message;
 	}
 
 	/**
