@@ -258,7 +258,7 @@ function write_response($out)
 	send_content();
 	$o_json = json_encode($out);
 	print $o_json;
-	if (in_array($func_name,$add_newline))
+	if (isset($add_newline) && in_array($func_name,$add_newline))
 		print "\n";
 
 	$end_time = microtime(true);
