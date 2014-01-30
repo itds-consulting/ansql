@@ -19,7 +19,7 @@ class GenericFile extends GenericStatus
 			return;
 
 		if(!is_file($this->filename)) {
-			$this->setError("File doesn't exists");
+			$this->setError("File doesn't exist.");
 		} else {
 			$this->read_handler = fopen($this->filename,"r");
 			if (!$this->read_handler)
@@ -229,6 +229,19 @@ class ConfFile extends GenericFile
 
 		$this->close();
 	}
+
+	function getSection($section)
+	{
+		if (!strlen($section)) {
+			$this->setError("Please specify section name.");
+			return;
+		}
+		if (!isset($this->structure[$section])) {
+			$this->setError("Section '$section' was not found.");
+			return;
+		}
+		return $this->structure[$section];
+	}
 }
 
 
@@ -365,6 +378,11 @@ class JsObjFile extends GenericFile
 			else
 				Debug::output("-------------------- Failed");
 		}
+	}
+
+	public function getObject()
+	{
+		return $this->block;
 	}
 }
 
