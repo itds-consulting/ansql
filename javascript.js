@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008-2009 Null Team
+ * Copyright (C) 2008-2014 Null Team
  *
  * This software is distributed under multiple licenses;
  * see the COPYING file in the main directory for licensing
