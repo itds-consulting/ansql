@@ -101,7 +101,7 @@ class GenericStatus
 
 	public function getErrorCode()
 	{
-		return $this->code();
+		return $this->error_code;
 	}
 }
 
