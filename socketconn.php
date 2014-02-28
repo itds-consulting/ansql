@@ -71,6 +71,9 @@ class SocketConn
 		fwrite($this->socket, $str."\r\n");
 	}
 
+	/*
+	 * @param $marker_end set to null to not limit the reading
+	 */ 
 	function read($marker_end = "\r\n",$limited_tries=false)
 	{
 		global $default_tries;
@@ -95,7 +98,8 @@ class SocketConn
 				$keep_trying = false;
 			}
 		}
-		$line = str_replace("\r\n", "", $line);
+		if ($marker_end != null) 
+			$line = str_replace($marker_end, "", $line);
 		return $line;
 	}
 
