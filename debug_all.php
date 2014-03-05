@@ -20,7 +20,12 @@
 
 require_once "set_debug.php";
 require_once "lib.php";
-require_once "../config.php";
+
+if (is_file("../defaults.php"))
+	require_once "../defaults.php";
+if (is_file("../config.php"))
+	require_once "../config.php";
+
 ?>
 <html>
 <head>

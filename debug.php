@@ -19,6 +19,8 @@
  */
 
 
+if(is_file("defaults.php"))
+	include_once("defaults.php");
 if (is_file("config.php"))
 	include_once("config.php");
 

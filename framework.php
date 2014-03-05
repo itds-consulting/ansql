@@ -24,8 +24,13 @@
 * the base classes for the database framework
 */
 
+if (is_file("defaults.php"))
+	require_once("defaults.php");
+
 if (is_file("config.php"))
 	require_once("config.php");
+
+
 require_once("debug.php");
 
 // class for defining a variable that will be mapped to a column in a sql table
