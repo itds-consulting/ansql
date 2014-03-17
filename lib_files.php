@@ -285,16 +285,25 @@ class JsObjFile extends GenericFile
 		$content = "";
 		while (!feof($this->read_handler)) {
 			$row = fgets($this->read_handler);
-			$row = trim($row);
-			if (!strlen($row))
-				continue;
-			if ($row=="" || $row==$this->prefix || $row==$this->suffix)
-				continue;
+			//$row = trim($row);
+			//if (!strlen($row))
+			//	continue;
+			//if ($row=="" || $row==$this->prefix || $row==$this->suffix)
+			//	continue;
 
 			$content .= $row;
 		}
 
+		if (substr($content,0,strlen($this->prefix))==$this->prefix)
+			$content = substr($content,strlen($this->prefix));
+
+		$len = strlen($this->suffix)+1;
+		//if (substr($content,-$len)==$this->suffix)
+		$content = substr($content,0,strlen($content)-strlen($this->suffix)-1);
+
 		$content = "{".$content."}";
+
+		
 		$this->block = json_decode($content,true);
 		if (!$this->block)
 			$this->setError("Could not decode file: ".$this->filename);
