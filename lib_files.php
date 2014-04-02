@@ -137,11 +137,13 @@ class ConfFile extends GenericFile
 	public $chr_comment = array(";","#");
 	public $initial_comment = null;
 	public $write_comments = false;
+	public $lines = "\n";
 
-	function __construct($file_name,$read=true,$write_comments=true)
+	function __construct($file_name,$read=true,$write_comments=true,$lines="\n")
 	{
 		parent::__construct($file_name);
 		$this->write_comments = $write_comments;
+		$this->lines = $lines;
 
 		if ($read)
 			$this->read();
@@ -218,7 +220,7 @@ class ConfFile extends GenericFile
 					continue;
 				}
 				$wrote_something = true;
-				fwrite($this->write_handler, "$name=".ltrim($value)."\n\n");
+				fwrite($this->write_handler, "$name=".ltrim($value).$this->lines);
 				continue;
 			}else
 				fwrite($this->write_handler, "[".$name."]\n");
@@ -227,7 +229,7 @@ class ConfFile extends GenericFile
 			{
 				if (is_array($value)) {
 					foreach($value as $key => $val)
-						fwrite($this->write_handler, $param."=".ltrim($val)."\n\n");
+						fwrite($this->write_handler, $param."=".ltrim($val).$this->lines);
 				} else {
 					//writing a comment
 					if (in_array(substr($value,0,1),$this->chr_comment) && is_numeric($param)) {
@@ -237,7 +239,7 @@ class ConfFile extends GenericFile
 					}
 
 					$wrote_something = true;
-					fwrite($this->write_handler, "$param=".ltrim($value)."\n\n");
+					fwrite($this->write_handler, "$param=".ltrim($value).$this->lines);
 				}
 			}
 			fwrite($this->write_handler, "\n");
