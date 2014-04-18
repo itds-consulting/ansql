@@ -597,8 +597,20 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 			break;
 		}
 	}
-	foreach($fields as $field_name=>$field_format)
+
+	//if found errors in advanced fields, display the fields
+	foreach($fields as $field_name=>$field_format) {
+		if(!isset($field_format["advanced"]))
+			continue;
+		if (isset($field_format["error"]) && $field_format["error"]===true) {
+			$show_advanced = true;
+			break;
+		}
+	}
+
+	foreach($fields as $field_name=>$field_format) 
 		display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width);
+	
 
 	if($have_advanced && !$compulsory_notice)
 	{
