@@ -209,7 +209,7 @@ class ConfFile extends GenericFile
 		foreach($this->structure as $name=>$value)
 		{
 			// make sure we don't write the initial comment over and over
-			if ($this->initial_comment && !$wrote_something && in_array(substr($value,0,1),$this->chr_comment) && $write_comments)
+			if ($this->initial_comment && !$wrote_something && !is_array($value) && in_array(substr($value,0,1),$this->chr_comment) && $this->write_comments)
 				continue;
 			if (!is_array($value)) {
 				if(in_array(substr($value,0,1),$this->chr_comment) && is_numeric($name)) {

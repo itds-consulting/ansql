@@ -2959,7 +2959,7 @@ function generateNumericToken($length)
 
 function display_bit_field($val)
 {
-	if ($val=="1")
+	if ($val=="1" || $val == "on" || $val == "enable" || $val == "yes")
 		return "yes";
 	return "no";
 }
