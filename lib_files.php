@@ -97,7 +97,7 @@ class GenericFile extends GenericStatus
 			return;
 
 		if (!copy($backup_file, $this->filename))
-			return array(false, "Failed to restore backup for file: ".$dest);
+			return $this->setError("Failed to restore backup for file: ".$this->filename);
 
 		$this->removeBackup();
 	}
