@@ -56,7 +56,7 @@ class Variable
 	 * false for ON DELETE SET NULL, if referenced is deleted then this column will be set to null
 	 * @param $match_key Referenced variable name (Text representing the name of the column from the $foreign_key table to which this variable(column) will
 	 * be a foreign key to).If not given the name is the same as this variable's
-	 * @param $join_type Usually setted when extending objects. Possible values: LEFT, RIGHT, FULL, INNER. Default is LEFT is queries.
+	 * @param $join_type Usually set when extending objects. Possible values: LEFT, RIGHT, FULL, INNER. Default is LEFT is queries.
 	 * @param $required Bool value specifing whether this field can't be null in the database. Default value is false
 	 */
 	function __construct($type, $def_value = NULL, $foreign_key = NULL, $critical = false, $match_key = NULL, $join_type = NULL, $required = false)
@@ -794,10 +794,10 @@ function esc($col)
 class Model
 {
 	protected $_model;
-	//if $_invalid is setted to true, this object can't be setted as a key for update or delete clauses 
+	//if $_invalid is set to true, this object can't be set as a key for update or delete clauses 
 	protected $_invalid;
-	//whether the params for a certain object were set or not. It is setted to true in setParams dar is called from setObj
-	protected $_setted;
+	//whether the params for a certain object were set or not. It is set to true in setParams dar is called from setObj
+	protected $_set;
 	//whether a select or extendedSelect was performed on the object 
 	protected $_retrieved;
 
@@ -813,7 +813,7 @@ class Model
 	{
 		$this->_invalid = false;
 		$this->_model = self::getVariables(get_class($this));
-		$this->_setted = false;
+		$this->_set = false;
 		$this->_retrieved = false;
 		if (!is_array($this->_model))
 			return;
@@ -935,7 +935,7 @@ class Model
 	 * @param $condition 
 	 * $condition should be NULL if we wish to use the value of the numeric id for the corresponding table
 	 * $condition should be a STRING representing the name of a column that could act as primary key
-	 * In both the above situations $this->{$condition} must be setted before calling this method
+	 * In both the above situations $this->{$condition} must be set before calling this method
 	 * $condition should be an ARRAY formed by pairs of $key=>$value for more complex conditions 
 	 * This is the $conditions array that will be passed to the method @ref makeWhereClause()
 	 */
@@ -1183,7 +1183,7 @@ class Model
 	 */
 	public function setObj($params)
 	{
-		if(!$this->_setted)
+		if(!$this->_set)
 			$this->setParams($params);
 		return array(true, '', array());
 	}
@@ -1249,7 +1249,7 @@ class Model
 	 */
 	public function setParams($params)
 	{
-		$this->_setted = true;
+		$this->_set = true;
 
 		foreach($params as $param_name=>$param_value)
 			if($this->variable($param_name))
@@ -2416,7 +2416,7 @@ class Model
 	}
 
 	/**
-	 * Print warning if warnings where setted as enabled in $_SESSION
+	 * Print warning if warnings where set as enabled in $_SESSION
 	 * @param $warn String representing the warning
 	 */
 	public static function warning($warn)
