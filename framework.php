@@ -288,8 +288,13 @@ class Database
 			{
 				Model::updateAll();
 				$res = self::queryRaw($query, $retrieve_last_id);
-				if ($res===false || $res===NULL)
-					Debug::Output("query failed: $query");
+				if ($res===false || $res===NULL) {
+					$mess = $query;
+					$err = self::get_last_db_error();
+					if ($err)
+						$mess .= ". Error: ".$err;
+					Debug::Output("query failed: $mess");
+				}
 				return $res;
 			}
 			else
@@ -313,6 +318,18 @@ class Database
 			return false;   
 		return true;
 	}*/
+
+	public static function get_last_db_error()
+	{
+		global $db_type;
+		switch ($db_type) {
+			case "mysql":
+				return mysql_error(self::$_connection);
+			case "postgresql":
+				return pg_last_error(self::$_connection);
+		}
+		return false;
+	}
 
 	/**
 	 * Make query taking into account the database type
