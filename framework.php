@@ -30,6 +30,10 @@ if (is_file("defaults.php"))
 if (is_file("config.php"))
 	require_once("config.php");
 
+if (!isset($enforce_basic_constrains))
+	$enforce_basic_constrains = false;
+if (!isset($critical_col_diff))
+	$critical_col_diff = false;
 
 require_once("debug.php");
 
@@ -458,7 +462,7 @@ class Database
 	 */
 	public static function createTable($table,$vars)
 	{
-		global $db_type;
+		global $db_type, $enforce_basic_constrains;
 		if (!self::connect())
 			return false;
 		$query = "";
@@ -503,6 +507,8 @@ class Database
 					$query.= ", primary key ($name)";
 			} else {
 				$query.= esc($name)." $type";
+				if (!$enforce_basic_constrains)
+					continue;
 				if ($var->_required)
 					$query.= " NOT NULL";
 				if ((strlen($var->_value) || $var->_value===true || $var->_value===false) && !in_array($var->_type,array("timestamp","date","datetime"))) {
@@ -542,13 +548,10 @@ class Database
 	 */
 	public static function updateTable($table,$vars)
 	{
-		global $db_type, $critical_col_diff, $error_sql_update;
+		global $db_type, $critical_col_diff, $error_sql_update, $enforce_basic_constrains;
 
 		if (!self::connect())
 			return false;
-
-		if (!isset($critical_col_diff))
-			$critical_col_diff = false;
 
 		switch ($db_type) {
 			case "mysql":
@@ -604,11 +607,14 @@ class Database
 					$type = "bigint(20)";
 				Debug::Output(_("No field")." '$name' "._("in table")." '$table'".(", we'll create it"));
 				$query = "ALTER TABLE ".esc($table)." ADD COLUMN ".esc($name)." $type";
-				if ($var->_required)
-					$query.= " NOT NULL";
-				if ((strlen($var->_value) || $var->_value===true || $var->_value===false) && !in_array($var->_type,array("timestamp","date","datetime"))) {
-					$value = $var->escape($var->_value);
-					$query.= " DEFAULT ".$value;
+
+				if ($enforce_basic_constrains) {
+					if ($var->_required)
+						$query.= " NOT NULL";
+					if ((strlen($var->_value) || $var->_value===true || $var->_value===false) && !in_array($var->_type,array("timestamp","date","datetime"))) {
+						$value = $var->escape($var->_value);
+						$query.= " DEFAULT ".$value;
+					}
 				}
 				if (!self::queryRaw($query)) {
 					Debug::Output(_("Could not update table")." '$table'. ".("Query failed").": '$query'");
@@ -640,7 +646,7 @@ class Database
 				}
 
 
-				if ($critical_col_diff) {
+				if ($enforce_basic_constrains && $critical_col_diff) {
 					$dbtype = $cols[$name]["type"];
 					if ($dbtype=="bool")
 						$cols[$name]["default"] = ($cols[$name]["default"]=="true" || $cols[$name]["default"]=="1") ? true : false;
@@ -664,7 +670,7 @@ class Database
 					Debug::Output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." $dbtype$db_str_not_null$db_str_default ".strtoupper(_("but should be"))." $type$str_not_null$str_default");
 				} else {
 					// Maintain compatibility with previous implementation
-					// Don't force user to set DEFAULT VALUES and NOT NULL for columns when their projects didn't need it
+					// Don't force user to set DEFAULT VALUES and NOT NULL for columns when their projects didn't need to
 					$dbtype = $cols[$name]["type"];
 					if ($dbtype == $type)
 						continue;
