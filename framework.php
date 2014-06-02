@@ -1332,7 +1332,10 @@ class Model
 			}
 			$columns .= esc($var_name);
 			$values .= $var->escape($value);
-			$insert_log .= "$var_name=".$value;
+			if ($var_name!="password")
+				$insert_log .= "$var_name=".$value;
+			else
+				$insert_log .= "$var_name=***";
 		}
 		if ($columns == "")
 			return;
@@ -1428,7 +1431,10 @@ class Model
 
 			$value = $var->escape($this->{$var_name});
 			$variables .= esc($var_name)."=".$value."";
-			$update_log .= "$var_name=".$this->{$var_name}.""; 
+			if ($var_name!="password")
+				$update_log .= "$var_name=".$this->{$var_name}.""; 
+			else
+				$update_log .= "$var_name=***";
 		}
 		$obj_name = $this->getObjectName();
 		if($error != "")
@@ -1503,7 +1509,10 @@ class Model
 			}else{
 				$variables .= esc($var_name)."=".$var->escape($value)."";
 			}
-			$update_log .= "$var_name=$value";
+			if ($var_name!="password")
+				$update_log .= "$var_name=$value";
+			else
+				$update_log .= "$var_name=***";
 		}
 
 		$obj_name = $this->getObjectName();
