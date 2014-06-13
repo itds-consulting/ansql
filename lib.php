@@ -844,6 +844,9 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				}
 			}
 			print '</select>';
+			if(isset($field_format["add_custom"]))
+				print $field_format["add_custom"];
+
 			break;
 		case "radios":
 		case "radio":
