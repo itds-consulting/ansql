@@ -25,7 +25,7 @@ $debug_all = true;
 
 // array of tags that should be included or excluded from debug
 // a tag can't contain white spaces
-$debug_tags = array();
+$debug_tags = array("paranoid","in_framework");
 
 // default tag if tag is not specified
 $default_tag = "logic";
@@ -46,19 +46,25 @@ if(is_file("config.php"))
 
 class Debug
 {
-	/*
+	/**
 	 * Used when entering a function
-	 * Usage: Debug::func_start(__FUNCTION__,func_get_args());
+	 * Usage: Debug::func_start(__FUNCTION__,func_get_args()); -- in functions
+	 * Usage: Debug::func_start(__METHOD__,func_get_args(),"framework");  -- in methods
 	 * Output: Entered function_name(0 => array (0 => 'val1',1 => 'val2'),1 => NULL,2 => 'param3')
 	 * @param $func Function name
 	 * @param $args Array of arguments
+	 * @param $tag String Optional. If not set $default_tag is used
 	 */
-	public static function func_start($func,$args)
+	public static function func_start($func,$args,$tag=null)
 	{
-		Debug::xdebug("Entered ".$func."(".Debug::format_args($args).")");
+		global $default_tag;
+		if (!$tag)
+			$tag = $default_tag;
+
+		Debug::xdebug($tag,"Entered ".$func."(".Debug::format_args($args).")");
 	}
 
-	/*
+	/**
 	 * Function triggers the sending of a bug report
 	 * Current supported methods: mail, web (dump or notify)
 	 * Ex:
@@ -147,7 +153,7 @@ class Debug
 		}
 	}
 
-	/*
+	/**
 	 * Contacts $message to $_SESSION["xdebug"].
 	 * The writting of this log can be triggered or not.
 	 * Unless users report a bug or code reaches a developer triggered report,
@@ -181,7 +187,7 @@ class Debug
 		}
 	}
 
-	/*
+	/**
 	 * Logs/Prints a nice formated output of PHP debug_print_backtrace()
 	 */
 	public static function trace()
@@ -191,41 +197,55 @@ class Debug
 		self::output("------- Trace\n".$trace);
 	}
 
-	/*
+	/**
 	 * Logs/Prints a message
 	 * output is controled by $logs_in setting
 	 * Ex: $logs_in = array("web", "/var/log/applog.txt", "php://stdout");
 	 * 'web' prints messages on web page
 	 * If $logs_in is not configured default is $logs_in = array("web")
+	 * @param $tag String Tag for the message
 	 * @param $msg String Message to pe logged/printed
 	 */
-	public static function output($msg)
+	public static function output($tag,$msg=NULL)
 	{
 		global $logs_in;
 
-		if(!isset($logs_in))
+		// log output in xdebug as well
+		// if xdebug is written then this log will be duplicated
+		// but it will help debugging to have it inserted in appropriate place in xdebug log
+		self::xdebug($tag,$msg);
+		if ($msg==null && strpos($tag," ")) {
+			$msg = $tag;
+			$tag = "output";
+		}
+		if (!$msg) {
+			self::output("error", "Error in Debug::debug() tag=$tag, empty message in .");
+			return;
+		}
+
+		if (!isset($logs_in))
 			$logs_in = "web";
 
 		$arr = $logs_in;
 		if(!is_array($arr))
 			$arr = array($arr);
 
-		for($i=0; $i<count($arr); $i++) {
-			if($arr[$i] == "web") {
+		for ($i=0; $i<count($arr); $i++) {
+			if ($arr[$i] == "web") {
 				print "<br/>\n<br/>\n$msg<br/>\n<br/>\n";
 			} else {
 				$date = gmdate("[D M d H:i:s Y]");
-				if(!is_file($arr[$i]))
+				if (!is_file($arr[$i]))
 					$fh = fopen($arr[$i], "w");
 				else
 					$fh = fopen($arr[$i], "a");
-				fwrite($fh, $date.' '.$msg."\n");
+				fwrite($fh, $date.strtoupper($tag).": ".$msg."\n");
 				fclose($fh);
 			}
 		}
 	}
 
-	/*
+	/**
 	 * Outputs xdebug log in file of web page depending on $logs_in
 	 */
 	public static function dump_xdebug()
@@ -236,7 +256,7 @@ class Debug
 		$_SESSION["xdebug"] = "";
 	}
 
-	/*
+	/**
 	 * Contacts array of arguments and formats then returning a string
 	 * @param $args Array of function arguments
 	 * @return String with nicely formated arguments
@@ -253,7 +273,7 @@ class Debug
 		return $res;
 	}
 
-	/*
+	/**
 	 * Looks in $logs_in and returns a log file if set. It ignores 'web' and entry containing 'stdout'
 	 * @return String Log File 
 	 */
@@ -270,7 +290,7 @@ class Debug
 		return false;
 	}
 
-	/*
+	/**
 	 * Clears "triggered_report" variable from session
 	 */
 	public static function clear_triggered_error()
@@ -278,7 +298,7 @@ class Debug
 		unset($_SESSION["triggered_report"]);
 	}
 
-	/*
+	/**
 	 * Returns output of PHP debug_print_backtrace after stripping out name and name provided in @exclude
 	 * @param String Function name to exclude from trace
 	 * @return String Trace

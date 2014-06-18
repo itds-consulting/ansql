@@ -65,6 +65,8 @@ class Variable
 	 */
 	function __construct($type, $def_value = NULL, $foreign_key = NULL, $critical = false, $match_key = NULL, $join_type = NULL, $required = false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"paranoid");
+
 		$this->_type = $type;
 		$this->_value = (strtolower($def_value) != "!null") ? $def_value : NULL;
 		$this->_key = $foreign_key;
@@ -84,6 +86,8 @@ class Variable
 	public function escape($value)
 	{
 		global $db_type;
+
+		Debug::func_start(__METHOD__,func_get_args(),"paranoid");
 
 		if (!strlen($value) && ($value!==false && $this->_type!="bool"))
 			return 'NULL';
@@ -121,6 +125,8 @@ class Variable
 
 	public function isRequired()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"paranoid");
+
 		return $this->_required;
 	}
 }
@@ -157,6 +163,8 @@ class Database
 	{
 		global $db_type;
 
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if (!self::$_connection || self::$_connection===true)
 			return;
 
@@ -182,6 +190,8 @@ class Database
 	{
 		global $db_type, $callback_when_backup, $exit_gracefully;
 
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if (self::$_connection && self::$_connection!==true)
 			return self::$_connection;
 
@@ -194,7 +204,7 @@ class Database
 			if ($db_data[$i]=="db_type" && $connection_index!="")
 				$db_type = ${$db_setting};
 			if (!isset(${$db_setting})) {
-				Debug::Output(_("Missing setting")." '$".$db_setting."' ");
+				Debug::Output("config", _("Missing setting")." '$".$db_setting."' ");
 				return;
 			}
 		}
@@ -204,7 +214,7 @@ class Database
 		switch ($db_type) {
 			case "mysql":
 				if (!function_exists("mysql_connect")) {
-					Debug::Output(_("You don't have mysql package for php installed."));
+					Debug::Output("config", _("You don't have mysql package for php installed."));
 					die("You don't have mysql package for php installed.");
 				}
 				if (self::$_connection === true || !self::$_connection) 
@@ -212,19 +222,19 @@ class Database
 				break;
 			case "postgresql":
 				if (!function_exists("pg_connect")) {
-					Debug::Output(_("You don't have php-pgsql package installed."));
+					Debug::Output("config", _("You don't have php-pgsql package installed."));
 					die("You don't have php-pgsql package installed.");
 				}
 				if (self::$_connection === true || !self::$_connection)
 					self::$_connection = pg_connect("host='".${"db_host$connection_index"}."' dbname='".${"db_database$connection_index"}."' user='".${"db_user$connection_index"}."' password='".${"db_passwd$connection_index"}."'");
 				break;
 			default:
-				Debug::Output(_("Unsupported or unspecified database type")." db_type='$db_type'");
+				Debug::Output("config", _("Unsupported or unspecified database type")." db_type='$db_type'");
 				die("Unsupported or unspecified database type: db_type='$db_type'");
 				break;
 		}
 		if (!self::$_connection) {
-			Debug::Output(_("Could not connect to the database")." $connection_index");
+			Debug::Output("config", _("Could not connect to the database")." $connection_index");
 			self::$_connection = self::connect($next_index);
 			if (!self::$_connection) {
 				if (!isset($exit_gracefully) || !$exit_gracefully)
@@ -244,6 +254,7 @@ class Database
 	 */
 	public static function transaction()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
 		return Database::query("BEGIN WORK");
 	}
 
@@ -252,6 +263,7 @@ class Database
 	 */
 	public static function rollback()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
 		return Database::query("ROLLBACK");
 	}
 
@@ -260,6 +272,7 @@ class Database
 	 */
 	public static function commit()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
 		return Database::query("COMMIT");
 	}
 
@@ -272,12 +285,12 @@ class Database
 	 */
 	public static function query($query, $retrieve_last_id=false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
 		if (!self::connect())
 			return false;
 
-		if(isset($_SESSION["debug_all"]))
-//			print "<br/>\n<br/>\nquery :'.$query.'<br/>\n<br/>\n";
-			Debug::Output("query: $query");
+		if(isset($_SESSION["debug_all"]));
+			Debug::Output("query", $query);
 
 //		if (!self::is_single_query($query))
 //			return false;
@@ -297,7 +310,7 @@ class Database
 					$err = self::get_last_db_error();
 					if ($err)
 						$mess .= ". Error: ".$err;
-					Debug::Output("query failed: $mess");
+					Debug::Output("query failed", $mess);
 				}
 				return $res;
 			}
@@ -325,6 +338,7 @@ class Database
 
 	public static function get_last_db_error()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
@@ -342,6 +356,8 @@ class Database
 	 */
 	public static function db_query($query)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
@@ -364,6 +380,8 @@ class Database
 	 */
 	private static function query_result($query, $res, $retrieve_last_id)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $db_type, $func_query_result;
 
 		if (!isset($func_query_result))
@@ -442,11 +460,13 @@ class Database
 	 */
 	public static function queryRaw($query, $retrieve_last_id=false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if (!self::connect())
 			return false;
 		if(isset($_SESSION["debug_all"]))
-//			print "queryRaw: $query\n<br/>\n<br/>\n";
-			Debug::Output("queryRaw: $query");
+			Debug::Output("queryRaw", $query);
+
 		//if (!self::is_single_query($query))
 		//	return false;
 		$res = self::db_query($query);
@@ -462,6 +482,8 @@ class Database
 	 */
 	public static function createTable($table,$vars)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"dbstruct");
+
 		global $db_type, $enforce_basic_constrains;
 		if (!self::connect())
 			return false;
@@ -548,6 +570,8 @@ class Database
 	 */
 	public static function updateTable($table,$vars)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"dbstruct");
+
 		global $db_type, $critical_col_diff, $error_sql_update, $enforce_basic_constrains;
 
 		if (!self::connect())
@@ -559,7 +583,7 @@ class Database
 				$res = self::queryRaw($query);
 				if (!$res)
 				{
-					Debug::Output(_("Table")." '$table' "._("does not exist, we'll create it"));
+					Debug::Output('dbstruct', _("Table")." '$table' "._("does not exist, we'll create it"));
 					return self::createTable($table,$vars);
 				}
 				$cols = array();
@@ -571,7 +595,7 @@ class Database
 				$res = self::db_query($query);
 				if (!$res || !pg_num_rows($res))
 				{
-					Debug::Output(_("Table")." '$table' "._("does not exist, we'll create it"));
+					Debug::Output('dbstruct', _("Table")." '$table' "._("does not exist, we'll create it"));
 					return self::createTable($table,$vars);
 				}
 				for ($i=0; $i<pg_num_rows($res); $i++) {
@@ -605,7 +629,9 @@ class Database
 					$type = "int8";
 				if ($type == "bigint(20) unsigned not null auto_increment")  
 					$type = "bigint(20)";
-				Debug::Output(_("No field")." '$name' "._("in table")." '$table'".(", we'll create it"));
+
+				Debug::Output('dbstruct', _("No field")." '$name' "._("in table")." '$table'".(", we'll create it"));
+
 				$query = "ALTER TABLE ".esc($table)." ADD COLUMN ".esc($name)." $type";
 
 				if ($enforce_basic_constrains) {
@@ -617,7 +643,7 @@ class Database
 					}
 				}
 				if (!self::queryRaw($query)) {
-					Debug::Output(_("Could not update table")." '$table'. ".("Query failed").": '$query'");
+					Debug::Output('critical', _("Could not update table")." '$table'. ".("Query failed").": '$query'");
 					$error_sql_update = true;
 					continue;
 				}
@@ -626,7 +652,7 @@ class Database
 					$val = $var->escape($var->_value);
 					$query = "UPDATE ".esc($table)." SET ".esc($name)."=$val";
 					if (!self::queryRaw($query)) {
-						Debug::Output(_("Could not update table fields to default value for")." '$table'. "._("Query failed").": '$query'");
+						Debug::Output('critical', _("Could not update table fields to default value for")." '$table'. "._("Query failed").": '$query'");
 						$error_sql_update = true;
 					}
 				}
@@ -667,7 +693,8 @@ class Database
 					$str_not_null = ($var->_required) ? " NOT NULL" : "";
 					$str_default = (strlen($class_default)) ? " DEFAULT ".$class_default : "";
 
-					Debug::Output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." $dbtype$db_str_not_null$db_str_default ".strtoupper(_("but should be"))." $type$str_not_null$str_default");
+					Debug::Output('critical', _("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." $dbtype$db_str_not_null$db_str_default ".strtoupper(_("but should be"))." $type$str_not_null$str_default");
+
 				} else {
 					// Maintain compatibility with previous implementation
 					// Don't force user to set DEFAULT VALUES and NOT NULL for columns when their projects didn't need to
@@ -679,7 +706,7 @@ class Database
 					elseif ($dbtype == "varchar" && substr($type,0,7)=="varchar" && $db_type=='postgresql')
 						continue;
 
-					Debug::Output(_("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'");
+					Debug::Output('critical', _("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'");
 
 				}
 
@@ -700,6 +727,8 @@ class Database
 	 */
 	public static function createIndex($table, $columns)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"dbstruct");
+
 		global $db_type;
 		$no_error = true;
 		$make_vacuum = false;
@@ -732,6 +761,8 @@ class Database
 
 	public static function vacuum($table)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"dbstruct");
+
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
@@ -749,6 +780,8 @@ class Database
 
 	public static function escape($value)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"paranoid");
+
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
@@ -761,6 +794,8 @@ class Database
 
 	public static function escape_string()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"paranoid");
+
 		global $db_type;
 
 		if ($db_type == "mysql")
@@ -771,11 +806,15 @@ class Database
 
 	public static function unescape($value)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"paranoid");
+
 		return $value;
 	}
 
 	public static function likeOperator()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $db_type;
 		// we want case insensitive like. Use ILIKE for postgres, LIKE for mysql
 		switch ($db_type) {
@@ -789,6 +828,8 @@ class Database
 
 	public static function boolCondition($value)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
@@ -810,6 +851,8 @@ class Database
 
 function esc($col)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"paranoid");
+
 	return Database::escape_string().$col.Database::escape_string();
 }
 
@@ -834,6 +877,8 @@ class Model
 	 */
 	function __construct()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$this->_invalid = false;
 		$this->_model = self::getVariables(get_class($this));
 		$this->_set = false;
@@ -841,8 +886,10 @@ class Model
 		if (!is_array($this->_model))
 			return;
 		foreach ($this->_model as $name => $var) {
-			if($name == "__sql_relation")
+			if($name == "__sql_relation") {
+				Debug::trigger_report('critical', _("Invalid column name").": __sql_relation.");
 				exit(_("Invalid column name").": __sql_relation.");
+			}
 			$this->$name = $var->_value;
 		}
 	}
@@ -861,11 +908,13 @@ class Model
 	 */
 	public static function selection($class, $conditions=array(), $order= NULL, $limit=NULL, $offset=0, $given_where = NULL, $inner_query=NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables($class);
 		if (!$vars) 
 		{
 //			print '<font style="weight:bold;">You haven\'t included file for class '.$class.' try looking in ' . $class . 's.php</font>';
-			Debug::Output('You haven\'t included file for class '.$class.' try looking in ' . $class . 's.php');
+			Debug::trigger_report('critical','You haven\'t included file for class '.$class.' try looking in ' . $class . 's.php');
 			return null;
 		}
 		$table = self::getClassTableName($class);
@@ -910,6 +959,8 @@ class Model
 	 */
 	public function fieldSelect($fields, $conditions=array(), $group_by=NULL, $order=NULL, $inner_query=NULL, $extend_with=NULL, $given_where=NULL, $given_from=NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$table = $this->getTableName();
 		$class = get_class($this);
 
@@ -964,6 +1015,8 @@ class Model
 	 */
 	public function select($condition = NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables(get_class($this));
 		$add_select = "";
 		foreach ($vars as $var_name=>$var) {
@@ -1006,7 +1059,7 @@ class Model
 			return;
 		} elseif(count($res)>1) {
 			$this->invalidate();
-			self::warning(_("More results for a single id."));
+			Debug::trigger_report('critical',_("More results for a single id."));
 			return;
 		} else
 			$this->populateObject($res);
@@ -1024,6 +1077,8 @@ class Model
 	 */
 	public function extendedSelect($conditions = array(), $order = NULL, $limit = NULL, $offset = NULL, $inner_query = array(), $given_where = NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		// the array of variables from the object
 		$vars = $this->_model;
 		$table = $this->getTableName();
@@ -1128,9 +1183,9 @@ class Model
 				// if i get here then the object was wrongly extended OR user wanted to get a cartesion product of the two tables: 
 				// $table does not have a foreign key to $foreign_key_to table
 				// $foreign_key_to table oes not have a foreign key to $table
-				self::warning(_("No rule for extending table")." '$table' "._("with field")." '$var_name' "._("from table")." '$foreign_key_to'. "._("Generating cartesian product."));
+				Debug::trigger_report('critical', _("No rule for extending table")." '$table' "._("with field")." '$var_name' "._("from table")." '$foreign_key_to'. "._("Generating cartesian product."));
 				$from_clause .= ", ".esc($foreign_key_to)." ";
-			}elseif($foreign_key_to && $foreign_key_to == $table) {
+			} elseif($foreign_key_to && $foreign_key_to == $table) {
 				// this defines a recursive relation inside the same table, just 1 level
 				if(self::inTable($var_name,$table)) {
 					$col = "$table".'1'.".".esc($references_var);
@@ -1206,6 +1261,8 @@ class Model
 	 */
 	public function setObj($params)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!$this->_set)
 			$this->setParams($params);
 		return array(true, '', array());
@@ -1220,6 +1277,8 @@ class Model
 	 */
 	public function add($params=NULL, $retrieve_id=true, $keep_log=true)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if($params) {
 			$res = $this->verifyRequiredFields($params);
 			if(!$res[0])
@@ -1247,6 +1306,8 @@ class Model
 	 */
 	public function edit($params, $conditions = NULL, $verifications = array())
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if($params) {
 			$res = $this->verifyRequiredFields($params);
 			if(!$res[0])
@@ -1272,6 +1333,8 @@ class Model
 	 */
 	public function setParams($params)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$this->_set = true;
 
 		foreach($params as $param_name=>$param_value)
@@ -1288,6 +1351,8 @@ class Model
 	 */
 	public function insert($retrieve_id = true, $keep_log = true)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$columns = "";
 		$values = "";
 		$serials = array();
@@ -1363,6 +1428,8 @@ class Model
 	 */
 	public function buildInsertQuery()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$columns = "";
 		$values = "";
 		foreach ($this->_model as $var_name => $var)
@@ -1395,6 +1462,8 @@ class Model
 	 */
 	public function update($conditions = array(), $verifications = array())
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$where = "";
 		$variables = "";
 		$update_log = "";
@@ -1466,6 +1535,8 @@ class Model
 	 */
 	public function fieldUpdate($conditions = array(), $fields = array(), $verifications = array())
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$where = "";
 		$variables = "";
 		$update_log = "";
@@ -1539,6 +1610,8 @@ class Model
 	 */
 	public function verifyRequiredFields($params)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$error_fields = array();
 		$error = "";
 		$class = get_class($this);
@@ -1572,6 +1645,8 @@ class Model
 	  */
 	public static function rowExists($param, $value, $class, $id, $value_id = NULL, $additional = NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$table = self::getClassTableName($class);
 
 		$value_id = Database::escape($value_id);
@@ -1594,6 +1669,8 @@ class Model
 	  */
 	public function objectExists($id_name = NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables(get_class($this));
 		if (!$vars)
 			return null;
@@ -1604,7 +1681,7 @@ class Model
 		$class = get_class($this);
 		if(!$id_name || !$this->variable($id_name))
 		{
-			self::warning("$id_name "._("is not a defined variable inside the")." $class "._("object."));
+			self::trigger_report('critical',"$id_name "._("is not a defined variable inside the")." $class "._("object."));
 			exit();
 		}
 
@@ -1636,8 +1713,7 @@ class Model
 		$query = self::buildSelect($id_name,$table,$where);
 		$res = Database::query($query);
 		if($res === false || $res === NULL) {
-//			print ("Operation was blocked because query failed: '$query'.");
-			Debug::Output(_("Operation was blocked because query failed").": '$query'.");
+			Debug::trigger_report('critical',_("Operation was blocked because query failed").": '$query'.");
 			return true;
 		}
 		if(count($res)) {
@@ -1656,6 +1732,8 @@ class Model
 	 */
 	public function objDelete($conditions=array(), $seen=array(), $recursive=true)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables(get_class($this));
 		if (!$vars)
 			return null;
@@ -1679,7 +1757,8 @@ class Model
 				$where = '';
 		} else
 			$where = $this->makeWhereClause($conditions, true);
-	//	Debug::Output("entered objDelete ".get_class($this)." with conditions ".$where);
+
+		Debug::xdebug('framework',"in objDelete ".get_class($this)." with conditions ".$where);
 
 		if ($where == '') 
 			return array(false, _("Don't have any condition for deleting for object")." "._(get_class($this)));
@@ -1745,7 +1824,7 @@ class Model
 				return array(true, _("Successfully deleted ")._($res[1])._(" object(s) of type ")._(get_class($this)),$res[1]);
 		} else {
 			if ($cnt)
-				Debug::Output(_("Could not delete object of class ")._(get_class($this)));
+				Debug::trigger_report('critical',_("Could not delete object of class ")._(get_class($this)));
 			else
 				return array(false, _("Could not delete object of class ")._(get_class($this)));
 		}
@@ -1765,10 +1844,14 @@ class Model
 	 */
 	static function getObjectsToDump(&$objects_to_dump,$field_name, $field_value, $table, $exceptions=array(), $depth_in_search=0)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if (!self::$_models)
 			self::init();
-		if (!self::$_models)
+		if (!self::$_models) {
+			Debug::trigger_report("critical",_("Don't have models after init() was called."));
 			exit(_("Don't have modeles after init() was called."));
+		}
 
 		$dump_description = array();
 
@@ -1815,6 +1898,8 @@ class Model
 	 */ 
 	static function objectDumpDescription($obj, &$objects_to_dump, $depth_in_search)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$class_name = strtolower(get_class($obj));
 		$id_name = $obj->getIdName();
 		if (!$id_name)
@@ -1853,6 +1938,8 @@ class Model
 	 */
 	static function matchesDumpConditions($model, $field_name, $field_value, $table)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$dump_fields = array();
 		// or some other field might point to it (more than one field in the same object)
 		foreach ($model as $var_name=>$var) 
@@ -1887,6 +1974,8 @@ class Model
 	 */
 	public function ackDelete($conditions=array(), $message = "")
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables(get_class($this));
 		if(!$vars)
 			return null;
@@ -1909,9 +1998,9 @@ class Model
 					$where = " where ".esc($id_name)."=$id_value";
 					$conditions[$id_name] = $id_value;
 				}
-			}else
+			} else
 				$where = '';
-		}else
+		} else
 			$where = $this->makeWhereClause($conditions, true);
 
 		$objs = Model::selection(get_class($this),$conditions);
@@ -1971,6 +2060,8 @@ class Model
 	 */
 	public function extend($vars)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		foreach($vars as $var_name=>$table_name) 
 		{
 			$break_var_name = explode(":",$var_name);
@@ -1983,12 +2074,14 @@ class Model
 
 			if(isset($this->_model[$var_name]))
 			{
-				self::warning(_("Trying to override existing variable")." $var_name. "._("Ignoring this field when extending").".");
+				Debug::trigger_report('critical', _("Trying to override existing variable")." $var_name. "._("Ignoring this field when extending").".");
 				continue;
 			}
 			// don't let user extend the object using a numeric key
 			if(is_numeric($var_name))
 			{
+				Debug::trigger_report('critical',"$var_name "._("is not a valid variable name. Please do not use numbers or numeric strings as names for variables").".");
+
 				exit("$var_name "._("is not a valid variable name. Please do not use numbers or numeric strings as names for variables").".");
 			}
 			$tb_name = (!is_array($table_name)) ? $table_name : $table_name["table"];
@@ -2011,6 +2104,8 @@ class Model
 	 */
 	public function merge($object)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$party_vars = self::getVariables(get_class($object));
 		$vars = self::getVariables(get_class($this));
 		$party_table = $object->getTableName();
@@ -2031,6 +2126,8 @@ class Model
 	 */
 	public function nulify()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables(get_class($this));
 		foreach($vars as $var_name=>$var)
 			$this->{$var_name} = NULL;
@@ -2052,6 +2149,8 @@ class Model
 	 */
 	public static function objectsToArray($objects, $formats, $block = false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if (!count($objects))
 			return array();
 		// array of beginnings that will be stripped
@@ -2065,7 +2164,7 @@ class Model
 				$i++;
 				if ($i>200) 
 				{
-					Debug::Output(_("Infinit loop"));
+					Debug::trigger_report('critical',_("Infinit loop"));
 					return;
 				}
 			}	
@@ -2135,6 +2234,8 @@ class Model
 	 */
 	public function vacuum()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$table = $this->getTableName();
 		Database::vacuum($table);
 	}
@@ -2146,6 +2247,8 @@ class Model
 	*/
 	public static function sqlBool($value, $defval = 'NULL')
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if (($value === true) || ($value === 't'))
 			return 't';
 		if (($value === false) || ($value === 'f'))
@@ -2160,6 +2263,8 @@ class Model
 	 */
 	public function exportWhereClause($conditions)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return $this->makeWhereClause($conditions);
 	}
 
@@ -2168,6 +2273,8 @@ class Model
 	 */
 	public static function modified()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return self::$_modified;
 	}
 
@@ -2176,6 +2283,8 @@ class Model
 	 */
 	public static function reset_modified()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		self::$_modified = false;
 	}
 
@@ -2185,6 +2294,8 @@ class Model
 	 */
 	static function getModels()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$models = array();
 		$classes = get_declared_classes();
 		foreach ($classes as $class)
@@ -2204,6 +2315,8 @@ class Model
 	 */
 	static function init()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"in_framework");
+
 		if (self::$_models)
 			return;
 
@@ -2250,6 +2363,8 @@ class Model
 	 */ 
 	static function getCurrentDbIdentifier()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $db_identifier;
 
 		if (isset($db_identifier))
@@ -2264,6 +2379,8 @@ class Model
 	 */ 
 	static function getDefaultDbIdentifier()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $servers;
 		global $default_server;
 
@@ -2281,6 +2398,8 @@ class Model
 	 */ 
 	public function getDbIdentifier()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return array();
 	}
 
@@ -2290,6 +2409,8 @@ class Model
 	 */
 	static function updateAll()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $error_sql_update;		
 		
 		// Check the table columns
@@ -2321,7 +2442,7 @@ class Model
 			$table = $object->getTableName();
 			if (!Database::updateTable($table,$vars))
 			{
-				Debug::Output(_("Could not update table of class")." $class");
+				Debug::xdebug('critical',_("Could not update table of class")." $class");
 				//return false;
 				$error_sql_update = true;
 			}
@@ -2335,7 +2456,7 @@ class Model
 		}
 
 		if ($error_sql_update) {
-			Debug::Output(_("There were errors when updating your sql structure. Please check above logs for more details."));
+			Debug::trigger_report('critical',_("There were errors when updating your sql structure. Please check above logs for more details."));
 			return false;
 		}
 
@@ -2361,6 +2482,8 @@ class Model
 	 */
 	public static function getVariables($class)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"in_framework");
+
 		self::init();
 		$class = strtolower($class);
 		if (isset(self::$_models[$class]))
@@ -2376,6 +2499,8 @@ class Model
 	 */
 	public static function getVariable($class,$name)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"in_framework");
+
 		$vars = self::getVariables($class);
 		if (!$vars)
 			return null;
@@ -2388,6 +2513,8 @@ class Model
 	 */
 	public function extendedVariables()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return $this->_model;
 	}
 
@@ -2398,6 +2525,8 @@ class Model
 	 */
 	public function variable($name)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return isset($this->_model[$name]) ? $this->_model[$name] : null;
 	}
 
@@ -2407,6 +2536,8 @@ class Model
 	 */
 	public function getTableName()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$class = strtolower(get_class($this));
 		if(substr($class,-1) != "y")
 			return $class . "s";
@@ -2421,6 +2552,8 @@ class Model
 	 */
 	public static function getClassTableName($class)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!isset(self::$_models[strtolower($class)]))
 			return null;
 
@@ -2435,6 +2568,8 @@ class Model
 	 */
 	public static function getObject($table)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!$table)
 			return NULL;
 
@@ -2453,9 +2588,10 @@ class Model
 	 */
 	public static function warning($warn)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(isset($_SESSION["warning_on"]))
-//			print "<br/>\nWarning : $warn<br/>\n";
-			Debug::Output(_("Warning")." : $warn");
+			Debug::Output("warning",$warn);
 	}
 
 	/**
@@ -2464,9 +2600,10 @@ class Model
 	 */
 	public static function notice($note)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(isset($_SESSION["notice_on"]))
-//			print "<br/>\nNotice : $note<br/>\n";
-			Debug::Output(_("Notice")." : $note");
+			Debug::Output("notice",$note);
 	}
 
 	/**
@@ -2477,6 +2614,8 @@ class Model
 	 */
 	protected static function inTable($column_name, $table)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!($obj = self::getObject($table)))
 			return false;
 		if($obj->variable($column_name))
@@ -2491,6 +2630,8 @@ class Model
 	 */
 	public function getIdName()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$vars = self::getVariables(get_class($this));
 		foreach($vars as $name => $var)
 		{
@@ -2511,6 +2652,8 @@ class Model
 	 */
 	protected function invalidate()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		self::warning(_("Invalidating object").": ".get_class($this).".");
 		$this->_invalid = true;
 	}
@@ -2521,6 +2664,8 @@ class Model
 	 */
 	protected function isInvalid()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return $this->_invalid;
 	}
 
@@ -2535,6 +2680,8 @@ class Model
 	 */
 	protected static function buildSelect($columns, $from_clause=NULL, $where_clause=NULL, $order=NULL, $limit=NULL, $offset=0, $group_by = NULL, $having = NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$ord = self::makeOrderClause($order);
 		$order_clause = ($ord) ? " ORDER BY $ord" : NULL;
 		$limit_clause = ($limit) ? " LIMIT $limit" : NULL;
@@ -2560,6 +2707,8 @@ class Model
 	 */
 	public function makeWhereClause($conditions, $only_one_table = false, $without_table = false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$where = ' WHERE ';
 		if(!count($conditions))
 			return '';
@@ -2604,6 +2753,8 @@ class Model
 	 */
 	protected function buildAND_OR($key, $value, $obj_table, $only_one_table, $without_table)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		// this is an OR or an AND
 		$sql_rel = (isset($value["__sql_relation"])) ? $value["__sql_relation"] : "AND";
 		if($sql_rel == "AND")
@@ -2624,6 +2775,8 @@ class Model
 	 */
 	protected function buildAND($key, $allowed_values, $obj_table, $only_one_table = false, $without_table = false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$t_k = $this->getColumnName($key, $obj_table, $only_one_table, $without_table);
 
 		$clause = "";
@@ -2665,6 +2818,8 @@ class Model
 	 */
 	protected function buildOR($key, $conditions, $obj_table, $only_one_table = false, $without_table = false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$clause = "";
 		foreach($conditions as $column_name=>$value)
 		{
@@ -2694,6 +2849,8 @@ class Model
 	 */
 	protected function getColumnName($key, $obj_table, $only_one_table, $without_table)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!$without_table) 
 		{
 			// If $key starts with "__sql_" then use of function inside the clause is allowed.
@@ -2757,6 +2914,8 @@ class Model
 	 */
 	protected function makeCondition($key, $value, $obj_table, $only_one_table = false, $without_table = false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$t_k = $this->getColumnName($key, $obj_table, $only_one_table, $without_table);
 		// Arrays of operators that should be put at the beggining in $value 
 		// If none of this operators is used and $value does not have a special value then 
@@ -2833,6 +2992,8 @@ class Model
 	 */
 	protected static function makeOrderClause($order)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		// When writing the String one must pay attention to use "" for fields and tables that are in
 		// the special words in PostgreSQL
 		if(!count($order))
@@ -2869,6 +3030,8 @@ class Model
 	 */
 	protected function makeInnerQuery($inner_query=array(), $table = NULL, $where='')
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!is_array($inner_query) || !count($inner_query))
 			return $where;
 
@@ -2930,9 +3093,11 @@ class Model
 	 */
 	protected function populateObject($result)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(count($result) != 1)
 		{
-			self::warning(_("Trying to build single object from sql that has")." ".count($result)." "._("rows")."." ._("Invalidating object").".");
+			Debug::trigger_report('critical', _("Trying to build single object from sql that has")." ".count($result)." "._("rows")."." ._("Invalidating object").".");
 			$this->invalidate();
 			return;
 		}
@@ -2959,6 +3124,8 @@ class Model
 	 */
 	protected function buildArrayOfObjects($result)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		if(!count($result))
 			return array();
 		$objects = array();
@@ -2997,6 +3164,8 @@ class Model
 	 */
 	protected function allowHTML()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return array();
 	}
 
@@ -3008,6 +3177,8 @@ class Model
 	 */
 	public function toString($prefix = '', $skip=array())
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$model = $this->_model;
 		$str = "";
 		foreach($model as $var_name=>$var)
@@ -3028,6 +3199,8 @@ class Model
 	 */
 	public function getObjectName()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$class_name = get_class($this);
 		if(strtoupper($class_name) == $class_name)
 			return str_replace("_"," ",$class_name);
@@ -3042,6 +3215,8 @@ class Model
 	 */
 	public static function escapeSpace($val)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		$val = str_replace("\n", "", $val); //make sure new lines are not accepted
 		return str_replace(" ", "\ ", $val);
 	}
@@ -3054,6 +3229,8 @@ class Model
 	 */
 	static function writeLog($log, $query = NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $enable_logging;
 
 		if($enable_logging !== true && $enable_logging != "yes" && $enable_logging != "on")
@@ -3074,6 +3251,8 @@ class Model
 	 */
 	protected function isPerformer()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return false;
 	}
 
@@ -3084,6 +3263,8 @@ class Model
 	 */
 	public function getNameInLogs()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		return get_class($this);
 	}
 
@@ -3095,6 +3276,8 @@ class Model
 	 */
 	public function getDbEngine()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
 		global $db_engine;
 
 		if (isset($db_engine))
