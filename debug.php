@@ -25,7 +25,7 @@ $debug_all = true;
 
 // array of tags that should be included or excluded from debug
 // a tag can't contain white spaces
-$debug_tags = array("paranoid","in_framework");
+$debug_tags = array("paranoid","in_framework","in_ansql","ansql","framework");
 
 // default tag if tag is not specified
 $default_tag = "logic";
@@ -223,8 +223,12 @@ class Debug
 			return;
 		}
 
-		if (!isset($logs_in))
-			$logs_in = "web";
+		// In case we didn't configure a log file just throw this in the apache logs
+		// The majority of admins/people installing will know to look in apache logs for issues
+		if (!isset($logs_in)) {
+			trigger_error("$tag: $msg", E_USER_NOTICE);
+			return;
+		}
 
 		$arr = $logs_in;
 		if(!is_array($arr))

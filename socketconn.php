@@ -18,6 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+require_once("debug.php");
 
 // Class used to open a socket, send and receive information from it
 // after connecting the header information send by yate si stripped and you can authentify if required
@@ -28,6 +29,8 @@ class SocketConn
 
 	function __construct($ip = null, $port = null)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
 		global $default_ip, $default_port, $rmanager_pass, $socket_timeout;
 		global $default_tries;
 
@@ -68,6 +71,8 @@ class SocketConn
 
 	function write($str)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
 		fwrite($this->socket, $str."\r\n");
 	}
 
@@ -76,6 +81,8 @@ class SocketConn
 	 */ 
 	function read($marker_end = "\r\n",$limited_tries=false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
 		global $default_tries;
 		if (!$limited_tries)
 			$limited_tries = $default_tries; 
@@ -105,6 +112,8 @@ class SocketConn
 
 	function close()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
 		fclose($this->socket);
 	}
 
@@ -119,6 +128,8 @@ class SocketConn
 	 */
 	function command($command, $marker_end = "\r\n", $limited_tries=false)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
 		// if after sending command to yate, the page seems to stall it might be because the generated message has not handled or retval was not set
 		$this->write($command);
 		return $this->read($marker_end,$limited_tries);

@@ -14,6 +14,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */ 
 
+require_once("debug.php");
+
 class Response extends GenericStatus
 {
 	// optional generic $info, in case you need to return a specific object/value
@@ -21,6 +23,7 @@ class Response extends GenericStatus
 
 	public function __construct($status=true, $p1=NULL, $p2=NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		parent::__construct($status, $p1, $p2);
 		if ($status)
 			$this->info = $p1;
@@ -40,6 +43,7 @@ class GenericStatus
 
 	public function __construct($status=true, $p1=NULL, $p2=NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->status = $status;
 
 		if (!$this->status) {
@@ -55,11 +59,13 @@ class GenericStatus
 
 	public function status()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		return $this->status;
 	}
 
 	public function setError($p1=NULL,$p2=NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->status = false;
 		if (is_numeric($p1)) {
 			$this->code = $p1;
@@ -76,6 +82,7 @@ class GenericStatus
 	 */
 	private function setErrorMessage($message)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if (isset($this->error_message) && strlen($this->error_message))
 			$this->error_message .= "\n".$message;
 		else
@@ -88,6 +95,7 @@ class GenericStatus
 	 */
 	private function setErrorCode($code)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if (isset($this->code) && strlen($this->code))
 			return;
 
@@ -96,11 +104,13 @@ class GenericStatus
 
 	public function getError()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		return $this->error_message;
 	}
 
 	public function getErrorCode()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		return $this->error_code;
 	}
 }

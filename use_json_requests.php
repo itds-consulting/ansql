@@ -15,8 +15,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */ 
 
+require_once("debug.php");
+
 function make_request($out, $request=null, $response_is_array=true, $recursive=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $send_request_function;
 	global $path_api;
 
@@ -34,6 +38,8 @@ function make_request($out, $request=null, $response_is_array=true, $recursive=t
 
 function make_direct_request($out, $request=null, $response_is_array=true, $recursive=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $path_api;
 
 	$func = $request;
@@ -45,6 +51,8 @@ function make_direct_request($out, $request=null, $response_is_array=true, $recu
 	}
 
 	require_once($page);
+	// handle_direct_request must be implemented separately
+	// and it's application specific
 	$inp = handle_direct_request($func,$out);
 
 	if ($func == "get_captcha")
@@ -52,17 +60,19 @@ function make_direct_request($out, $request=null, $response_is_array=true, $recu
 
 	check_errors($inp);
 	if (($inp["code"]=="215" || $inp["code"]=="226") && $recursive) {
-		$res = curl_request(array(),"get_user",true,false);
+		$res = make_curl_request(array(),"get_user",true,false);
 		if ($res["code"]=="0" && isset($res["user"])) 
 			$_SESSION["site_user"] = $res["user"];
-		// else
-		//       bad luck, maybe submit bug report
+		else
+			Debug::trigger_report("critical","Could not handle direct request nor curl request for $request");
 	}
 	return $inp;
 }
 
 function build_request_url(&$out,&$request)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $server_name,$request_protocol;
 
 	if (!isset($request_protocol))
@@ -75,6 +85,8 @@ function build_request_url(&$out,&$request)
 
 function make_curl_request($out, $request=null, $response_is_array=true, $recursive=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $method;
 	global $conn_error;
 	global $parse_errors;
@@ -229,6 +241,8 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 
 function write_error($request, $out, $ret, $http_code, $displayed_response=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $parse_errors, $display_parse_error;
 
 	$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : "-";
@@ -237,6 +251,9 @@ function write_error($request, $out, $ret, $http_code, $displayed_response=null)
 		."Received HTTP CODE=$http_code : ".$ret."\n";
 	if ($displayed_response)
 		$text .= "Displayed: ".json_encode($displayed_response)."\n";
+
+	// keep writing errors separately but also write them to common logs file
+	Debug::trigger_report('ansql_json', $text);
 
 	if (isset($parse_errors) && strlen($parse_errors)) {
 		$fh = fopen($parse_errors, "a");
@@ -255,11 +272,16 @@ function write_error($request, $out, $ret, $http_code, $displayed_response=null)
 		$text = str_replace("\n", "<br/>", $text);
 		print $text;
 	}
-		
 }
 
+/** 
+ * DEPRECATED. Use Debug::output() or Debug::xdebug('progress',$message) instead
+ */
 function write_text_error($message)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+	Debug::output('critical',$message);
+
 	global $parse_errors;
 	if (isset($parse_errors) && strlen($parse_errors)) {
 		$fh = fopen($parse_errors, "a");
@@ -274,6 +296,8 @@ function write_text_error($message)
 
 function not_auth($res)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	if ($res["code"]=="43")
 		return true;
 	return false;
@@ -281,6 +305,8 @@ function not_auth($res)
 
 function check_errors(&$res)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $error_codes;
 
 	if ($res!=null && (!isset($res["message"]) || (!strlen($res["message"]))) && @array_key_exists('code',$res)) {
@@ -308,12 +334,16 @@ function check_errors(&$res)
 
 function response($response)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	print json_encode($response,JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 	return;
 }
 
 function check_session_on_request()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	if (!isset($_SESSION["user_id"])) {
 		response(array("code"=>"43", "message"=>"Not authenticated."));
 		return false;
@@ -323,7 +353,9 @@ function check_session_on_request()
 
 function logout_from_api()
 {
-	curl_request(array(),"logout");
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
+	make_curl_request(array(),"logout");
 }
 
 

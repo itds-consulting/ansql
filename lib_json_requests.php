@@ -15,10 +15,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */ 
 
+require_once("debug.php");
+
 $content_sent = false;
 
 function send_content()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $content_sent;
 	if ($content_sent)
 		return;
@@ -28,6 +32,8 @@ function send_content()
 
 function send_error($errcode,$errtext)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $content_sent;
 	if (!$content_sent)
 		header("HTTP/1.1 $errcode $errtext");
@@ -35,6 +41,8 @@ function send_error($errcode,$errtext)
 
 function check_request($method,$secret = "")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $allow_http, $exception_to_https;
 
 	if (!isset($allow_http))
@@ -78,11 +86,14 @@ function check_request($method,$secret = "")
 
 function valid_param($param)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return ($param !== null) && ($param != "");
 }
 
 function arr_to_db($arr, $class_name, $edit_function="edit", $obj_id=NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	$obj = new $class_name;
 
 	$vars = Model::getVariables($class_name);
@@ -147,6 +158,8 @@ function arr_to_db($arr, $class_name, $edit_function="edit", $obj_id=NULL)
 
 function check_response($out)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	$arr = array();
 	foreach ($out as $name=>$val) {
 		if (is_array($val))
@@ -162,6 +175,8 @@ function check_response($out)
 
 function translate_error_to_code($res, $exception_true=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 //	if (is_array($res) && count($res)==1 && $res[0]===true)
 //		return $res;
 
@@ -204,6 +219,8 @@ function translate_error_to_code($res, $exception_true=false)
 
 function clean_session()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $direct_request;
 	
 	// taken from comments on php site for session_unset
@@ -238,6 +255,8 @@ session_regenerate_id(true);*/
 
 function set_session()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $sesslife_json;
 
 	if (isset($sesslife_json))
@@ -252,6 +271,8 @@ function set_session()
 
 function retrieve_json()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $json;
 
 	$json = file_get_contents('php://input');
@@ -263,6 +284,8 @@ function retrieve_json()
 
 function write_response($out)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $error_codes, $add_newline, $enable_logs, $logs_file;
 	global $start_time, $med_time;
 	global $func_name, $class_name, $request_id;
@@ -302,6 +325,8 @@ function write_response($out)
 
 function process_request($inp, $func="arr_to_db", $class_name=NULL, $exit_after_func_ok=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $json, $enable_r_logs, $request_id, $r_logs_file;
 
 	$request_id = rand();
@@ -369,6 +394,8 @@ function process_request($inp, $func="arr_to_db", $class_name=NULL, $exit_after_
 // in case backup database connection is used, call this function to record this in the logs
 function log_used_backup_conn($connection_index)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $used_backup, $server_id;
 
 	$used_backup = "Used backup connection '$connection_index' for server_id=$server_id";

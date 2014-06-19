@@ -16,7 +16,6 @@
  */ 
 
 require_once("ansql/base_classes.php");
-require_once("ansql/debug.php");
 
 class GenericFile extends GenericStatus
 {
@@ -26,11 +25,13 @@ class GenericFile extends GenericStatus
 
 	function __construct($file_name)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->filename = $file_name;
 	}
 
 	function openForRead()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if (isset($this->read_handler))
 			return;
 
@@ -45,6 +46,7 @@ class GenericFile extends GenericStatus
 
 	function openForWrite()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if (isset($this->write_handler))
 			return;
 
@@ -55,6 +57,7 @@ class GenericFile extends GenericStatus
 
 	function getHandler($type="r")
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if ($type == "r")
 			$this->openForRead();
 		elseif ($type == "w")
@@ -68,6 +71,7 @@ class GenericFile extends GenericStatus
 
 	function close()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if (isset($this->read_handler)) {
 			fclose($this->read_handler);
 			unset($this->read_handler);
@@ -80,6 +84,7 @@ class GenericFile extends GenericStatus
 
 	function createBackup()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$backup = $this->filename.".tmp";
 
 		if (!file_exists($this->filename))
@@ -91,6 +96,7 @@ class GenericFile extends GenericStatus
 
 	function restoreBackup()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$backup_file = $this->filename.".tmp";
 
 		if (!file_exists($backup_file))
@@ -104,6 +110,7 @@ class GenericFile extends GenericStatus
 
 	function removeBackup()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$bk_file = $this->filename.".tmp";
 
 		if (file_exists($bk_file))
@@ -113,6 +120,7 @@ class GenericFile extends GenericStatus
 
 	function safeSave($content=NULL)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->createBackup();
 		if (!$this->status())
 			return;
@@ -141,6 +149,7 @@ class ConfFile extends GenericFile
 
 	function __construct($file_name,$read=true,$write_comments=true,$lines="\n")
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		parent::__construct($file_name);
 		$this->write_comments = $write_comments;
 		$this->lines = $lines;
@@ -151,6 +160,7 @@ class ConfFile extends GenericFile
 
 	function read($close=true)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->openForRead();
 		if (!$this->status())
 			return;
@@ -198,6 +208,7 @@ class ConfFile extends GenericFile
 
 	public function save()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->openForWrite();
 		if (!$this->status())
 			return;
@@ -250,6 +261,7 @@ class ConfFile extends GenericFile
 
 	function getSection($section)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		if (!strlen($section)) {
 			$this->setError("Please specify section name.");
 			return;
@@ -271,6 +283,7 @@ class JsObjFile extends GenericFile
 
 	public function __construct($filename, $prefix="", $suffix="", $block=array())
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		parent::__construct($filename, false);
 
 		$this->block = $block;
@@ -280,6 +293,7 @@ class JsObjFile extends GenericFile
 
 	public function read($close=true)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->openForRead();
 		if (!$this->status())
 			return;
@@ -316,6 +330,7 @@ class JsObjFile extends GenericFile
 
 	public function save()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->openForWrite();
 		if (!$this->status())
 			return;
@@ -409,6 +424,7 @@ class JsObjFile extends GenericFile
 
 	public function getObject()
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		return $this->block;
 	}
 }

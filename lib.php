@@ -18,12 +18,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-
+require_once("debug.php");
 
 global $module, $method, $action, $vm_base, $limit, $db_true, $db_false, $limit, $page, $system_standard_timezone;
 
 function include_classes($path='')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	$classes_dirs = array("classes/", "ansql/default_classes");
 
 	for ($i=0; $i<count($classes_dirs); $i++) {
@@ -61,6 +63,8 @@ if (!isset($system_standard_timezone))
 
 function get_default_function()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $module, $method, $action;
 
 	if(!$method)
@@ -76,16 +80,22 @@ function get_default_function()
 
 function testpath($path)
 {
-	if (ereg("[^A-Za-z0-9_]",$path)) 
-	{
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
+	if (ereg("[^A-Za-z0-9_]",$path)) {
 		// Client tried to hack around the path naming rules - ALERT!
-print "by here ereg matched $path : ".ereg("[^A-Za-z0-9_]",$path);
+
+		//print "by here ereg matched $path : ".ereg("[^A-Za-z0-9_]",$path);
+		Debug::trigger_report('operational', "Ereg matched $path : ".ereg("[^A-Za-z0-9_]",$path)." session: ".print_r($_SESSION,true));
+
 		forbidden();
-    }
+	}
 }
 
 function forbidden()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	header("403 Forbidden");
 	session_unset();
 	print '<html><body style="color:red">Forbidden</body></html>';
@@ -94,6 +104,8 @@ function forbidden()
 
 function start_form($action = NULL, $method = "post", $allow_upload = false, $form_name = NULL, $class=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	global $module;
 
 	if(!$method)
@@ -113,21 +125,25 @@ function start_form($action = NULL, $method = "post", $allow_upload = false, $fo
 
 function end_form()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	?></form><?php
 }
 
 function note($note)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	print 'Note!! '.$note.'<br/>';
 }
 
 function errornote($text)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	print "<br/><font color=\"red\" style=\"font-weight:bold;\" > Error!!</font> <font style=\"font-weight:bold;\">$text</font><br/>";
 }
 
 function message($text, $path=NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module,$method;
 
 	print '<div class="notice">'."\n";
@@ -139,6 +155,7 @@ function message($text, $path=NULL)
 
 function errormess($text, $path=NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
 	if(!$path)
@@ -153,6 +170,7 @@ function errormess($text, $path=NULL)
 
 function notice($message, $next=NULL, $no_error = true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
 	if(!$next)
@@ -169,11 +187,13 @@ function notice($message, $next=NULL, $no_error = true)
 
 function plainmessage($text)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	print "<br/><font style=\"font-weight:bold;\">$text</font><br/><br/>";
 }
 
 function notify($res)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $path;
 
 	if($res[0])
@@ -184,6 +204,7 @@ function notify($res)
 
 function escape_page_params()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	foreach ($_POST as $param=>$value)
 		$_POST[$param] =  escape_page_param($value);
 	foreach ($_GET as $param=>$value)
@@ -194,6 +215,7 @@ function escape_page_params()
 
 function escape_page_param($value)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"paranoid");
 	if (!is_array($value))
 		return htmlentities($value);
 	else  {
@@ -205,6 +227,7 @@ function escape_page_param($value)
 
 function getparam($param,$escape = true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"paranoid");
 	$ret = NULL;
 	if (isset($_POST[$param]))
 		$ret = $_POST[$param];
@@ -242,11 +265,13 @@ function getparam($param,$escape = true)
 
 function killspaces($value)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return str_replace(' ','_',$value);
 }
 
 function Numerify($num, $very_big = false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if ($num == '0') 
 		$num = '0';
 	if($very_big) {
@@ -263,6 +288,7 @@ function Numerify($num, $very_big = false)
 // Build a full date string from parts, return false on failure, true on empty
 function dateCheck($year,$month,$day,$hour,$end)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if ("$year$month$day" == "") {
 		if ($hour == "")
 	    	return true;
@@ -270,7 +296,7 @@ function dateCheck($year,$month,$day,$hour,$end)
 	    	return false;
 		$hour=sprintf(" %02u:%02u:%02u",$hour,$end,$end);
 		return gmdate("Y-m-d") . $hour;
-    }
+	}
 	if (!($year && $month && $day))
 		return false;
 	if ($hour == "")
@@ -284,6 +310,7 @@ function dateCheck($year,$month,$day,$hour,$end)
 
 function items_on_page($nrs = array(20,50,100))
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method, $action, $limit;
 
 	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
@@ -322,6 +349,7 @@ function items_on_page($nrs = array(20,50,100))
 
 function pages($total = NULL, $params = array())
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $limit, $page, $module, $method, $action;
 	if(!$limit)
 		$limit = 20;
@@ -438,6 +466,7 @@ function pages($total = NULL, $params = array())
 
 function navbuttons($params=array(),$class = "llink")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method, $page;
 
 	$step = '';
@@ -488,6 +517,7 @@ function navbuttons($params=array(),$class = "llink")
 
 function check_valid_mail($mail)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(!$mail)
 		return true;
 
@@ -497,6 +527,7 @@ function check_valid_mail($mail)
 
 function addHidden($action=NULL, $additional = array(), $empty_page_params=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $method,$module;
 
 	if (($method || $empty_page_params) && !isset($additional["method"]))
@@ -555,6 +586,7 @@ function addHidden($action=NULL, $additional = array(), $empty_page_params=false
  */
 function editObject($object, $fields, $title, $submit="Submit", $compulsory_notice=NULL, $no_reset=false, $css=NULL, $form_identifier='', $td_width=NULL, $hide_advanced=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(!$css)
 		$css = "edit";
 
@@ -677,6 +709,7 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 
 function cancel_button($css="", $name="Cancel")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$res = null;
 	if (isset($_SESSION["previous_page"])) {
 		$link = $_SESSION["main"]."?";
@@ -689,6 +722,7 @@ function cancel_button($css="", $name="Cancel")
 
 function cancel_params()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$link = "";
 	foreach ($_SESSION["previous_page"] as $param=>$value)
 		$link.= "$param=".urlencode($value)."&";
@@ -697,6 +731,7 @@ function cancel_params()
 
 function display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$q_mark = false;
 	if(isset($field_format["advanced"]))
 		$have_advanced = true;
@@ -915,10 +950,14 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print "&nbsp;";
 			break;
 		default:
-			// need to do a callback here
-			// it might be that we don't have the name seeted to that the javascript function that display the advanced settings could work 
+			// make sure the function that displays the advanced field is included
 			if(isset($field_format["advanced"]))
 				print '<input type="hidden" name="'.$form_identifier.$field_name.'">';
+
+			if(!function_exists($display))
+				Debug::trigger_report('critical', "Function $display is not implemented.");
+
+			// callback here
 			$value = $display($value,$form_identifier.$field_name); 
 			if($value)
 				print $value;
@@ -938,9 +977,11 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 
 function find_field_value($res, $line, $field)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	for($j=0; $j<pg_num_fields($res); $j++) {
 		if (pg_field_name($res,$j) == $field)
-				return pg_fetch_result($res,$line,$j);
+			return pg_fetch_result($res,$line,$j);
 	}
 
 	return NULL;
@@ -948,7 +989,9 @@ function find_field_value($res, $line, $field)
 
 function tree($array, $func = "copacClick",$class="copac",$title=NULL)
 {
-    global $module,$path;
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+	global $module,$path;
+
 	$i = 0;
 	if (!isset($array[$i]) && count($array))
 		while(!isset($array[$i]))
@@ -998,6 +1041,7 @@ function tree($array, $func = "copacClick",$class="copac",$title=NULL)
 
 function in_formats($field, $formats)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	foreach($formats as $key=>$value) {
 		if (substr_count($key, $field))
 			return array("key"=>$key, "value"=>$value);
@@ -1008,12 +1052,13 @@ function in_formats($field, $formats)
 
 function query_to_array($res, $formats=array())
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$begginings = array('1_', '2_' ,'3_' , '4_', '5_', '6_', '7_', '8_', '9_', '0_');
 
-    $array = array();
-    for($i=0; $i<pg_num_rows($res);$i++) {
-        $array[$i] = array();
-        for($j=0; $j<pg_num_fields($res); $j++) {
+	$array = array();
+	for($i=0; $i<pg_num_rows($res);$i++) {
+		$array[$i] = array();
+		for($j=0; $j<pg_num_fields($res); $j++) {
 			$nm = pg_field_name($res,$j);
 			$value = pg_fetch_result($res,$i,$j);
 			if(isset($formats[$nm]) || in_formats($nm, $formats)) {
@@ -1046,17 +1091,19 @@ function query_to_array($res, $formats=array())
 							$value = call_user_func_array($name,$params);
 							$save_nm = implode(":",$save_nm);
 						}
-				}elseif($val)
+				} elseif($val)
 					$nm = $val;
 			}
-            $array[$i][$nm] = $value;
-        }
-    }
-    return $array;
+			$array[$i][$nm] = $value;
+		}
+	}
+	return $array;
 }
 
 function tableOfObjects_objectnames($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(),$object_actions_names=array())
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	tableOfObjects($objects, $formats, $object_name, $object_actions, $general_actions, NULL, false, "content", array(), $object_actions_names);
 }
 
@@ -1087,6 +1134,8 @@ function tableOfObjects_objectnames($objects, $formats, $object_name, $object_ac
  */
 function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $select_all = false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"paranoid");
+
 	global $db_true, $db_false, $module;
 
 	if(!$db_true)
@@ -1270,9 +1319,11 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 
 function links_general_actions($general_actions, $no_columns, $css, $base, $on_top=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	if (!count($general_actions))
 		return;
-    
+
 	$pos_css = ($on_top) ? "starttable" : "endtable";
 
 		print '<tr class="'.$css.' endtable">';
@@ -1319,6 +1370,8 @@ function links_general_actions($general_actions, $no_columns, $css, $base, $on_t
 
 function get_plural_form($object_name)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
 	if (substr($object_name,0,7)=="__keep_") {
 		return substr($object_name,7);
 	} elseif(class_exists($object_name)){
@@ -1336,12 +1389,14 @@ function get_plural_form($object_name)
 }
 
 function trim_value(&$value) 
-{ 
+{
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$value = trim($value); 
 }
 
 function table($array, $formats, $element_name, $id_name, $element_actions =array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $table_id=null, $select_all=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
 	if(!$css)
@@ -1561,6 +1616,7 @@ function table($array, $formats, $element_name, $id_name, $element_actions =arra
 
 function ack_delete($object, $value=NULL, $message=NULL, $object_id=NULL, $value_id=NULL, $additional=NULL, $next=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method;
 
 	if(!$object_id)
@@ -1604,22 +1660,26 @@ function ack_delete($object, $value=NULL, $message=NULL, $object_id=NULL, $value
 
 function month_year($value=null,$key=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$date = params_date($value);
 	return set_month($date["month"],$key).set_year($date["year"],$key);
 }
 
 function month_day_year_hour_end($val,$key = NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return month_day_year_hour($val,$key,true,true,false);
 }
 
 function day_month_year_hour_end($val,$key = NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return day_month_year_hour($val,$key,true,true,false);
 }
 
 function month_day_year($val,$key=null,$etiquettes=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$date = params_date($val);
 	$res = set_month($date["month"], $key, $etiquettes);
 	$res.= set_day($date["day"], $key, $etiquettes);
@@ -1629,6 +1689,7 @@ function month_day_year($val,$key=null,$etiquettes=false)
 
 function month_day_year_hour($date, $key='', $default_today=true, $etiquettes=true, $begin_hour=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$date = params_date($date, $default_today, $begin_hour);
 	$res = set_month($date["month"], $key, $etiquettes);
 	$res.= set_day($date["day"], $key, $etiquettes);
@@ -1639,6 +1700,7 @@ function month_day_year_hour($date, $key='', $default_today=true, $etiquettes=tr
 
 function day_month_year_hour($date, $key='', $default_today=true, $etiquettes=true, $begin_hour=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$date = params_date($date, $default_today, $begin_hour);
 	$res = set_day($date["day"], $key, $etiquettes);
 	$res.= set_month($date["month"], $key, $etiquettes);
@@ -1649,6 +1711,7 @@ function day_month_year_hour($date, $key='', $default_today=true, $etiquettes=tr
 
 function params_date($date, $default_today=false, $begin_hour=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$month = $day = $year = $hour = "";
 	if ((!$date || $date == '') && $default_today) {
 		/*$today = explode("-",date('F-j-Y-H-i',time()));
@@ -1683,6 +1746,7 @@ function params_date($date, $default_today=false, $begin_hour=null)
 
 function set_hour($hour, $key='', $etiquettes=false, $js='')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$res = "";
 	if ($etiquettes)
 		$res .= "&nbsp;Hour:&nbsp;";
@@ -1697,6 +1761,7 @@ function set_hour($hour, $key='', $etiquettes=false, $js='')
 
 function set_year($year, $key='', $etiquettes=false, $js='')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$res = "";
 	if ($etiquettes)
 		$res .= "&nbsp;Year:&nbsp;";
@@ -1706,6 +1771,7 @@ function set_year($year, $key='', $etiquettes=false, $js='')
 
 function set_month($month, $key='', $etiquettes=false, $default_today=false, $js='')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$months = array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");;
 	$res = "";
 	if ($etiquettes)
@@ -1725,6 +1791,7 @@ function set_month($month, $key='', $etiquettes=false, $default_today=false, $js
 
 function set_day($day, $key='', $etiquettes=false, $default_today=false, $js="")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$res = "";
 	if ($etiquettes)
 		$res .= "Day:&nbsp;";
@@ -1741,6 +1808,7 @@ function set_day($day, $key='', $etiquettes=false, $default_today=false, $js="")
 
 function seconds_trunc($time, $floor=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $date_format;
 
 	$date = explode(" ",$time);
@@ -1772,11 +1840,13 @@ function seconds_trunc($time, $floor=false)
 
 function seconds_trunc_floor($time)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return seconds_trunc($time,true);
 }
 
 function select_date($timestamp)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $date_format;
 
 	$timestamp = check_timezone($timestamp);
@@ -1789,12 +1859,14 @@ function select_date($timestamp)
 
 function european_date($date)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$date = explode("-",$date);
 	return $date[2]."-".$date[1]."-".$date[0];
 }
 
 function select_time($timestamp)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$timestamp = check_timezone($timestamp);
 	$date = seconds_trunc($timestamp);
 	$date = explode(' ',$date);
@@ -1803,6 +1875,7 @@ function select_time($timestamp)
 
 function trunc_date($timestamp)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $date_format;
 
 	$timestamp = check_timezone($timestamp);
@@ -1821,6 +1894,7 @@ function trunc_date($timestamp)
 //	formatfor $timestamp must be Y-m-d H:i:s.miliseconds
 function check_timezone($timestamp, $reverse_apply=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $system_standard_timezone;
 
 	// check if $_SESSION["timezone"] is set and if is different from system timezone
@@ -1853,6 +1927,7 @@ function check_timezone($timestamp, $reverse_apply=false)
 
 function get_timezone_diff($reverse_apply=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $system_standard_timezone;
 
 	// check if $_SESSION["timezone"] is set and if is different from system timezone
@@ -1877,6 +1952,7 @@ function get_timezone_diff($reverse_apply=false)
 
 function add_interval($timestamp, $unit, $nr)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$timestamp = explode(" " ,$timestamp);
 	$date = explode("-",$timestamp[0]);
 	$time = explode(".",$timestamp[1]);
@@ -1896,6 +1972,7 @@ function add_interval($timestamp, $unit, $nr)
 
 function get_time($key='',$hour2='00',$min='00',$sec="00")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$day = getparam($key."day");
 	if(!$day)
 		return null;
@@ -1918,6 +1995,7 @@ function get_time($key='',$hour2='00',$min='00',$sec="00")
 
 function get_date($key='',$_hour='00',$min='00',$sec='00')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$day = getparam($key."day");
 	$month = getparam($key."month");
 	if(!$day || !$month)
@@ -1947,6 +2025,7 @@ function get_date($key='',$_hour='00',$min='00',$sec='00')
 
 function insert_letters($link = "main.php", $force_method = NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module,$method;
 
 	if (is_array($module))
@@ -1980,6 +2059,7 @@ function insert_letters($link = "main.php", $force_method = NULL)
 
 function insert_numbers($link = "main.php")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module,$method;
 
 	$nr = getparam("nr");
@@ -2002,6 +2082,7 @@ function insert_numbers($link = "main.php")
 
 function interval_to_minutes($interval)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(!$interval)
 		return NULL;
 	$interval2 = explode(':',$interval);
@@ -2011,6 +2092,7 @@ function interval_to_minutes($interval)
 
 function minutes_to_interval($minutes = NULL)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	//minutes should be interger: ingoring seconds
 	$minutes = floor($minutes);
 
@@ -2030,6 +2112,7 @@ function minutes_to_interval($minutes = NULL)
 
 function gen_random($lim = 8)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$nr = '';
 	for ($digit = 0; $digit < $lim; $digit++) {
 		$r = rand(0,1);
@@ -2041,7 +2124,8 @@ function gen_random($lim = 8)
 
 function getmonthnumber($month)
 {
-    switch($month){
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+	switch($month){
 		case "January":
 		case "Ianuarie":
 			return '1';
@@ -2083,6 +2167,7 @@ function getmonthnumber($month)
 
 function get_month($nr)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	switch($nr) {
 		case "13":
 		case "1":
@@ -2127,6 +2212,7 @@ function get_month($nr)
 
 function make_number($value)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$value = str_replace("$",'',$value);
 	$value = str_replace(' ','',$value);
 	$value = str_replace('%','',$value);
@@ -2136,6 +2222,7 @@ function make_number($value)
 
 function make_picture($name)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$name = strtolower($name);
 	$name = str_replace(" ","_",$name);
 	$name .= '.jpg';
@@ -2144,6 +2231,7 @@ function make_picture($name)
 
 function next_page($max)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method, $limit;
 	$offset = getparam("offset");
 	if(!$offset)
@@ -2163,6 +2251,7 @@ function next_page($max)
 
 function unsetparam($param)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(isset($_POST[$param]))
 		unset($_POST[$param]);
 	if(isset($_GET[$param]))
@@ -2173,6 +2262,7 @@ function unsetparam($param)
 
 function bytestostring($size, $precision = 0) 
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$sizes = array('YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'kB', 'B');
 	$total = count($sizes);
 
@@ -2184,6 +2274,7 @@ function bytestostring($size, $precision = 0)
 
 function form_params($fields)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$params = array();
 	for($i=0; $i<count($fields); $i++)
 		$params[$fields[$i]] = getparam($fields[$i]);
@@ -2192,6 +2283,7 @@ function form_params($fields)
 
 function field_value($field, $array)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(isset($array[$field]))
 		return $array[$field];
 	return NULL;
@@ -2199,6 +2291,7 @@ function field_value($field, $array)
 
 function explanations($logo, $title, $explanations, $style="explanation")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $method;
 
 	if(is_array($explanations))
@@ -2231,6 +2324,7 @@ function explanations($logo, $title, $explanations, $style="explanation")
 
 function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", $css="", $javascript="", $just_options=false, $hidden=false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(!$just_options) {
 		$hidden = ($hidden) ? " style=\"display:none;\"" : "";
 		$res = '<select class="dropdown '.$css.'" name="'.$name.'" id="'.$name.'" '.$disabled.$hidden.' ';
@@ -2268,6 +2362,7 @@ function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", 
 
 function format_for_dropdown($vals)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$arr = array();
 	for($i=0; $i<count($vals); $i++)
 		array_push($arr, array("field_id"=>$vals[$i], "field_name"=>$vals[$i]));
@@ -2276,6 +2371,7 @@ function format_for_dropdown($vals)
 
 function formTable($rows, $th=null, $title = null, $submit = null, $width=null, $id=null, $css_first_column='', $color_indexes=array(), $dif_css="")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(is_array($th))
 		$cols = count($th);
 	elseif(isset($rows[0]))
@@ -2350,6 +2446,7 @@ function formTable($rows, $th=null, $title = null, $submit = null, $width=null, 
 
 function set_default_object($fields, $selected, $method, $message)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	start_form();
 	if ($method)
 		addHidden("database", array("method"=>$method));
@@ -2368,6 +2465,7 @@ function set_default_object($fields, $selected, $method, $message)
 
 function set_form_fields(&$fields, $error_fields, $field_prefix='')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (!$error_fields)
 		$error_fields = array();
 
@@ -2396,6 +2494,7 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 
 function set_error_fields($error, &$error_fields)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	// fields between '' are considered names
 	$field = '';
 	$start = false;
@@ -2418,6 +2517,7 @@ function set_error_fields($error, &$error_fields)
 
 function error_handle($error, &$fields, &$error_fields, $field_prefix='')
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if ($error) {
 		errormess($error,"no");
 		set_error_fields($error, $error_fields);
@@ -2431,6 +2531,7 @@ function error_handle($error, &$fields, &$error_fields, $field_prefix='')
 
 function return_button($method=null, $_module=null, $align="right", $name="Return")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
 	if ($method) {
@@ -2449,11 +2550,13 @@ function return_button($method=null, $_module=null, $align="right", $name="Retur
 
 function hr()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	print "<hr class=\"bluehr\" />";
 }
 
 function exception_to_save()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $method, $module, $exceptions_to_save;
 
 	if (isset($exceptions_to_save) && isset($exceptions_to_save[$_SESSION["level"]]) && isset($exceptions_to_save[$_SESSION["level"]]["$module"]) && (in_array($method, $exceptions_to_save[$_SESSION["level"]]["$module"]) || (in_array("__all", $exceptions_to_save[$_SESSION["level"]]["$module"]))))
@@ -2467,6 +2570,7 @@ function exception_to_save()
 
 function save_page_info()
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $method, $module, $exceptions_to_save;
 
 	// don't save info for edit/add/delete pages
@@ -2490,6 +2594,7 @@ function save_page_info()
 
 function make_routing_test($fields)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
 	if ($_SESSION["level"] != "admin")
@@ -2513,6 +2618,7 @@ function make_routing_test($fields)
 
 function link_for_custom_field($index)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$ret = "<a class=\"llink\" id=\"custom_field_index$index\" onClick=\"";
 	$ret.= ($index == 1) ? "show_hide('tr_th_custom');" : "";
 	$ret.= "show_hide('tr_custom$index'); show_hide('custom_field_index$index');";
@@ -2524,6 +2630,7 @@ function link_for_custom_field($index)
 
 function routing_test_custom_field($index)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$param_name = getparam("param_name$index");
 	$param_value = getparam("param_value$index");
 	$ret = "<input type=\"text\" name=\"param_name$index\" value=\"$param_name\" style=\"width:100px;\"/> = \n";
@@ -2535,6 +2642,7 @@ function routing_test_custom_field($index)
 
 function make_routing_test_yate($fields=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (!$fields) {
 		$fields = array();
 		$fields["called"] = getparam("called");
@@ -2551,6 +2659,7 @@ function make_routing_test_yate($fields=null)
 
 function send_routing_test_yate($fields)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$command = "routing_test ";
 	foreach ($fields as $name=>$value) {
 		if ($command != "routing_test ")
@@ -2572,6 +2681,7 @@ function send_routing_test_yate($fields)
 
 function br($count = null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(!$count)
 		$count = 1;
 
@@ -2582,6 +2692,7 @@ function br($count = null)
 
 function nbsp($count = null, $print=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if(!$count)
 		$count = 1;
 
@@ -2597,6 +2708,7 @@ function nbsp($count = null, $print=true)
 
 function send_mail($emailaddress, $fromaddress, $emailsubject, $body, $attachments=false, $names=null, $notice=true, $link_with_notice = false)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $path;
 	$now = time();
 	# Is the OS Windows or Mac or Linux
@@ -2696,6 +2808,7 @@ function send_mail($emailaddress, $fromaddress, $emailsubject, $body, $attachmen
 // function taken from user comments from php.net site
 function get_mp3_len($file) 
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$rate1 = array(0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, "bad");
 	$rate2 = array(0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, "bad");
 	$rate3 = array(0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, "bad");
@@ -2766,6 +2879,7 @@ function get_mp3_len($file)
 
 function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file")
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $upload_path;
 
 	$format = ".csv";
@@ -2788,6 +2902,7 @@ function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file")
 
 function mysql_in_file($fh, $formats, $array, $sep)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$col_nr = 0;
 	
 	if (!$formats && mysql_num_rows($array))
@@ -2853,6 +2968,7 @@ function mysql_in_file($fh, $formats, $array, $sep)
 
 function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_header=true)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$col_nr = 0;
 	
 	if (!$formats && count($array))
@@ -2927,6 +3043,7 @@ function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_head
 // used in debug_all.php
 function is_auth($identifier)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global ${"pass_".$identifier."_page"};
 
 	if (isset($_SESSION["pass_$identifier"]) || !isset(${"pass_".$identifier."_page"}) || !strlen(${"pass_".$identifier."_page"}))
@@ -2938,6 +3055,7 @@ function is_auth($identifier)
 // used in debug_all.php
 function check_auth($identifier)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global ${"pass_".$identifier."_page"};
 
 	if (strlen(${"pass_".$identifier."_page"}) && !isset($_SESSION["pass_$identifier"])) {
@@ -2951,6 +3069,7 @@ function check_auth($identifier)
 
 function generateNumericToken($length)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$str = "";
 	for ($i=0; $i<$length; $i++)
 	{
@@ -2962,6 +3081,7 @@ function generateNumericToken($length)
 
 function display_bit_field($val)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if ($val=="1" || $val == "on" || $val == "enable" || $val == "yes")
 		return "yes";
 	return "no";
@@ -2969,6 +3089,7 @@ function display_bit_field($val)
 
 function display_field($field_name,$field_format,$form_identifier='',$css=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$q_mark = false;
 	if(isset($field_format["value"]))
 		$value = $field_format["value"];
@@ -3083,7 +3204,9 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 	return $res;
 }
 
-function stdClassToArray($d) {
+function stdClassToArray($d) 
+{
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (is_object($d)) {
 		// Gets the properties of the given object
 		// with get_object_vars function
@@ -3106,16 +3229,19 @@ function stdClassToArray($d) {
 
 function get_param($array,$name)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return isset($array[$name]) ? $array[$name] : null;
 }
 
 function missing_param($param)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	return ($param === null) || ($param == "");
 }
 
 function generic_tabbed_settings($options,$config,$section_to_open=array(),$show_advanced=false, $form_name=null,$form_submit=true,$specif_ind="",$custom_css=null)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $tabs_callback;
 
 	if (!$form_name)
@@ -3223,6 +3349,7 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 
 function load_page($page)
 {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (headers_sent())
 		print "<meta http-equiv=\"REFRESH\" content=\"0;url=$page\">";
 	else
