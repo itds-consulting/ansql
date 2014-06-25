@@ -289,7 +289,7 @@ class Database
 		if (!self::connect())
 			return false;
 
-		if(isset($_SESSION["debug_all"]));
+		if(isset($_SESSION["debug_all"]))
 			Debug::Output("query", $query);
 
 //		if (!self::is_single_query($query))
