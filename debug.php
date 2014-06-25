@@ -40,9 +40,10 @@ $debug_notify = array(
 $debug_notify = array("web"=>array("notify"));
 
 if(is_file("defaults.php"))
-	include_once("defaults.php");
+	include("defaults.php");
 if(is_file("config.php"))
-	include_once("config.php");
+	include("config.php");
+
 
 class Debug
 {
