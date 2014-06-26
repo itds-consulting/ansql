@@ -117,7 +117,7 @@ class Debug
 					$reporter = getparam("name");
 					if ($reporter)
 						$user .= "($reporter)";
-					$body .= "User: ".$user/"\n";
+					$body .= "User: ".$user."\n";
 
 					$description = getparam("bug_description");
 					if ($description)
