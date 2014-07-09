@@ -138,6 +138,136 @@ class GenericFile extends GenericStatus
 	}
 }
 
+
+class CsvFile extends GenericFile
+{
+	public $array = array();
+	private $formats = array();
+	private $sep;
+
+	function __construct($file_name, $formats, $array=array(), $read=true, $sep=",")
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+		$this->filename = $file_name;
+		$this->formats = $formats;
+		$this->sep = $sep;
+		$this->array = $array;
+
+		if ($read)
+			$this->read();
+	}
+
+	function read() 
+	{	
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
+		$this->openForRead();
+		if (!$this->status())
+			return;
+
+		$content = fread($this->read_handler,filesize($this->filename));
+		$content = preg_replace(array('/"="/',"/'='/",'/"/',"/'/"),"",$content);
+		$content = explode("\n",$content);
+
+		for ($i=0; $i<count($content); $i++) {
+			if (count($this->formats) && $i == 0) 
+				continue;
+
+			$row = explode(',',trim($content[$i]));
+			if (!is_array($row) || count($row) < count($this->formats))
+				continue;
+			
+			for ($j=0; $j<count($row); $j++) {
+				if (count($this->formats) && isset($this->formats[$j]))
+					$this->array[$i-1][$this->formats[$j]] = $row[$j]; 
+				elseif (!count($this->formats))
+					$this->array[$i][$j] = $row[$j];
+			}
+		}
+		$this->close();
+	}
+	//The same functionality as write_in_file function from ansql/lib.php
+	function write($key_val_arr=true, $col_header=true)
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
+		$this->openForWrite();
+		if (!$this->status())
+			return;
+
+		$col_nr = 0;
+
+		if (!$this->formats && count($this->array))
+			foreach($this->array[0] as $name=>$val)
+				$this->formats[$name] = $name;
+
+		if ($col_header && $this->formats!="no") {
+			foreach($this->formats as $column_name => $var_name)
+			{
+				$exploded = explode(":",$column_name);
+				if (count($exploded)>1)
+					$name = $exploded[1];
+				else {
+					$name = $column_name;
+					if(substr($column_name, 0, 9) == "function_")
+						$name = substr($column_name,9);
+					if(is_numeric($column_name))
+						$name = $var_name;
+				}
+				$val = str_replace("_"," ",ucfirst($name));
+				$val = str_replace("&nbsp;"," ",$val);
+				$val = ($col_nr) ? $this->sep."\"$val\"" : "\"$val\"";
+				fwrite($this->write_handler, $val);
+				$col_nr++;
+			} 
+			fwrite($this->write_handler,"\n");
+		}
+		for($i=0; $i<count($this->array); $i++) 
+		{
+			$col_nr = 0;
+			if ($key_val_arr) {
+				foreach($this->formats as $column_name=>$names_in_array)
+				{
+					$use_vars = explode(",", $names_in_array);
+					$exploded_col = explode(":", $column_name);
+					$column_value = '';
+
+					if (substr($exploded_col[0],0,9) == "function_") 
+					{
+						$function_name = substr($exploded_col[0],9,strlen($exploded_col[0]));
+						if (count($use_vars)) 
+						{
+							$params = array();
+							for($var_nr=0; $var_nr<count($use_vars); $var_nr++)
+								array_push($params, $this->array[$i][$use_vars[$var_nr]]);
+							$column_value = call_user_func_array($function_name,$params);
+						}
+					} elseif(isset($this->array[$i][$names_in_array])){
+						$column_value = $this->array[$i][$names_in_array];
+					}
+					if (!strlen($column_value))
+						$column_value = "";
+					$column_value = "\"=\"\"".$column_value."\"\"\"";
+					if ($col_nr)
+						$column_value = $this->sep.$column_value;
+					fwrite($this->write_handler,$column_value);
+					$col_nr++;
+				}
+			} else {
+				for ($j=0; $j<count($this->array[$i]);$j++) {
+					$column_value = "\"".$this->array[$i][$j]."\"";
+					if ($col_nr)
+						$column_value =  $sep.$column_value;
+					fwrite($this->write_handler,$column_value);
+					$col_nr++;
+				}
+			}
+			fwrite($this->write_handler,"\n");
+		}
+		$this->close();	
+	}
+}
+
 class ConfFile extends GenericFile
 {
 	public $sections = array();
