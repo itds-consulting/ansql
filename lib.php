@@ -3356,5 +3356,18 @@ function load_page($page)
 		header("Location: $page");
 }
 
+function include_javascript($module=null)
+{
+	if (is_file("ansql/javascript.js"))
+		// include the ansql javascript functions
+		print '<script language="javascript" type="text/javascript" src="ansql/javascript.js"></script>';
+
+	if (is_file("javascript/lib.php"))
+		include("javascript/lib.php");
+
+	if ($module && is_file("javascript/$module.php"))
+		include("javascript/$module.php");
+}
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>

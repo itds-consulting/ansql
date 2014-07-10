@@ -130,3 +130,67 @@ function submit_form(formid)
 {
 	document.getElementById(formid).submit();
 }
+
+function get_selected(id_name)
+{
+	var selector_obj = document.getElementById(id_name);
+	if (selector_obj==null)
+		return null;
+	var sel = selector_obj.options[selector_obj.selectedIndex].value || selector_obj.options[selector_obj.selectedIndex].text;
+	return sel;
+}
+
+function set_html_obj(id, html)
+{
+        var obj = document.getElementById(id);
+        if (obj)
+                obj.innerHTML = (html == null) ? "" : html;
+}
+
+function make_request(url, callback)
+{
+        url = encodeURI(url);
+        make_api_request(url, callback);
+}
+
+function make_api_request(url, callback)
+{
+        xmlhttp = GetXmlHttpObject();
+        if (xmlhttp == null) {
+                alert("Your browser does not support XMLHTTP!");
+                return;
+        }
+
+        xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4) {
+                        var response = xmlhttp.responseText;
+                        call_function(callback,response);
+                }
+        }
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send(null);
+}
+
+function call_function(callback, response)
+{
+        if (callback && typeof(callback) === "function") {
+                // execute the callback, passing parameters as necessary
+                callback(response);
+        } else
+                alert(typeof(callback));
+}
+
+function GetXmlHttpObject()
+{
+        if (window.XMLHttpRequest)
+        {
+                /* code for IE7+, Firefox, Chrome, Opera, Safari*/
+                return new XMLHttpRequest();
+        }
+        if (window.ActiveXObject)
+        {
+                /* code for IE6, IE5*/
+                return new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        return null;
+}
