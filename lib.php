@@ -944,9 +944,8 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print '>';
 			if($display == 'file' && isset($field_format["file_example"]) && $field_format["file_example"] != "__no_example")
 				print '<br/><br/>Example: <a class="'.$css.'" href="download.php?file='.$field_format["file_example"].'">download.php</a><br/><br/>';
-			if($display == 'file' && !isset($file_format["file_example"]) && $field_format["file_example"] != "__no_example")
-					Debug::trigger_report('critical', "For input type file a file example must be given as parameter.");
-			}
+			if($display == 'file' && !isset($field_format["file_example"])) 
+				Debug::trigger_report('critical', "For input type file a file example must be given as parameter.");
 			break;
 		case "fixed":
 			if(strlen($value))
