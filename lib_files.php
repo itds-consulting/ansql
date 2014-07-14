@@ -138,20 +138,20 @@ class GenericFile extends GenericStatus
 	}
 }
 
-
 class CsvFile extends GenericFile
 {
-	public $array = array();
+	public $file_content = array();
 	private $formats = array();
 	private $sep;
 
-	function __construct($file_name, $formats, $array=array(), $read=true, $sep=",")
+	function __construct($file_name, $formats, $file_content=array(), $test_header=true, $read=true, $sep=",")
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
-		$this->filename = $file_name;
+		parent::__construct($file_name);
 		$this->formats = $formats;
 		$this->sep = $sep;
-		$this->array = $array;
+		$this->file_content = $file_content;
+		$this->test_header = $test_header;
 
 		if ($read)
 			$this->read();
@@ -160,7 +160,6 @@ class CsvFile extends GenericFile
 	function read() 
 	{	
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
-
 		$this->openForRead();
 		if (!$this->status())
 			return;
@@ -169,6 +168,18 @@ class CsvFile extends GenericFile
 		$content = preg_replace(array('/"="/',"/'='/",'/"/',"/'/"),"",$content);
 		$content = explode("\n",$content);
 
+		$first_row = "";
+		$sign = "";
+		for ($i=0;$i<count($this->formats);$i++) {
+			$first_row .= $sign . str_replace(" ", "_", strtolower($this->formats[$i]));
+			$sign = ",";
+		}
+
+		$substring_content = str_replace(" ","_", strtolower(substr(trim($content[0]), 0 , strlen($first_row))));
+
+		if ($this->test_header && count($this->formats) && $first_row != $substring_content)
+			return $this->setError("The format of the file is incorrect.");
+		                        
 		for ($i=0; $i<count($content); $i++) {
 			if (count($this->formats) && $i == 0) 
 				continue;
@@ -179,13 +190,18 @@ class CsvFile extends GenericFile
 			
 			for ($j=0; $j<count($row); $j++) {
 				if (count($this->formats) && isset($this->formats[$j]))
-					$this->array[$i-1][$this->formats[$j]] = $row[$j]; 
+					$this->file_content[$i-1][$this->formats[$j]] = $row[$j]; 
 				elseif (!count($this->formats))
-					$this->array[$i][$j] = $row[$j];
+					$this->file_content[$i][$j] = $row[$j];
+
+				if ($i%10 == 0 && $this->exceeded_script_memory())
+					return $this->setError("Your about to reach your php memory_limit allowed for this script. The csv file reading is stopped. Use smaller csv files."); 
+
 			}
 		}
 		$this->close();
 	}
+
 	//The same functionality as write_in_file function from ansql/lib.php
 	function write($key_val_arr=true, $col_header=true)
 	{
@@ -197,13 +213,12 @@ class CsvFile extends GenericFile
 
 		$col_nr = 0;
 
-		if (!$this->formats && count($this->array))
-			foreach($this->array[0] as $name=>$val)
+		if (!$this->formats && count($this->file_content))
+			foreach($this->file_content[0] as $name=>$val)
 				$this->formats[$name] = $name;
 
 		if ($col_header && $this->formats!="no") {
-			foreach($this->formats as $column_name => $var_name)
-			{
+			foreach($this->formats as $column_name => $var_name) {
 				$exploded = explode(":",$column_name);
 				if (count($exploded)>1)
 					$name = $exploded[1];
@@ -218,32 +233,30 @@ class CsvFile extends GenericFile
 				$val = str_replace("&nbsp;"," ",$val);
 				$val = ($col_nr) ? $this->sep."\"$val\"" : "\"$val\"";
 				fwrite($this->write_handler, $val);
+				if ($col_nr%10 == 0 && $this->exceeded_script_memory())
+					return $this->setError("Your about to reach your php memory_limit allowed for scripts. The writing of the file will be stopped.");
 				$col_nr++;
 			} 
 			fwrite($this->write_handler,"\n");
 		}
-		for($i=0; $i<count($this->array); $i++) 
-		{
+		for ($i=0; $i<count($this->file_content); $i++) {
 			$col_nr = 0;
 			if ($key_val_arr) {
-				foreach($this->formats as $column_name=>$names_in_array)
-				{
+				foreach($this->formats as $column_name=>$names_in_array) {
 					$use_vars = explode(",", $names_in_array);
 					$exploded_col = explode(":", $column_name);
 					$column_value = '';
 
-					if (substr($exploded_col[0],0,9) == "function_") 
-					{
+					if (substr($exploded_col[0],0,9) == "function_") {
 						$function_name = substr($exploded_col[0],9,strlen($exploded_col[0]));
-						if (count($use_vars)) 
-						{
+						if (count($use_vars)) {
 							$params = array();
 							for($var_nr=0; $var_nr<count($use_vars); $var_nr++)
-								array_push($params, $this->array[$i][$use_vars[$var_nr]]);
+								array_push($params, $this->file_content[$i][$use_vars[$var_nr]]);
 							$column_value = call_user_func_array($function_name,$params);
 						}
-					} elseif(isset($this->array[$i][$names_in_array])){
-						$column_value = $this->array[$i][$names_in_array];
+					} elseif(isset($this->file_content[$i][$names_in_array])) {
+						$column_value = $this->file_content[$i][$names_in_array];
 					}
 					if (!strlen($column_value))
 						$column_value = "";
@@ -251,20 +264,54 @@ class CsvFile extends GenericFile
 					if ($col_nr)
 						$column_value = $this->sep.$column_value;
 					fwrite($this->write_handler,$column_value);
+					if ($col_nr%10 == 0 && $this->exceeded_script_memory())
+						return $this->setError("Your about to reach your php memory_limit allowed for scripts. The writing of the file will be stopped.");
+
 					$col_nr++;
 				}
 			} else {
-				for ($j=0; $j<count($this->array[$i]);$j++) {
-					$column_value = "\"".$this->array[$i][$j]."\"";
+				for ($j=0; $j<count($this->file_content[$i]);$j++) {
+					$column_value = "\"".$this->file_content[$i][$j]."\"";
 					if ($col_nr)
 						$column_value =  $sep.$column_value;
 					fwrite($this->write_handler,$column_value);
+
+					if ($col_nr%10 == 0 && $this->exceeded_script_memory())
+						return $this->setError("Your about to reach your php memory_limit allowed for scripts. The writing of the file will be stopped.");
+
 					$col_nr++;
 				}
 			}
 			fwrite($this->write_handler,"\n");
 		}
 		$this->close();	
+	}
+
+	function exceeded_script_memory()
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+		$script_memory_limit = $this->return_bytes(ini_get("memory_limit"));
+		if ($script_memory_limit - memory_get_usage() < 3000)
+			return true;
+		return false;
+	}
+
+	function return_bytes($size_str)
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+		switch (substr($size_str, -1)){
+		case 'M':
+		case 'm': 
+			return (int)$size_str * 1048576;
+		case 'K':
+		case 'k':
+			return (int)$size_str * 1024;
+		case 'G':
+		case 'g':
+			return (int)$size_str * 1073741824;
+		default:
+			return $size_str;
+		}
 	}
 }
 
