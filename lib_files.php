@@ -168,36 +168,50 @@ class CsvFile extends GenericFile
 		$content = preg_replace(array('/"="/',"/'='/",'/"/',"/'/"),"",$content);
 		$content = explode("\n",$content);
 
-		$first_row = "";
-		$sign = "";
+		$bad_format = false;
+		$first_row = explode(',',trim($content[0]));
+		foreach ($first_row as $key => $data)
+			$first_row[$key] = str_replace(" ","_", strtolower($first_row[$key]));
 		for ($i=0;$i<count($this->formats);$i++) {
-			$first_row .= $sign . str_replace(" ", "_", strtolower($this->formats[$i]));
-			$sign = ",";
+			$form = str_replace(" ", "_", strtolower($this->formats[$i]));
+			if (!in_array($form, $first_row)) {
+				$bad_format = true;
+				break;
+			}
 		}
 
-		$substring_content = str_replace(" ","_", strtolower(substr(trim($content[0]), 0 , strlen($first_row))));
-
-		if ($this->test_header && count($this->formats) && $first_row != $substring_content)
+		if ($this->test_header && count($this->formats) && $bad_format)
 			return $this->setError("The format of the file is incorrect.");
-		                        
-		for ($i=0; $i<count($content); $i++) {
-			if (count($this->formats) && $i == 0) 
-				continue;
 
+		for ($i=0; $i<count($content); $i++) {
 			$row = explode(',',trim($content[$i]));
+			
 			if (!is_array($row) || count($row) < count($this->formats))
 				continue;
-			
-			for ($j=0; $j<count($row); $j++) {
-				if (count($this->formats) && isset($this->formats[$j]))
-					$this->file_content[$i-1][$this->formats[$j]] = $row[$j]; 
-				elseif (!count($this->formats))
-					$this->file_content[$i][$j] = $row[$j];
 
-				if ($i%10 == 0 && $this->exceeded_script_memory())
-					return $this->setError("Your about to reach your php memory_limit allowed for this script. The csv file reading is stopped. Use smaller csv files."); 
-
+			if (!$this->test_header)  {
+				for ($j=0; $j<count($row); $j++) {
+					if (count($this->formats) && isset($this->formats[$j]))
+						$this->file_content[$i][$this->formats[$j]] = $row[$j];
+					elseif (!count($this->formats))
+				                $this->file_content[$i][$j] = $row[$j];	
+				}
+			} else {
+				if (count($this->formats) && $i == 0) 
+					continue;
+				
+				if (count($this->formats)) {
+					for ($n = 0 ; $n<count($this->formats); $n++) {
+						$pos = array_search(str_replace(" ", "_", strtolower($this->formats[$n])), $first_row);
+						if ($pos !== false)
+							$this->file_content[$i-1][$this->formats[$n]] = $row[$pos];
+					}
+				} 
 			}
+
+			if ($i%10 == 0 && $this->exceeded_script_memory())
+				return $this->setError("Your about to reach your php memory_limit allowed for this script. The csv file reading is stopped. Use smaller csv files."); 
+
 		}
 		$this->close();
 	}
