@@ -34,6 +34,8 @@ if (!isset($enforce_basic_constrains))
 	$enforce_basic_constrains = false;
 if (!isset($critical_col_diff))
 	$critical_col_diff = false;
+if (!isset($check_col_diff))
+	$check_col_diff = true;
 
 require_once("debug.php");
 
@@ -867,6 +869,9 @@ class Model
 	//whether a select or extendedSelect was performed on the object 
 	protected $_retrieved;
 
+	protected $_check_col_diff;
+	protected $_modified_col = array();
+
 	protected static $_models = false;
 	protected static $_modified = false;
 	// array with name of objects that are performers when using the ActionLog class
@@ -877,6 +882,8 @@ class Model
 	 */
 	function __construct()
 	{
+		global $check_col_diff;
+
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
 		$this->_invalid = false;
@@ -892,6 +899,8 @@ class Model
 			}
 			$this->$name = $var->_value;
 		}
+
+		$this->_check_col_diff = isset($check_col_diff) ? $check_col_diff : true;
 	}
 
 	/**
@@ -1304,9 +1313,12 @@ class Model
 	 * @param $verifications Array with conditions trying to specify if this object can be modified or not
 	 * @return Array, array[0] is true/false, true when inserting was succesfull, array[1] default message to could be printed to the user, array[2] is array with fields there was an error with
 	 */
-	public function edit($params, $conditions = NULL, $verifications = array())
+	public function edit($params, $conditions = NULL, $verifications = array(), $check_col_diff = true)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
+		if(!$check_col_diff)
+			$this->_check_col_diff = $check_col_diff;
 
 		if($params) {
 			$res = $this->verifyRequiredFields($params);
@@ -1336,10 +1348,14 @@ class Model
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
 		$this->_set = true;
+		$this->_modified_col = array();
 
-		foreach($params as $param_name=>$param_value)
+		foreach($params as $param_name=>$param_value) {
+			if($this->{$param_name} != $param_value)
+				$this->_modified_col[$param_name] = true;
 			if($this->variable($param_name))
 				$this->{$param_name} = $param_value;
+		}
 	}
 
 	/**
@@ -1486,12 +1502,15 @@ class Model
 			return null;
 		foreach($vars as $var_name=>$var) 
 		{
+			if ($this->_check_col_diff && !isset($this->_modified_col[$var_name]))
+				continue;
+
 			if ($variables != '')
 			{
 				$variables .= ", ";
 				$update_log .= ", ";
 			}
-
+		
 			if(!strlen($this->{$var_name}) && $var->isRequired()) {
 				$error .= " "._("Required field")." '"._($var_name)."' "._("not set").".";
 				$error_fields[] = $var_name;
