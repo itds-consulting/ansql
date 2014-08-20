@@ -3353,11 +3353,29 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 
 function load_page($page)
 {
+	$page = build_link($page);
+
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (headers_sent())
 		print "<meta http-equiv=\"REFRESH\" content=\"0;url=$page\">";
 	else
 		header("Location: $page");
+}
+
+function build_link($page)
+{
+	if (substr($page,0,7)=="http://" || substr($page,0,8)!="https://")
+		return $page;
+
+	$current = $_SERVER["PHP_SELF"];
+	$current = explode("/",$current);
+	$current[count($current)-1] = $page;
+	$current = implode("/",$current);
+		
+	$page = $_SERVER["SERVER_NAME"].$current;
+	$page = (!isset($_SERVER["HTTPS"])) ? "http://".$page : "https://".$page;
+
+	return $page;
 }
 
 function include_javascript($module=null)
