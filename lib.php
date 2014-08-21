@@ -3364,7 +3364,7 @@ function load_page($page)
 
 function build_link($page)
 {
-	if (substr($page,0,7)=="http://" || substr($page,0,8)!="https://")
+	if (substr($page,0,7)=="http://" || substr($page,0,8)=="https://")
 		return $page;
 
 	$current = $_SERVER["PHP_SELF"];
