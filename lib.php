@@ -3384,8 +3384,8 @@ function include_javascript($module=null)
 		// include the ansql javascript functions
 		print '<script language="javascript" type="text/javascript" src="ansql/javascript.js"></script>';
 
-	if (is_file("javascript/lib.php"))
-		include("javascript/lib.php");
+	if (is_file("javascript/generic_js.php"))
+		include("javascript/generic_js.php");
 
 	if ($module && is_file("javascript/$module.php"))
 		include("javascript/$module.php");
