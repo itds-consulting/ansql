@@ -1524,9 +1524,9 @@ class Model
 			else
 				$update_log .= "$var_name=***";
 		}
+		$obj_name = $this->getObjectName();
 		if ($variables == "")
 			return array(true, _('Nothing to update in ')._($obj_name).".",array());
-		$obj_name = $this->getObjectName();
 		if($error != "")
 			return array(false,_("Failed to update").' '._($obj_name).".".$error, $error_fields,0);
 		$table = $this->getTableName();
