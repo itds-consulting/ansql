@@ -3371,8 +3371,11 @@ function build_link($page)
 	$current = explode("/",$current);
 	$current[count($current)-1] = $page;
 	$current = implode("/",$current);
-		
-	$page = $_SERVER["SERVER_NAME"].$current;
+	
+	if (isset($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"]!=80)
+		$page = $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$current;
+	else
+		$page = $_SERVER["SERVER_NAME"].$current;
 	$page = (!isset($_SERVER["HTTPS"])) ? "http://".$page : "https://".$page;
 
 	return $page;
