@@ -79,6 +79,12 @@ class Variable
 		$this->_required = ($required === true || strtolower($def_value) == "!null") ? true : false;
 	}
 
+	public static function varCopy($var)
+	{
+		$new_var = new Variable($var->_type, $var->_value, $var->_key, $var->_critical, $var->_matchkey, $var->_join_type, $var->_required);
+		return $new_var;
+	}
+
 	/**
 	 * Returns the correctly formated value of a Variable object. Value will be used inside a query. Formating is done 
 	 * according to the type of the object
@@ -551,7 +557,10 @@ class Database
 		if ($db_type == "postgresql")
 			$query.= " WITH OIDS";
 		elseif ($db_type == "mysql") {
-			$class = get_class(Model::getObject($table));
+			if (substr($table,0,6)!="_temp_")
+				$class = get_class(Model::getObject($table));
+			else
+				$class = get_class(TemporaryModel::getObject(substr($table,6)));
 			$engine = call_user_func(array($class,"getDbEngine"));
 			if ($engine)
 				$query.= "ENGINE $engine";
@@ -2529,7 +2538,7 @@ class Model
 	}
 
 	/**
-	 * Gets the variables of a certian object(including thoses that were added using the extend function)
+	 * Gets the variables of a certain object(including thoses that were added using the extend function)
 	 * @return Array of objects of type Variable that describe the current extended object
 	 */
 	public function extendedVariables()
