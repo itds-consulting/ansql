@@ -143,6 +143,7 @@ class Variable
 class Database
 {
 	protected static $_connection = true;
+	protected static $_object_model = "Model";
 
 	// this library uses mostly postgresql types
 	// if type is not in the below list make sure that given type of a variables mathches real type in database
@@ -309,9 +310,10 @@ class Database
 			return $res;
 		elseif ($query != "ROLLBACK")
 		{
-			if(!Model::modified())
+			$model = self::$_object_model;
+			if(!call_user_func(array($model,"modified")))
 			{
-				Model::updateAll();
+				call_user_func(array($model,"updateAll"));
 				$res = self::queryRaw($query, $retrieve_last_id);
 				if ($res===false || $res===NULL) {
 					$mess = $query;
@@ -325,6 +327,11 @@ class Database
 			else
 				return $res;
 		}
+	}
+
+	public static function setObjModel($model)
+	{
+		self::$_object_model = $model;
 	}
 
 	/**
