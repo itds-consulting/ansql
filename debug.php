@@ -30,6 +30,10 @@ $debug_tags = array("paranoid","in_framework","in_ansql","ansql","framework");
 // default tag if tag is not specified
 $default_tag = "logic";
 
+// maximum xdebug message length
+// set to false or 0 to disable truncking of messages
+$max_xdebug_mess = 50;
+
 /*
 // options to notify in case a report was triggered
 $debug_notify = array(
@@ -47,6 +51,10 @@ if(is_file("config.php"))
 
 class Debug
 {
+	// xdebug_log when running in cli mode
+	// this is only used when $_SESSION is not available
+	protected static $_xdebug_log;
+
 	/**
 	 * Used when entering a function
 	 * Usage: Debug::func_start(__FUNCTION__,func_get_args()); -- in functions
@@ -97,7 +105,7 @@ class Debug
 			self::xdebug($tag,$message);
 
 		// save xdebug
-		$xdebug = $_SESSION["xdebug"];
+		$xdebug = self::get_xdebug();
 		self::dump_xdebug();
 
 		foreach($debug_notify as $notification_type=>$notification_options) {
@@ -169,9 +177,10 @@ class Debug
 		global $default_tag;
 		global $debug_all;
 		global $debug_tags;
+		global $max_xdebug_mess;
 
-		if (!isset($_SESSION["xdebug"]))
-			$_SESSION["xdebug"] = "";
+		if ($max_xdebug_mess && strlen($message)>$max_xdebug_mess)
+			$message = substr($message,0,$max_xdebug_mess)." - (truncated)";
 
 		if ($message==null && strpos($tag," ")) {
 			$message = $tag;
@@ -184,7 +193,7 @@ class Debug
 		if ( ($debug_all==true && !in_array($tag,$debug_tags)) || 
 		     ($debug_all==false && in_array($tag,$debug_tags)) ) {
 			$date = gmdate("[D M d H:i:s Y]");
-			$_SESSION["xdebug"].= "\n$date".strtoupper($tag).": ".$message;
+			self::concat_xdebug("\n$date".strtoupper($tag).": ".$message);
 		}
 	}
 
@@ -255,10 +264,10 @@ class Debug
 	 */
 	public static function dump_xdebug()
 	{
-		$xdebug = "------- XDebug:".$_SESSION["xdebug"];
+		$xdebug = "------- XDebug:".self::get_xdebug();
 		Debug::output($xdebug);
 		// reset debug to make sure we don't dump same information more than once
-		$_SESSION["xdebug"] = "";
+		self::reset_xdebug();
 	}
 
 	/**
@@ -363,6 +372,44 @@ class Debug
 		$from = "From: ".getparam("name");
 		$report = "$from\n\n$report";
 		self::trigger_report("REPORT",$report);
+	}
+
+	public static function reset_xdebug()
+	{
+		if (self::$_xdebug_log!==false)
+			self::$_xdebug_log = '';
+		elseif ($_SESSION["xdebug"])
+			$_SESSION["xdebug"] = '';
+		// was not initialized. Nothing to reset
+	}
+
+	public static function get_xdebug()
+	{
+		if (self::$_xdebug_log!==false)
+			return self::$_xdebug_log;
+		elseif (isset($_SESSION["xdebug"]))
+			return $_SESSION["xdebug"];
+		// was not initialized. Nothing to return
+		return '';
+	}
+
+	private static function concat_xdebug($mess)
+	{
+		if (self::$_xdebug_log===NULL) {
+			if (session_id()!="") {
+				if (!isset($_SESSION["xdebug"])) {
+					$_SESSION["xdebug"] = "";
+				}
+				self::$_xdebug_log = false;
+			} else {
+				self::$_xdebug_log = '';
+			}
+		}
+
+		if (self::$_xdebug_log!==false)
+			self::$_xdebug_log .= $mess;
+		else
+			$_SESSION["xdebug"] .= $mess;
 	}
 }
 ?>
