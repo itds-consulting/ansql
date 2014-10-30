@@ -118,13 +118,35 @@ class Debug
 
 					$subject = "Bug report for '".$proj_title."'";
 
-					$ip = $_SERVER['SERVER_ADDR']." (".$_SERVER['SERVER_NAME'].")";
+					if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_NAME'])
+						$ip = $_SERVER['SERVER_ADDR']." (".$_SERVER['SERVER_NAME'].")";
+					else {
+						exec("ifconfig",$info);
+						$info = implode($info,"\n");
+						$pos_ipv4 = strpos($info,"inet addr:");
+						$pos_ipv6 = strpos($info,"inet6 addr: ");
+						if ($pos_ipv4!==false)
+						    $ip = substr($info,$pos_ipv4+10);
+						elseif ($pos_ipv6!==false)
+						    $ip = substr($info,$pos_ipv6);
+						else
+						    $ip = "undetected";
+						$break = strpos($ip," ");
+						$ip = substr($ip,0,$break);
+						if (isset($_SERVER["HOSTNAME"]))
+							$ip .= " (".$_SERVER["HOSTNAME"].")";
+					}
 					$body = "Application is running on ".$ip."\n";
 
-					$user = $_SESSION["username"];
-					$reporter = getparam("name");
-					if ($reporter)
-						$user .= "($reporter)";
+					if (isset($_SESSION["username"])) {
+						$user = $_SESSION["username"];
+						$reporter = getparam("name");
+						if ($reporter)
+							$user .= "($reporter)";
+					} else {
+						exec('echo "$USER"',$user);
+						$user = implode($user,"\n");
+					}
 					$body .= "User: ".$user."\n";
 
 					$description = getparam("bug_description");
@@ -136,8 +158,9 @@ class Debug
 						// logs are not kept in file, add xdebug to email body
 						$body .= "\n\n$xdebug";
 
-					for ($i=0; $i<count($notification_options); $i++)
+					for ($i=0; $i<count($notification_options); $i++) {
 						send_mail($notification_options[$i], $server_email_address, $subject, $body, $attachment,null,false);
+					}
 
 					break;
 				case "web":
@@ -378,7 +401,7 @@ class Debug
 	{
 		if (self::$_xdebug_log!==false)
 			self::$_xdebug_log = '';
-		elseif ($_SESSION["xdebug"])
+		elseif (isset($_SESSION["xdebug"]))
 			$_SESSION["xdebug"] = '';
 		// was not initialized. Nothing to reset
 	}

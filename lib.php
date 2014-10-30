@@ -2732,7 +2732,8 @@ function send_mail($emailaddress, $fromaddress, $emailsubject, $body, $attachmen
 	$headers = 'From: '.$names.'<'.$fromaddress.'>'.$eol;
 	$headers .= 'Reply-To: <'.$fromaddress.'>'.$eol;
 	$headers .= 'Return-Path: <'.$fromaddress.'>'.$eol;    // these two to set reply address
-	$headers .= "Message-ID: <".$now." TheSystem@".$_SERVER['SERVER_NAME'].">".$eol;
+	$server = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : "localhost.lan";
+	$headers .= "Message-ID: <".$now." TheSystem@".$server.">".$eol;
 	$headers .= "X-Mailer: PHP v".phpversion().$eol;          // These two to help avoiker spam-filters
 	# Boundry for marking the split & Multitype Headers
 	$headers .= 'MIME-Version: 1.0'.$eol;
