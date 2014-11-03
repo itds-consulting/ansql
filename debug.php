@@ -30,6 +30,9 @@ $debug_tags = array("paranoid","in_framework","in_ansql","ansql","framework");
 // default tag if tag is not specified
 $default_tag = "logic";
 
+// tags that should never be truncated
+$critical_tags = array("critical");
+
 // maximum xdebug message length
 // set to false or 0 to disable truncking of messages
 $max_xdebug_mess = 50;
@@ -176,7 +179,8 @@ class Debug
 									// then print directly because otherwise it won't appear on screen
 									print $xdebug;
 								print "</pre>";
-								print "<a class='llink' href='".$_SESSION["main"]."?module=$module&method=clear_triggered_error'>Clear</a></div>";
+								if (isset($_SESSION["main"]))
+									print "<a class='llink' href='".$_SESSION["main"]."?module=$module&method=clear_triggered_error'>Clear</a></div>";
 								break;
 						}
 					}
@@ -201,8 +205,9 @@ class Debug
 		global $debug_all;
 		global $debug_tags;
 		global $max_xdebug_mess;
+		global $critical_tags;
 
-		if ($max_xdebug_mess && strlen($message)>$max_xdebug_mess)
+		if (!in_array($tag, $critical_tags) &&  $max_xdebug_mess && strlen($message)>$max_xdebug_mess)
 			$message = substr($message,0,$max_xdebug_mess)." - (truncated)";
 
 		if ($message==null && strpos($tag," ")) {
