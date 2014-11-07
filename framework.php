@@ -1384,6 +1384,37 @@ class Model
 	public function insert($retrieve_id = true, $keep_log = true)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+		$insert_parts = $this->buildInsertParts();
+		foreach($insert_parts as $piece_name=>$val)
+			${$piece_name} = $val;
+
+		if ($columns == "")
+			return;
+		$table = $this->getTableName();
+
+		if($error != "")
+			return array(false, _("Failed to insert into ")._($table).".".$error, $error_fields);
+
+		$query = "INSERT INTO ".esc($table)."($columns) VALUES($values)";
+		$retrieve_last_id = ($retrieve_id && count($serials)) ? array($this->getIdName(),$table) : false;
+		$res = Database::query($query, $retrieve_last_id);
+		if ($res===false)
+			return array(false,_("Failed to insert into ")._($table).".",$error_fields);
+		if ($retrieve_id && count($serials))
+			$this->{$this->getIdName()} = $res[2];
+		$log = "inserted ".$this->getNameInLogs().": $insert_log";
+		if($keep_log === true)
+			self::writeLog($log,$query);
+		return array(true,_("Successfully inserted into ")._(ucwords(str_replace("_"," ",$table))),array());
+	}
+
+	/**
+	 * Build various pieces necesary for building an INSERT query. Build error string, error_field array and insert log
+	 * @return array("columns"=>String, "values"=>String, "error"=>String, "error_fields"=>array(), "serials"=>array(), "insert_log"=>String, "update_fields"=>String)
+	 */
+	protected function buildInsertParts()
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
 		$columns = "";
 		$values = "";
@@ -1391,6 +1422,7 @@ class Model
 		$insert_log = "";
 		$error = "";
 		$error_fields = array();
+		$update_fields = "";
 		foreach ($this->_model as $var_name => $var)
 		{
 			$value = $this->$var_name;
@@ -1426,32 +1458,18 @@ class Model
 				$columns .= ",";
 				$values .= ",";
 				$insert_log .= ", ";
+				$update_fields .= ",";
 			}
 			$columns .= esc($var_name);
 			$values .= $var->escape($value);
+			$update_fields .= esc($var_name)."=".$var->escape($value);
 			if ($var_name!="password")
 				$insert_log .= "$var_name=".$value;
 			else
 				$insert_log .= "$var_name=***";
 		}
-		if ($columns == "")
-			return;
-		$table = $this->getTableName();
 
-		if($error != "")
-			return array(false, _("Failed to insert into ")._($table).".".$error, $error_fields);
-
-		$query = "INSERT INTO ".esc($table)."($columns) VALUES($values)";
-		$retrieve_last_id = ($retrieve_id && count($serials)) ? array($this->getIdName(),$table) : false;
-		$res = Database::query($query, $retrieve_last_id);
-		if ($res===false)
-			return array(false,_("Failed to insert into ")._($table).".",$error_fields);
-		if ($retrieve_id && count($serials))
-			$this->{$this->getIdName()} = $res[2];
-		$log = "inserted ".$this->getNameInLogs().": $insert_log";
-		if($keep_log === true)
-			self::writeLog($log,$query);
-		return array(true,_("Successfully inserted into ")._(ucwords(str_replace("_"," ",$table))),array());
+		return array("columns"=>$columns, "values"=>$values, "error"=>$error, "error_fields"=>$error_fields, "serials"=>$serials, "insert_log"=>$insert_log, "update_fields"=>$update_fields);
 	}
 
 	/**
@@ -1515,7 +1533,7 @@ class Model
 		$where = $this->makeWhereClause($conditions, true);
 		$vars = self::getVariables(get_class($this));
 		if (!$vars)
-			return null;
+			return array(false, _("Could not retrieve object variables"),array(),0);
 		foreach($vars as $var_name=>$var) 
 		{
 			if ($this->_check_col_diff && !isset($this->_modified_col[$var_name]))
