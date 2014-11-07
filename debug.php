@@ -31,7 +31,7 @@ $debug_tags = array("paranoid","in_framework","in_ansql","ansql","framework");
 $default_tag = "logic";
 
 // tags that should never be truncated
-$critical_tags = array("critical");
+$critical_tags = array("critical","query");
 
 // maximum xdebug message length
 // set to false or 0 to disable truncking of messages
@@ -178,7 +178,7 @@ class Debug
 									// of "web" is not already in $logs_in
 									// then print directly because otherwise it won't appear on screen
 									print $xdebug;
-								print "</pre>";
+								print "</pre>\n";
 								if (isset($_SESSION["main"]))
 									print "<a class='llink' href='".$_SESSION["main"]."?module=$module&method=clear_triggered_error'>Clear</a></div>";
 								break;
