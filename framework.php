@@ -3323,6 +3323,21 @@ class Model
 		return get_class($this);
 	}
 
+	/** 
+	 * Search object by $col_name=>$col_value and return index in object array
+	 * @param $objects Array of objects -- typically returned from selection/extendedSelect
+	 * @param $col_name String Name of the column the search is done for
+	 * @param $col_value String Value of @col_name to search for
+	 * @return Integer - index of the object or NULL if not found 
+	 */
+	public function getObjectIndex($objects, $col_name, $col_value)
+	{
+		foreach ($objects as $i=>$obj)
+			if ($obj->{$col_name}==$col_value)
+				return $i;
+		return false;
+	}
+
 	/**
 	 * Get the engine to use when creting mysql table
 	 * Setting should be made in $db_engine in config.php
