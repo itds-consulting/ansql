@@ -82,14 +82,11 @@ function testpath($path)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 
-	if (ereg("[^A-Za-z0-9_]",$path)) {
-		// Client tried to hack around the path naming rules - ALERT!
-
-		//print "by here ereg matched $path : ".ereg("[^A-Za-z0-9_]",$path);
-		Debug::trigger_report('operational', "Ereg matched $path : ".ereg("[^A-Za-z0-9_]",$path)." session: ".print_r($_SESSION,true));
-
-		forbidden();
-	}
+	if (preg_match("/[^A-Za-z0-9_]/",$path, $matches)) {
+ 		// Client tried to hack around the path naming rules - ALERT!
+		Debug::trigger_report('operational', "Preg_match function match path: ".print_r($matches)." session: ".print_r($_SESSION,true));
+ 		forbidden();
+ 	}
 }
 
 function forbidden()
