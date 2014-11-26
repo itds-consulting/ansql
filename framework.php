@@ -565,10 +565,11 @@ class Database
 			$query.= " WITH OIDS";
 		elseif ($db_type == "mysql") {
 			if (substr($table,0,6)!="_temp_")
-				$class = get_class(Model::getObject($table));
+				$obj = Model::getObject($table);
 			else
-				$class = get_class(TemporaryModel::getObject(substr($table,6)));
-			$engine = call_user_func(array($class,"getDbEngine"));
+				$obj = TemporaryModel::getObject(substr($table,6));
+			$engine = call_user_func(array($obj,"getDbEngine"));
+
 			if ($engine)
 				$query.= "ENGINE $engine";
 		}
@@ -2387,11 +2388,13 @@ class Model
 			if (get_parent_class($class) == "Model" || get_parent_class(get_parent_class($class)) == "Model")
 			{
 				$vars = null;
-				$vars = @call_user_func(array($class,"variables"));
+				if (!method_exists($class,"variables"))
+					continue;
+				$vars = call_user_func(array($class,"variables"));
 				if (!$vars)
 					continue;
 
-				$identifier = @call_user_func(array($class,"getDbIdentifier"));
+				//$identifier = @call_user_func(array($class,"getDbIdentifier"));
 				// if object doesn't have identifier and current identier if different than the default => skip
 				// if object has identifier but current identier is not in the object identifiers => skip
 
@@ -2483,7 +2486,9 @@ class Model
 
 		foreach (self::$_models as $class => $vars)
 		{
-			$identifier = @call_user_func(array($class,"getDbIdentifier"));
+			$object = new $class;
+
+			$identifier = call_user_func(array($object,"getDbIdentifier"));
 			// if object doesn't have identifier and current identier if different than the default => skip
 			// if object has identifier but current identier is not in the object identifiers => skip
 			// even if classes are loaded, they won't be updated
@@ -2491,8 +2496,6 @@ class Model
 
 			if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)) )
 				continue;
-
-			$object = new $class;
 
 			$table = $object->getTableName();
 			if (!Database::updateTable($table,$vars))
@@ -2506,7 +2509,7 @@ class Model
 
 			if (!method_exists($object,"index"))
 				continue;
-			if ($index = call_user_func(array($class,"index")))
+			if ($index = call_user_func(array($object,"index")))
 				Database::createIndex($table,$index);
 		}
 
@@ -2517,10 +2520,12 @@ class Model
 
 		if(self::$_modified)
 			foreach(self::$_models as $class => $vars) {
-				$identifier = @call_user_func(array($class,"getDbIdentifier"));
+				$object = new $class;
+
+				$identifier = (method_exists($object,"getDbIdentifier")) ? call_user_func(array($object,"getDbIdentifier")) : null;
+
 				if ( (!in_array($db_identifier, $identifier) && count($identifier)) || ($default_identifier!=$db_identifier  && !count($identifier)))
 					continue;
-				$object = new $class;
 				if(method_exists($object, "defaultObject"))
 					$res = call_user_func(array($object,"defaultObject"));
 			}
