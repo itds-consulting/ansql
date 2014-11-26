@@ -139,7 +139,9 @@ class Debug
 						if (isset($_SERVER["HOSTNAME"]))
 							$ip .= " (".$_SERVER["HOSTNAME"].")";
 					}
+					
 					$body = "Application is running on ".$ip."\n";
+					$body .= "Application: '$proj_title'"."\n";
 
 					if (isset($_SESSION["username"])) {
 						$user = $_SESSION["username"];
@@ -156,10 +158,14 @@ class Debug
 					if ($description)
 						$body .= "User description: ".$description."\n";
 
+					if ($message)
+						$body .= "Error that triggered report: ".$message."\n";
+
 					$attachment = ($logs_file = self::get_log_file()) ? array(array("file"=>$logs_file,"content_type"=>"text/plain")) : false;
 					if (!$attachment)
 						// logs are not kept in file, add xdebug to email body
 						$body .= "\n\n$xdebug";
+					$body = str_replace("\n","<br/>",$body);
 
 					for ($i=0; $i<count($notification_options); $i++) {
 						send_mail($notification_options[$i], $server_email_address, $subject, $body, $attachment,null,false);
@@ -177,6 +183,8 @@ class Debug
 								if (!in_array("web",$logs_in))
 									// of "web" is not already in $logs_in
 									// then print directly because otherwise it won't appear on screen
+									if ($message)
+										print "Error that triggered report: ".$message."\n";
 									print $xdebug;
 								print "</pre>\n";
 								if (isset($_SESSION["main"]))
