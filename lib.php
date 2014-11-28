@@ -753,7 +753,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if(isset($field_format["advanced"]))
 	{
 		if(!$show_advanced)
-			print ' style="display:none;"';
+			print ' style="display:none;" advanced="true" ';
 		elseif(isset($field_format["triggered_by"])){
 			if($needs_trigger)
 				print ' style="display:none;"';
