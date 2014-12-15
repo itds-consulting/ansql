@@ -31,7 +31,7 @@ $debug_tags = array("paranoid","in_framework","in_ansql","ansql","framework");
 $default_tag = "logic";
 
 // tags that should never be truncated
-$critical_tags = array("critical","query");
+$critical_tags = array("critical","query","query failed");
 
 // maximum xdebug message length
 // set to false or 0 to disable truncking of messages
