@@ -752,20 +752,23 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	print ' class="'.$css.'"';
 	if(isset($field_format["advanced"]))
 	{
-		if(!$show_advanced)
+		if(!$show_advanced) {
 			print ' style="display:none;" advanced="true" ';
-		elseif(isset($field_format["triggered_by"])){
+			if (isset($field_format["triggered_by"]))
+				print " trigger=\"true\" ";
+
+		} elseif(isset($field_format["triggered_by"])){
 			if($needs_trigger)
-				print ' style="display:none;"';
+				print ' style="display:none;" trigger=\"true\" ';
 			else
-				print ' style="display:table-row;"';
+				print ' style="display:table-row;" trigger=\"true\" ';
 		}else
 			print ' style="display:table-row;"';
 	}elseif(isset($field_format["triggered_by"])){
 		if($needs_trigger)
-			print ' style="display:none;"';
+			print ' style="display:none;" trigger=\"true\" ';
 		else
-			print ' style="display:table-row;"';
+			print ' style="display:table-row;" trigger=\"true\" ';
 	}
 	print '>';
 	// if $var_name is an array we won't use it
