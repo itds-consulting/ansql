@@ -144,6 +144,7 @@ class Database
 {
 	protected static $_connection = true;
 	protected static $_object_model = "Model";
+	public static $_in_transaction = false;
 
 	// this library uses mostly postgresql types
 	// if type is not in the below list make sure that given type of a variables mathches real type in database
@@ -264,6 +265,9 @@ class Database
 	public static function transaction()
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+		if (self::$_in_transaction===true)
+			return;
+		self::$_in_transaction = true;
 		return Database::query("BEGIN WORK");
 	}
 
@@ -273,6 +277,7 @@ class Database
 	public static function rollback()
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+		self::$_in_transaction = false;
 		return Database::query("ROLLBACK");
 	}
 
@@ -282,6 +287,7 @@ class Database
 	public static function commit()
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+		self::$_in_transaction = false;
 		return Database::query("COMMIT");
 	}
 
@@ -1368,10 +1374,11 @@ class Model
 		$this->_modified_col = array();
 
 		foreach($params as $param_name=>$param_value) {
-			if($this->{$param_name} != $param_value)
-				$this->_modified_col[$param_name] = true;
-			if($this->variable($param_name))
+			if($this->variable($param_name)) {
+				if($this->{$param_name} != $param_value)
+					$this->_modified_col[$param_name] = true;
 				$this->{$param_name} = $param_value;
+			}
 		}
 	}
 
