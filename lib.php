@@ -2882,7 +2882,7 @@ function get_mp3_len($file)
 	return (filesize($file) - $headerlen) / $framelen / ($samp / $framesize);
 }
 
-function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file")
+function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file", $title_text=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $upload_path;
@@ -2895,6 +2895,11 @@ function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file")
 		unlink($file);
 	}
 	$fh = fopen($file, "w") or die("Can't open file for writting.");
+
+	if ($title_text)
+		fwrite($fh,$title_text."\r\n");
+	if (!$func)
+		$func = "write_in_file";
 
 	$sep = ",";
 	$func($fh, $formats, $arr, $sep);
