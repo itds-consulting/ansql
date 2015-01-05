@@ -743,6 +743,13 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if(isset($field_format["value"]))
 		$value = $field_format["value"];
 
+	if (!strlen($value) && isset($field_format["callback_for_value"]) && is_callable($field_format["callback_for_value"]["name"])) {
+		if (count($field_format["callback_for_value"])==2)
+			$value = call_user_func_array($field_format["callback_for_value"]["name"],$field_format["callback_for_value"]["params"]);
+		else
+			$value = call_user_func($field_format["callback_for_value"]["name"]);
+	}
+
 	print '<tr id="tr_'.$form_identifier.$field_name.'"';
 //		if($needs_trigger == true)	
 //			print 'name="'.$form_identifier.$field_name.'triggered'.$field_format["triggered_by"].'"';
