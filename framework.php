@@ -3091,6 +3091,9 @@ class Model
 	/**
 	 * Adding an inner query to a WHERE clause
 	 * @param $inner_query Array of params for defining the inner query
+	 * Ex: array("column"=>"user_id", "relation"=>"IN"/"NOT IN","table"=>"users","inner_table"=>"banned_users", "inner_column"=>"user_id", "conditions"=>array("reason"=>"abuse"))
+	 * inner_column can be omitted if it's the same as 'column'. Ex: array("column"=>"user_id", "relation"=>"IN"/"NOT IN","table"=>"users","inner_table"=>"banned_users", "inner_column"=>"user_id", "conditions"=>array("reason"=>"abuse"))
+	 * You can specify the inner values directly: Ex: array("column"=>"user_id", "relation"=>"IN"/"NOT IN","table"=>"users", "options"=>"1,2,3,4")
 	 * @param $table Table to use for the column on which the inner query is applied
 	 * @param $where Clause to append to 
 	 * @return WHERE clause
