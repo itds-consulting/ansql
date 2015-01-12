@@ -661,15 +661,15 @@ function check_valid_mail($mail)
 	if (!$mail)
 		return true;
 
-	$pattern = '^([_a-z0-9-]+)(\.[_a-z0-9-]+)*@([a-z0-9-]+)(\.[a-z0-9-]+)*(\.[a-z]{2,4})$' ;
-	return eregi($pattern, $mail);
+	$pattern = '/^([_a-z0-9-]+)(\.[_a-z0-9-]+)*@([a-z0-9-]+)(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i';
+	return preg_match($pattern,$mail);
 }
 
 /**
  * Prints hidden type inputs used in page: module, method, action and additional parameters if set
  * @param $action String contains the name of action in the page
  * @param $additional Array contains the parameters and their values to be set as input hidden 
- * @empty_page_param Bool default to false
+ * @param $empty_page_param Bool. If true it will set 'method' and 'module' hidden fields to existing value if they don't appear in $additional. Defaults to false
  */ 
 function addHidden($action=NULL, $additional = array(), $empty_page_params=false)
 {
