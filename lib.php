@@ -556,7 +556,7 @@ function pages($total = NULL, $params = array())
 		while($sp<0)
 			$sp += $limit;
 		while($sp<$page) {
-			$pg_nr = $sp/$limit + 1;
+			$pg_nr = floor($sp/$limit) + 1;
 			print '<a class="pagelink" href="'.$link.'&page='.$sp.'">'.$pg_nr.'</a>&nbsp;&nbsp;';
 			$sp += $limit;
 		}
@@ -586,7 +586,7 @@ function pages($total = NULL, $params = array())
 		if ($limit==1)
 			$last_page = $total - 1;
 		elseif (floor(($total/$limit))==$total/$limit)
-			$last_page = floor($total/$limit) * ($limit - 1);
+			$last_page = floor(($total-1)/$limit) * $limit;
 
 		/* jump 5 pages */
 		if ($next5 < $last_page)
