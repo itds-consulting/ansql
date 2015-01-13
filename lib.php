@@ -561,9 +561,9 @@ function pages($total = NULL, $params = array())
 			$sp += $limit;
 		}
 	}
-	$pg_nr = $page/$limit + 1;
+	$pg_nr = floor($page/$limit)+1;
 	print '<font class="pagelink selected_pagelink" href="#">'.$pg_nr.'</font>&nbsp;&nbsp;';
-	if (($page+$limit) <= $total) {
+	if (($page+$limit) < $total) {
 		if($pg_nr >= 3)
 			$stop_at = $pg_nr + 2;
 		else
@@ -583,6 +583,10 @@ function pages($total = NULL, $params = array())
 
 		$next5 = $page + $limit*5;
 		$last_page = floor($total/$limit) * $limit;
+		if ($limit==1)
+			$last_page = $total - 1;
+		elseif (floor(($total/$limit))==$total/$limit)
+			$last_page = floor($total/$limit) * ($limit - 1);
 
 		/* jump 5 pages */
 		if ($next5 < $last_page)
