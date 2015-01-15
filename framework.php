@@ -1311,6 +1311,7 @@ class Model
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
+		$res = array();
 		if($params) {
 			$res = $this->verifyRequiredFields($params);
 			if(!$res[0])
