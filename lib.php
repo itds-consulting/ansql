@@ -252,25 +252,25 @@ function link_to_main_page($path, $return_text)
 /**
  * Prints a message as a notice or an error type message and calls a function 
  * @param $message String The message to be displayed.
- * @param $next String Setting it to 'no' stops the callback function.  
+ * @param $next_cb Callable/String. Setting it to 'no' stops the performing of the callback.  
  * @param $no_error Boolean If is true a message id displayed 
  * else an error type message is displayed. Defaults to true.
  */ 
-function notice($message, $next=NULL, $no_error = true)
+function notice($message, $next_cb=NULL, $no_error = true)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
-	if (!$next)
-		$next = $module;
+	if (!$next_cb)
+		$next_cb = $module;
 
 	if ($no_error)
 		print '<div class="notice">'.$message.'</div>';
 	else
 		print '<div class="notice"><font class="error">Error!! </font>'.$message.'</div>';
 
-	if ($next != "no")
-		$next();
+	if ($next_cb != "no")
+		call_user_func($next_cb);
 }
 
 /**
@@ -906,11 +906,11 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if (isset($field_format["value"]))
 		$value = $field_format["value"];
 
-	if (!strlen($value) && isset($field_format["callback_for_value"]) && is_callable($field_format["callback_for_value"]["name"])) {
-		if (count($field_format["callback_for_value"])==2)
-			$value = call_user_func_array($field_format["callback_for_value"]["name"],$field_format["callback_for_value"]["params"]);
+	if (!strlen($value) && isset($field_format["cb_for_value"]) && is_callable($field_format["cb_for_value"]["name"])) {
+		if (count($field_format["cb_for_value"])==2)
+			$value = call_user_func_array($field_format["cb_for_value"]["name"],$field_format["cb_for_value"]["params"]);
 		else
-			$value = call_user_func($field_format["callback_for_value"]["name"]);
+			$value = call_user_func($field_format["cb_for_value"]["name"]);
 	}
 
 	print '<tr id="tr_'.$form_identifier.$field_name.'"';
@@ -1127,11 +1127,11 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			if (isset($field_format["advanced"]))
 				print '<input type="hidden" name="'.$form_identifier.$field_name.'">';
 
-			if(!function_exists($display))
-				Debug::trigger_report('critical', "Function $display is not implemented.");
+			if (!is_callable($display))
+				Debug::trigger_report('critical', "Callable ".print_r($display,true)." is not implemented.");
 
 			// callback here
-			$value = $display($value,$form_identifier.$field_name); 
+			$value = call_user_func_array($display, array($value,$form_identifier.$field_name)); 
 			if ($value)
 				print $value;
 	}
@@ -3644,7 +3644,7 @@ function missing_param($param)
 function generic_tabbed_settings($options,$config,$section_to_open=array(),$show_advanced=false, $form_name=null,$form_submit=true,$specif_ind="",$custom_css=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
-	global $module, $tabs_callback;
+	global $module, $tabs_cb;
 
 	if (!$form_name)
 		$form_name = $module;
@@ -3720,8 +3720,8 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 				$names[] = $name;
 			generic_tabbed_settings($names, $sub_sections, array("$first_subsec"=>""), false, "", false, $js_name."_", "subsec");
 		} else {
-			if (isset($tabs_callback))
-				$tabs_callback($name, $current_fields);
+			if (isset($tabs_cb))
+				$tabs_cb($name, $current_fields);
 			editObject(NULL,$current_fields,NULL,"no");
 		}
 		print "</div>";
@@ -3790,6 +3790,39 @@ function include_javascript($module=null)
 
 	if ($module && is_file("javascript/$module.php"))
 		include("javascript/$module.php");
+}
+
+/**
+ * Builds global javascript array map variable: required_fields 
+ * Ex on generated object: required_fields={"username":"username", "contact_info":"Contact information"}
+ * @param $form_fields Array. Fields
+ * @param $exclude_fields Array. Array with key step names that should be excluded
+ * Ex: array("step_name", "step_image", "step_description") -- usage when used from Wizard class
+ */
+function requiredFieldsJs($form_fields, $excluded_fields)
+{
+	?><script>
+	// save the name of the required fields: field_name:column_name
+	// column_name is the field the user sees, field_name is the key in the current step array
+	required_fields = {};
+	<?php
+
+	foreach ($form_fields as $field_name=>$field_def) {
+		if (isset($excluded_fields[$field_name]))
+			continue;
+		if (isset($field_def["display"])) {
+			if ($field_def["display"] == "message" || $field_def["display"] == "fixed")
+				continue;
+		}
+
+		if ( (isset($field_def["required"]) && ($field_def["required"]===true || $field_def["required"]=="true")) ||
+		    (isset($field_def["compulsory"]) && ($field_def["compulsory"]===true || $field_def["compulsory"]=="true"))
+		) {
+			echo "required_fields[\"".$field_name."\"]=\"".$real_name."\";";
+		}
+	}
+	?>
+	</script><?php
 }
 
 /* vi: set ts=8 sw=4 sts=4 noet: */

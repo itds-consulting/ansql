@@ -17,7 +17,7 @@ $custom_actionlog = false; // if true you can define your own action log class s
 
 // make callback to this function in case backup connection is used
 // log_used_backup_conn(2); // 2/3.. - index of backup connection used 
-// $callback_when_backup = "log_used_backup_conn";
+// $cb_when_backup = "log_used_backup_conn";
 
 // password to be allowed to control error reporting and displaying of the queries
 $pass_debug_page = "secret_debug";

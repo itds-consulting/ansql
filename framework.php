@@ -198,7 +198,7 @@ class Database
 	 */
 	public static function connect($connection_index="")
 	{
-		global $db_type, $callback_when_backup, $exit_gracefully;
+		global $db_type, $cb_when_backup, $exit_gracefully;
 
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
@@ -251,8 +251,8 @@ class Database
 					die("Could not connect to the database");
 				else
 					return; 
-			} elseif (isset($callback_when_backup) && function_exists($callback_when_backup))
-				$callback_when_backup($next_index);
+			} elseif (isset($cb_when_backup) && is_callable($cb_when_backup))
+				call_user_func_array($cb_when_backup, array($next_index));
 		} else if ($db_type == "mysql")
 			mysql_select_db(${"db_database$connection_index"},self::$_connection);
 

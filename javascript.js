@@ -147,13 +147,13 @@ function set_html_obj(id, html)
                 obj.innerHTML = (html == null) ? "" : html;
 }
 
-function make_request(url, callback)
+function make_request(url, cb)
 {
         url = encodeURI(url);
-        make_api_request(url, callback);
+        make_api_request(url, cb);
 }
 
-function make_api_request(url, callback)
+function make_api_request(url, cb)
 {
         xmlhttp = GetXmlHttpObject();
         if (xmlhttp == null) {
@@ -164,20 +164,20 @@ function make_api_request(url, callback)
         xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4) {
                         var response = xmlhttp.responseText;
-                        call_function(callback,response);
+                        call_function(cb,response);
                 }
         }
         xmlhttp.open("GET", url, true);
         xmlhttp.send(null);
 }
 
-function call_function(callback, response)
+function call_function(cb, response)
 {
-        if (callback && typeof(callback) === "function") {
+        if (cb && typeof(cb) === "function") {
                 // execute the callback, passing parameters as necessary
-                callback(response);
+                cb(response);
         } else
-                alert(typeof(callback));
+                console.error("Trying to call invalid callback "+cb.toString()+", type for it is: "+typeof(cb));
 }
 
 function GetXmlHttpObject()
@@ -193,4 +193,36 @@ function GetXmlHttpObject()
                 return new ActiveXObject("Microsoft.XMLHTTP");
         }
         return null;
+}
+
+/**
+ * Check if required fields were set.
+ * The required_fields global variable is checked
+ * Ex: required_fields={"username":"username", "contact_info":"Contact information"}
+ * "contact_info" is the actual field_name in the form while "Contact information" is what the user sees associated to that form element
+ * @return Bool. True when required fields are set, false otherwise 
+ * If required_fields is undefined then function returns true and a message is logged in console
+ */
+function check_required_fields()
+{
+	if (typeof(required_fields) === "undefined") {
+		console.log("The required fields are not defined!");
+		return next_step(step_no, wizard_name);
+	}
+
+	var err = "";
+	// variable required_fields is a global array 
+	// it is usually created from method requiredFieldsJs() from Wizard class
+
+	var field_name, field_value;
+	for (field_name in required_fields) {
+		field_value = window.document.getElementById(field_name).value;
+		if (field_value=="")
+			err += "Please set "+required_fields[field_name]+"! ";
+	}
+	if (err!="") {
+		error(err);
+		return false;
+	}
+	return true;
 }
