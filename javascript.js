@@ -207,7 +207,7 @@ function check_required_fields()
 {
 	if (typeof(required_fields) === "undefined") {
 		console.log("The required fields are not defined!");
-		return next_step(step_no, wizard_name);
+		return false;
 	}
 
 	var err = "";
@@ -216,7 +216,7 @@ function check_required_fields()
 
 	var field_name, field_value;
 	for (field_name in required_fields) {
-		field_value = window.document.getElementById(field_name).value;
+		field_value = document.getElementById(field_name).value;
 		if (field_value=="")
 			err += "Please set "+required_fields[field_name]+"! ";
 	}

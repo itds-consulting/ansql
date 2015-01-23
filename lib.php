@@ -3816,9 +3816,9 @@ function requiredFieldsJs($form_fields, $excluded_fields)
 		}
 
 		if ( (isset($field_def["required"]) && ($field_def["required"]===true || $field_def["required"]=="true")) ||
-		    (isset($field_def["compulsory"]) && ($field_def["compulsory"]===true || $field_def["compulsory"]=="true"))
-		) {
-			echo "required_fields[\"".$field_name."\"]=\"".$real_name."\";";
+		    (isset($field_def["compulsory"]) && ($field_def["compulsory"]===true || $field_def["compulsory"]=="true"))) {
+				$real_name = isset($field_def["column_name"]) ? $field_def["column_name"] : str_replace("_", " ", ucfirst($field_name));
+				echo "required_fields[\"".$field_name."\"]=\"".$real_name."\";";
 		}
 	}
 	?>
