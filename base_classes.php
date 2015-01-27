@@ -68,11 +68,11 @@ class GenericStatus
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 		$this->status = false;
 		if (is_numeric($p1)) {
-			$this->code = $p1;
-			$this->error_message = $p2;
+			$this->setErrorCode($p1);
+			$this->setErrorMessage($p2);
 		} else {
-			$this->error_message = $p1;
-			$this->code = $p2;
+			$this->setErrorMessage($p1);
+			$this->setErrorCode($p2);
 		}
 	}
 
