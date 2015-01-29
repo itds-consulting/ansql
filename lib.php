@@ -131,7 +131,8 @@ function forbidden()
  * @param $action String. The action of the FORM
  * @param $method String. Allowed values: post|get. Defaults to 'post'.
  * @param $allow_upload Bool. If true allow the upload of files. Defaults to false.
- * @param $form_name String. Fill the attribute name of the FORM. Defaults to 'current_form'
+ * @param $form_name String. Fill the attribute name of the FORM. 
+ * Defaults to global variable $module or 'current_form' if $module is not set or null
  * @param $class String. Fill the attribute class. No default value set.
  */ 
 function start_form($action = NULL, $method = "post", $allow_upload = false, $form_name = NULL, $class = NULL)
@@ -3685,7 +3686,6 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 				print $disp_hide;
 			print '>&nbsp;</div>';
 		}
-
 
 		print '<div class="'.$css.'" onClick="show_section(\''.$i.'\','.$total_options.',\''.$specif_ind.'\',\''.$custom_css.'\');" id="tab_'.$js_name.'" ';
 		if ($i && !$show_advanced)
