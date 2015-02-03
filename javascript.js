@@ -45,13 +45,23 @@ function show(element_id)
 	if (element == null)
 		return;
 
-	if (element.tagName == "TR")
-		element.style.display = (ie > 1 && ie<8) ? "block" : "table-row";
-	else
-		if (element.tagName == "TD")
-			element.style.display = (ie > 1 && ie<8) ? "block" : "table-cell";
-		else
+	switch (element.tagName.toLowerCase()) {
+		case "tr":
+		case "img":
+		case "input":
+		case "select":
+		case "iframe":
+			element.style.display = (ie > 1 && ie<=9) ? "block" : "table-row";
+			break;
+		case "td":
+			element.style.display = (ie > 1 && ie<=9) ? "block" : "table-cell";
+			break;
+		case "table":
+			element.style.display = (ie > 1 && ie<=9) ? "block" : "table";
+			break;
+		default:
 			element.style.display = "block";
+	}
 }
 
 /**
@@ -138,6 +148,8 @@ function toggle_column(element)
  */
 function parent_by_tag(element, tagname)
 {
+	if (element==null)
+		return;
         while(true) {
                 parent_element = element.parentElement;
                 if (parent_element==null)
@@ -246,7 +258,7 @@ function show_hide_comment(id)
 }
 
 /**
- * Show/hide element
+ * Show/hide element. Changes visibility of the element
  * @param element_id String. Id of the element to to shown/hidden
  */ 
 function show_hide(element_id)
@@ -255,23 +267,10 @@ function show_hide(element_id)
 	if (element==null)
 		return;
 
-	if (typeof ie == 'undefined')
-		ie = getInternetExplorerVersion();
-
-	if (element.style.display=="none") {
-		if (element.tagName=="TR")
-			element.style.display = (ie > 1 && ie<8) ? "block" : "table-row";//"block";//"table-row";
-		else
-			if (element.tagName=="TD")
-				element.style.display = (ie > 1 && ie<8) ? "block" : "table-cell";
-			else
-				if (element.tagName=="IMG")
-					element.style.display = "";
-				else
-					element.style.display = "block";
-	} else {
-		element.style.display = "none";
-	}
+	if (element.style.display=="none")
+		show(element_id);
+	else
+		hide(element_id);
 }
 
 /**
@@ -466,4 +465,171 @@ function set_html_obj(id, html)
         var obj = document.getElementById(id);
         if (obj)
                 obj.innerHTML = (html == null) ? "" : html;
+}
+
+/**
+ * Show fields for 'Add another ...' link. 
+ * This fields must already exist and be hidden.
+ * When made using display_pair() you must set triggered_by => "" for the fields
+ * Function will show all fields ending in link_index from form 
+ * and will hide clicked link and display the one with the next index
+ * @param link_index Integer. The index that unites fields to be show as part of another object
+ * @param link_name String. Name of the add link. Ex: add, add_contact
+ */
+function fields_another_obj(link_index, link_name)
+{
+	if (!is_numeric(link_index)) {
+		Console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
+		return;
+	}
+
+	var element_name;
+
+	// this is the link that was clicked and should be hidden
+	var current_link_id = link_name+(link_index-1);
+	hide(current_link_id);
+
+	// retrieve all elements from same form as the clicked link
+	var parentform = parent_by_tag(document.getElementById(current_link_id),"form");
+	if (parentform==null)
+		return;
+	elems = parentform.elements;
+
+	// see if there are advanced fields (check button -- it's displayed only when there are fields marked as advanced)
+	var show_advanced = document.getElementById("advanced");
+	if (show_advanced!=null) {
+		console.log("innerHTML advanced button:'"+show_advanced.innerHTML+"'");
+		show_advanced = (show_advanced.innerHTML=="Advanced") ? false : true;
+	} else
+		show_advanced = false;
+	console.log("Show advanced: "+show_advanced);
+
+	var id_tr_element, tr_element;
+	for (var i=0; i<elems.length; i++) {
+		element_name = elems[i].name;
+		// we assume that elements in form have the same "id" and "name"
+		// the containing tr is built by concatenanting "tr_" + element_id
+		id_tr_element = "tr_" + element_name;
+
+		if (id_tr_element.substr(element_name.length+2, id_tr_element.length)!=link_index)
+			continue;
+
+		tr_element = document.getElementById(id_tr_element);
+		// this field is advanced -> display it only if user already requested to see advanced fields
+		if (tr_element.getAttribute("advanced")=="true" && show_advanced==false)
+			continue;
+    
+		show(id_tr_element);
+	}
+
+	// this is the next link that should be displayed
+	show("tr_"+link_name+link_index);
+}
+
+/**
+ * Builds part of a link from the fields in a form
+ * Values set in form field are escaped with 'encodeURIComponent' before concatenanting
+ * @param form_name String. Name of the form where to take the elements from
+ * @return String. Part of a link
+ * Ex: ?name=Larry&phone_number=4034222222&zipcode=50505
+ */ 
+function link_from_fields(form_name) 
+{
+	var form_obj = document.forms[form_name];
+	if (form_obj==null)
+		return null;
+	var qs = '';
+	for (e=0;e<form_obj.elements.length;e++) {
+		if (form_obj.elements[e].name!='') {
+			if (form_obj.elements[e].type=="checkbox" && form_obj.elements[e].checked!=true)
+				continue;
+			qs += (qs=='')?'?':'&';
+			qs += form_obj.elements[e].name+'='+encodeURIComponent(form_obj.elements[e].value);
+		}
+	}
+	return qs;
+}
+
+/**
+ * Removed value from array
+ * Note! Only the first found value is removed
+ * @param val. Value to be removed
+ * @param arr Array. Array to remove value from
+ */
+function removeArrayValue(val,arr)
+{
+	if (!val)
+		return;
+	for (var i=0; i<arr.length; i++) {
+		if (arr[i]==val) {
+			arr.splice(i, 1);
+			break;
+		}
+	}
+}
+
+/**
+ * Adds div element with specified id, content and css class in another element
+ * Element is inserted at the beggining
+ * @param parent_id String. Id of the parent element in which the new element will be added
+ * @param element_id String. Id of the new element that will be added
+ * @param html String. Content to be set inside new div
+ * @param css_class String. CSS class(es) for the new div
+ */
+function add_element_with_class(parent_id, element_id, html, css_class)
+{
+	parent_elem = document.getElementById(parent_id);
+	if (parent_elem==null)
+		return;
+	newDiv = document.createElement("div");
+	newDiv.setAttribute("id", element_id);
+	newDiv.innerHTML = html;
+	if (css_class)
+		newDiv.className = css_class;
+	parent_elem.parentNode.insertBefore(newDiv, parent_elem);
+}
+
+/**
+ * Adds div element with specified id, content and css class in another element
+ * Element is inserted at the beggining
+ * @param parent_id String. Id of the parent element in which the new element will be added
+ * @param element_id String. Id of the new element that will be added
+ * @param html String. Content to be set inside new div
+ */
+function add_element(parent_id, element_id, html)
+{
+	add_element_with_class(parent_id, element_id, html, null);
+}
+
+/**
+ * Used when user selects a 'Custom' option from a dropdown
+ * Adds input field with id 'custom_'+id of the dropdown
+ * @param custom_value String. Value to set in the newly added field
+ * @param dropdown_id String. Id of the dropdown 
+ */
+function custom_value_dropdown(custom_value,dropdown_id)
+{
+	// the id of the custom field that will be added
+	var custom_id = "custom_"+dropdown_id;
+	var custom_field = document.getElementById(custom_id);
+
+	var selected = get_selected(dropdown_id);
+	if (selected=="Custom") {
+		var dropdown = document.getElementById(dropdown_id);
+		var parent_td = dropdown.parentNode;
+		if (custom_field==null) {
+			// custom_field wasn't added in the page => add it here
+			var html_to_add = "<br/>"+"<input class='margintop' type='text' name='"+custom_id+"' id='"+custom_id+"' ";
+			if (custom_value!=null)
+				html_to_add = html_to_add+" value='"+custom_value+"'";
+			html_to_add = html_to_add+" />";
+
+			parent_td.innerHTML = parent_td.innerHTML+html_to_add;
+		} else {
+			// custom_field is already in the page => display it
+			custom_field.style.display = "";
+		}
+
+	} else if (custom_field!=null && custom_field.style.display!="none")
+		custom_field.style.display = "none";
 }
