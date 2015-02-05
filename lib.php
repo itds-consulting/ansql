@@ -1303,7 +1303,12 @@ function tableOfObjects_objectnames($objects, $formats, $object_name, $object_ac
  * @param $object_actions Array of $method=>$method_name, $method will be added in the link and $method_name will be printed
  * Ex: array("&method=edit_user"=>"Edit")
  * @param $general_actions Array of $method=>$method_name that will be printed at the end of the table
- * Ex: array("&method=add_user"=>"Add user")
+ * If key '__top' is present in the $general_actions then the position will be top otherwize bottom of the table
+ * Ex: array("&method=add_user"=>"Add user") or with callback:
+ * array("cb"=>"fun_name") or:
+ * array("cb"=>array("name"=>"fun_name", "params"=> array(param1, param2,...)) or:
+ * array("left"=>array("cb"=> "func_name"), "right"=>array("cb"=>"func_name")) or: 
+ * array("left"=>array("cb"=>array("name"=>"func_name", "params"=>array(param1, param2,...)), "right"=>array("cb"=>"func_name"));
  * @param $base Text representing the name of the page the links from @ref $object_name and @ref $general_actions will be sent
  * Ex: $base = "main.php"
  * If not sent, i will try to see if $_SESSION["main"] was set and create the link. If $_SESSION["main"] was not set then  
@@ -1484,7 +1489,19 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 }
 
 /**
- * Builds links that will contain general actions 
+ * Builds links or makes callbacks that will contain the general actions in the table of objects
+ *
+ * @param $general_actions Array 
+ * Ex: array("&method=add_user"=>"Add user") or array("left"=> array("&method=add_user"=>"Add user"), "right"=> array())
+ * or with callback:
+ * array("cb"=>"fun_name") or array("cb"=>array("name"=>"fun_name", "params"=> array(param1, param2,...)) or:
+ * array("left"=>array("cb"=> "func_name"), "right"=>array("cb"=>"func_name")) or: 
+ * array("left"=>array("cb"=>array("name"=>"func_name", "params"=>array(param1, param2,...)), "right"=>array("cb"=>"func_name"));
+ * @param $base Text representing the name of the page the links from @ref $object_name and @ref $general_actions will be sent
+ * Ex: $base = "main.php"
+ * @param $css Text the css class name
+ * @param $no_columns Int the number of the columns. Used to build the colspan of the cell.
+ * @param $on_top Bool if true add css class to cell 'starttable', otherwize 'endtable'  
  */ 
 function links_general_actions($general_actions, $no_columns, $css, $base, $on_top=false)
 {
@@ -1496,7 +1513,7 @@ function links_general_actions($general_actions, $no_columns, $css, $base, $on_t
 	$pos_css = ($on_top) ? "starttable" : "endtable";
 
 		print '<tr class="'.$css.' endtable">';
-		if(isset($general_actions["left"])) {
+		if (isset($general_actions["left"])) {
 			$left_actions = $general_actions["left"];
 			$columns_left = floor($no_columns/2);
 			$no_columns -= $columns_left;
@@ -1504,15 +1521,19 @@ function links_general_actions($general_actions, $no_columns, $css, $base, $on_t
 			$link_no = 0;
 			if (is_array($left_actions)) {
 				foreach($left_actions as $methd => $methd_name)	{
-					if($link_no)
-						print '&nbsp;&nbsp;';
-					print '<a class="'.$css.'" href="'.$base.$methd.'">'.$methd_name.'</a>';
-					$link_no++;
+					if ($methd === "cb")
+						set_cb($methd_name);
+					else {
+						if ($link_no)
+							print '&nbsp;&nbsp;';
+						print '<a class="'.$css.'" href="'.$base.$methd.'">'.$methd_name.'</a>';
+						$link_no++;
+					}
 				} 
 			} else
 				print $left_actions;
 			print '</td>';
-			if(isset($general_actions["right"]))
+			if (isset($general_actions["right"]))
 				$general_actions = $general_actions["right"];
 			else
 				$general_actions = array();
@@ -1520,18 +1541,42 @@ function links_general_actions($general_actions, $no_columns, $css, $base, $on_t
 		
 		print '<td class="'.$css.' allright '.$pos_css.'" colspan="'.$no_columns.'">';
 		$link_no = 0;
-		if(!count($general_actions))
+		if (!count($general_actions))
 			print "&nbsp;";
 		foreach($general_actions as $methd=>$methd_name) {
 			if ($methd_name == "__top")
 				continue;
-			if($link_no)
-				print '&nbsp;&nbsp;';
-			print '<a class="'.$css.'" href="'.$base.$methd.'">'.$methd_name.'</a>';
-			$link_no++;
+			if ($methd === "cb") {
+				set_cb($methd_name);
+			} else {
+				if ($link_no)
+					print '&nbsp;&nbsp;';
+				print '<a class="'.$css.'" href="'.$base.$methd.'">'.$methd_name.'</a>';
+				$link_no++;
+			}
 		}
 		print '</td>';
 		print '</tr>';
+}
+
+/** 
+ * Makes the callback for different methods
+ * used in  links_general_actions() when a callback is set in $general_actions
+ */ 
+function set_cb($methd_name)
+{
+	if (!isset($methd_name["name"])) {
+		if (is_callable($methd_name))
+			call_user_func($methd_name);
+		else
+			Debug::trigger_report("The function '". $methd_name . "' is not implemented.");
+	} elseif (isset($methd_name["params"])) {
+		if (is_callable($methd_name["name"]))
+			call_user_func_array($methd_name["name"], $methd_name["params"]);
+		else
+			Debug::trigger_report("The function '". $methd_name["name"] . "' is not implemented.");
+	} else 
+		Debug::trigger_report("Incorrect 'cb' - callback set in general actions.");
 }
 
 /**
