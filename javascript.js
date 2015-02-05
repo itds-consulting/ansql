@@ -278,11 +278,15 @@ function show_hide(element_id)
  * encodeURI function is used on url before using @make_api_request function
  * @param url String. Where to make request to
  * @param cb Callback. If set, call it passing response from HTTP request as argument
+ * @param aync Bool. If set, specifies if the request should be handled asynchronously or not. 
+ * Default async is true (asynchronous) 
  */
-function make_request(url, cb)
+function make_request(url, cb, async)
 {
         url = encodeURI(url);
-        make_api_request(url, cb);
+		if (typeof async === 'undefined')
+			async = true;
+        make_api_request(url, cb, async);
 }
 
 /**
@@ -291,38 +295,46 @@ function make_request(url, cb)
  * Use @make_reques function to make sure url is encoded since this function assumes it already was encoded.
  * @param url String. Where to make request to
  * @param cb Callback. If set, call it passing response from HTTP request as argument
+ * @param aync Bool. If set, specifies if the request should be handled asynchronously or not. 
+ * Default async is true (asynchronous)
  */
-function make_api_request(url, cb)
+function make_api_request(url, cb, async)
 {
-        xmlhttp = GetXmlHttpObject();
-        if (xmlhttp == null) {
-                alert("Your browser does not support XMLHTTP!");
-                return;
-        }
+	xmlhttp = GetXmlHttpObject();
+	if (xmlhttp == null) {
+		alert("Your browser does not support XMLHTTP!");
+		return;
+	}
 
-        xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4) {
-                        var response = xmlhttp.responseText;
-			if (typeof cb != 'undefined' && cb !== null)
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState == 4) {
+			var response = xmlhttp.responseText;
+			if (typeof cb != 'undefined' && cb !== null) 
 				call_function(cb,response);
-                }
-        }
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send(null);
+		}
+	}
+	if (typeof async === 'undefined')
+		async = true;
+	xmlhttp.open("GET", url, async);
+	xmlhttp.send(null);
 }
 
 /**
  * Make callback 
  * @param cb Callback. Name of the function to be called
+ * The callback can be set as object:
+ * cb={name:name_func, param:value}
  * @param param. Parameter to be passed when calling cb
  */
 function call_function(cb, param)
 {
-        if (cb && typeof(cb) === "function") {
-                // execute the callback, passing parameters as necessary
-                cb(param);
-        } else
-                console.error("Trying to call invalid callback "+cb.toString()+", type for it is: "+typeof(cb));
+	if (cb && typeof(cb) === "function") {
+		// execute the callback, passing parameters as necessary
+		cb(param);
+	} else if (cb && typeof(cb) === "object" && typeof(cb.name) === 'function') {
+		cb.name(param, cb.param);
+	} else
+		console.error("Trying to call invalid callback "+cb.toString()+", type for it is: "+typeof(cb));
 }
 
 /**
