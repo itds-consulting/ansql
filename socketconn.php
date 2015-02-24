@@ -20,19 +20,32 @@
 
 require_once("debug.php");
 
-// Class used to open a socket, send and receive information from it
-// after connecting the header information send by yate si stripped and you can authentify if required
+/*
+ * Class used to open a socket, send and receive information from it
+ * After connecting through the socket the header information send by Yate is ignored.
+ * The authentication is done only if param $rmanager_pass is set
+ */ 
+
 class SocketConn
 {
-	var $socket;
-	var $error = "";
+	public $socket;
+	public $error = "";
+	
+	 /*
+	  * @param $mode String. Possible values:
+	  *      -> "send" - will send a command and will not wait for the respond=>  send_close($command) will be used
+	  *      -> "send_wait" - send a command, wait for the response and close the socket => send_write($command, $marker_end, $default_tries)
+	  *      -> "multiple_send_wait" - send multiple command, wait for their responses and then close the socket => 
+	  *       command($command, $marker_end , $limited_tries) will be used with different commands and then close($this->socket)
+	  */
 
-	function __construct($ip = null, $port = null)
+	function __construct($ip = null, $port = null, $mode="send_wait")
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 
 		global $default_ip, $default_port, $rmanager_pass, $socket_timeout;
 		global $default_tries;
+
 
 		$protocol_list = stream_get_transports();
 
@@ -42,7 +55,8 @@ class SocketConn
 
 		if (!$ip)
 			$ip = $default_ip;
-                if (!$port)
+
+		if (!$port)
 			$port = $default_port;
 
 		if (substr($ip,0,4)=="ssl:" && !in_array("ssl", $protocol_list))
@@ -69,6 +83,33 @@ class SocketConn
 		}
 	}
 
+	/**
+	 * Send one command through the socket 
+	 * close the socket
+	 */
+	function send_close($command)
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
+		$this->write($command);
+		$this->close();
+	}
+	
+	/* 
+	 * Send commmand through the socket 
+	 * Read from the socket the answer 
+	 * Close the socket
+	*/	
+	function send_write($command, $marker_end, $default_tries)
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
+		$response = $this->command($txt_command, $marker_end, $default_tries);
+		$this->close();
+		return $response;
+	}
+
+
 	function write($str)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
@@ -90,12 +131,12 @@ class SocketConn
 		$line = "";
 		$i = 0;
 		//print "<br/>limited_tries=$limited_tries: ";
-		while($keep_trying) {
+		while ($keep_trying) {
 			$line .= fgets($this->socket,8192);
-			if($line === false)
+			if ($line === false)
 				continue;
-			usleep(10000); // sleep 10 miliseconds
-			if(substr($line, -strlen($marker_end)) == $marker_end)
+			usleep(25000); // sleep 25 miliseconds
+			if (substr($line, -strlen($marker_end)) == $marker_end)
 				$keep_trying = false;
 			$i++;
 			if ($limited_tries && $limited_tries<=$i)
