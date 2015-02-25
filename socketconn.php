@@ -160,7 +160,7 @@ class SocketConn
 			$line .= fgets($this->socket,8192);
 			if ($line === false)
 				continue;
-			usleep(25000); // sleep 25 miliseconds
+			usleep(15000); // sleep 15 miliseconds
 			if (substr($line, -strlen($marker_end)) == $marker_end)
 				$keep_trying = false;
 			$i++;
