@@ -30,22 +30,24 @@ class SocketConn
 {
 	public $socket;
 	public $error = "";
+	public $mode;
 	
 	 /*
 	  * @param $mode String. Possible values:
-	  *      -> "send" - will send a command and will not wait for the respond=>  send_close($command) will be used
-	  *      -> "send_wait" - send a command, wait for the response and close the socket => send_write($command, $marker_end, $default_tries)
-	  *      -> "multiple_send_wait" - send multiple command, wait for their responses and then close the socket => 
+	  *      -> "send_close" - will send a command and will not wait for the respond=>  send_close($command) will be used
+	  *      -> "send_write_close" - send a command, wait for the response and close the socket => send_write($command, $marker_end, $default_tries)
+	  *      -> "multiple_send_write" - send multiple command, wait for their responses and then close the socket => 
 	  *       command($command, $marker_end , $limited_tries) will be used with different commands and then close($this->socket)
 	  */
 
-	function __construct($ip = null, $port = null, $mode="send_wait")
+	function __construct($ip = null, $port = null, $mode="send_write_close")
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 
 		global $default_ip, $default_port, $rmanager_pass, $socket_timeout;
 		global $default_tries;
 
+		$this->mode = $mode;
 
 		$protocol_list = stream_get_transports();
 
@@ -100,7 +102,7 @@ class SocketConn
 	 * Read from the socket the answer 
 	 * Close the socket
 	*/	
-	function send_write($command, $marker_end, $default_tries)
+	function send_write_close($command, $marker_end, $default_tries)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 
@@ -109,6 +111,29 @@ class SocketConn
 		return $response;
 	}
 
+
+	/*
+	 * Implements the mode set in constructor for given commands
+	 */ 
+	function __command($command, $marker_end, $default_tries)
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+
+		if (!$this->mode)
+			return;
+		$response = "";
+		if ($this->mode == "send_write_close")
+			$this->send_write_close($command, $marker_end, $default_tries);
+		else if($this->mode == "send_close")
+			 $this->send_close($command);
+		else if ($this->mode == "multiple_send_write") {
+			foreach ($command as $key => $single_command) 
+				$response .= $this->command($single_command, $marker_end, $default_tries); 
+			$this->close();
+		}
+
+		return $response;
+	}
 
 	function write($str)
 	{
