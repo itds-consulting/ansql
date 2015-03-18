@@ -1309,6 +1309,7 @@ function tableOfObjects_objectnames($objects, $formats, $object_name, $object_ac
  * array("cb"=>array("name"=>"fun_name", "params"=> array(param1, param2,...)) or:
  * array("left"=>array("cb"=> "func_name"), "right"=>array("cb"=>"func_name")) or: 
  * array("left"=>array("cb"=>array("name"=>"func_name", "params"=>array(param1, param2,...)), "right"=>array("cb"=>"func_name"));
+ * Ex: array("right"=>array("&method=add_user"=>"Add user"), "left"=>array(...))
  * @param $base Text representing the name of the page the links from @ref $object_name and @ref $general_actions will be sent
  * Ex: $base = "main.php"
  * If not sent, i will try to see if $_SESSION["main"] was set and create the link. If $_SESSION["main"] was not set then  
@@ -1615,7 +1616,7 @@ function trim_value(&$value)
   * Creates table of elements
   * @param $array Array with the values of the elements to be displayed.
   * @param $formats Array with columns to be displayed in the table.
-  * @param $element_name Name of the element to be displayed in the table. 
+  * @param $element_name String. Name of the element to be displayed in the table. 
   * @param $element_actions Array of $method=>$method_name, $method will be added in the link and $method_name will be printed
   * Ex: array("&method=edit_user"=>"Edit")
   * @param $general_actions Array of $method=>$method_name that will be printed at the end of the table
@@ -1624,14 +1625,14 @@ function trim_value(&$value)
   * Ex: $base = "main.php"
   * If not sent, i will try to see if $_SESSION["main"] was set and create the link. If $_SESSION["main"] was not set then  
   * "main.php" is the default value 
-  * @param $insert_checkboxes Bool value. If true then in front of each row a checkbox will be created. The name attribute
+  * @param $insert_checkboxes Bool. If true then in front of each row a checkbox will be created. The name attribute
   * for it will be "check_".value of the id of the object printed at that row
   * Note!! This parameter is taken into account only if the objects have an id defined
   * @param $css Name of the css to use for this table. Default value is 'content'
   * @param $conditional_css Array ("css_name"=>$conditions) $css is the to be applied on certain rows in the table if the object corresponding to that row complies to the array of $conditions
-  * $object_actions_names Array with the actions name
-  * $table_id Text the id of table
-  * $select_all Bool select all action on checkboxes. By default is set to false.
+  * @param $object_actions_names Array with the actions name
+  * @param $table_id Text the id of table
+  * @param $select_all Bool. If true select all checkboxes made when $insert_checkboxes=true. Defaults to false.
   */
 function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false)
 {
@@ -2868,7 +2869,10 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 }
 
 /**
- * Sets the error in error_fields 
+ * Check the error message and add specified error fields in error_fields array
+ * @param $error String representing the error message. In order for fields to be added they must be marked with 'error_on_column'
+ * Ex: Please set 'username' and 'email'. 
+ * @param &$error_fields Array containing fields where errors occured. Fields parsed from $error will be added to it.
  */ 
 function set_error_fields($error, &$error_fields)
 {
@@ -3004,7 +3008,7 @@ function make_routing_test($fields)
 
 	$fields["th_custom"] = array("display"=>"message", "value"=>"<div style=\"width:100px; float:left; text-align:center;\">Param</div>   <div style=\"width:100px; float:left; position:relative; text-align:center;\">Value</div>", "triggered_by"=>"1");
 	$fields["custom_1"] = array("display"=>"message", "value"=>link_for_custom_field(1));
-	for ($i=1; $i<=20; $i++) 
+	for ($i=1; $i<=20; $i++)
 		$fields["custom$i"] = array("display"=>"message", "triggered_by"=>"$i", "value"=>routing_test_custom_field($i));
 
 	start_form();
