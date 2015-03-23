@@ -434,23 +434,26 @@ function dateCheck($year,$month,$day,$hour,$end)
 }
 
 /**
- * Displays number on page that are links which will
- * make a reload of page with a new limit request
- * @param $nrs Array contains the number of items to be displayed
- */ 
-function items_on_page($nrs = array(20,50,100))
+ * Builds link from the parameters from the current REQUEST
+ * @param $exclude_params Array. Parameters to be excluded from built link
+ * @return String. The link from the current $_REQUEST
+ */
+function build_link_request($exclude_params=array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
-	global $module, $method, $action, $limit;
+	global $module, $method, $action;
 
 	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
 	$link .= "?";
 	foreach($_REQUEST as $param=>$value) {
-		if ($param == "page" || $param == "PHPSESSID" ||
+		if (	$param == "page" || 
+			$param == "PHPSESSID" ||
 			($param == "action" && $action) ||
 			($param == "method" && $method) || 
 			($param == "module" && $module) ||
-		       	$param == "limit" || !strlen($value))
+		       	in_array($param,$exclude_params) || 
+			!strlen($value)
+		)
 			continue;
 		if (substr($link,-1) != "?")
 			$link .= "&";
@@ -465,6 +468,20 @@ function items_on_page($nrs = array(20,50,100))
 		if (function_exists($call))
 			$link .= "&action=$action";
 	}
+	return $link;
+}
+
+/**
+ * Displays number on page that are links which will
+ * make a reload of page with a new limit request
+ * @param $nrs Array contains the number of items to be displayed
+ */ 
+function items_on_page($nrs = array(20,50,100))
+{
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+	global $limit;
+
+	$link = build_link_request(array("limit"));
 
 	print "<div class=\"items_on_page\">";
 	for($i=0; $i<count($nrs); $i++)
@@ -1289,6 +1306,13 @@ function tableOfObjects_objectnames($objects, $formats, $object_name, $object_ac
 	tableOfObjects($objects, $formats, $object_name, $object_actions, $general_actions, NULL, false, "content", array(), $object_actions_names);
 }
 
+function tableOfObjects_ord($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $order_by_columns=true)
+{
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
+	tableOfObjects($objects, $formats, $object_name, $object_actions, $general_actions, NULL, false, "content", array(),array(),false, $order_by_columns);
+}
+
 /**
  * Creates table of objects
  * @param $objects Array with the objects to be displayed
@@ -1319,12 +1343,14 @@ function tableOfObjects_objectnames($objects, $formats, $object_name, $object_ac
  * Note!! This parameter is taken into account only if the objects have an id defined
  * @param $css Name of the css to use for this table. Default value is 'content'
  * @param $conditional_css Array ("css_name"=>$conditions) $css is the to be applied on certain rows in the table if the object corresponding to that row complies to the array of $conditions
+ * @param $order_by_columns Bool/Array Adds buttons to adds links on the fields from the table header. 
+ * Defaults to false
  */
-function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $select_all = false)
+function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $select_all = false, $order_by_columns=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"paranoid");
 
-	global $db_true, $db_false, $module;
+	global $db_true, $db_false, $module, $method;
 
 	if(!$db_true)
 		$db_true = "yes";
@@ -1350,6 +1376,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 	$ths = "";
 	print '<table class="'.$css.'" cellspacing="0" cellpadding="0">';
 
+	$order_dir = (!getparam("order_dir") || getparam("order_dir")=="asc") ? "desc" : "asc";
 	if(count($objects)) {
 		$ths .= '<tr class="'.$css.'">';
 		$no_columns = 0;
@@ -1363,6 +1390,8 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 			$ths .= '</th>';
 			$no_columns++;
 		}
+
+		$request_link = build_link_request(array("order_by","order_dir"));
 
 		// print the name of the columns + add column for each action on object
 		foreach($formats as $column_name => $var_name) {
@@ -1378,7 +1407,17 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 			}
 			$ucss = ($no_columns == 0) ? "$css first_th" : $css;
 			$ths .= '<th class="'.$ucss.'">';
-			$ths .= str_replace("_","&nbsp;",ucfirst($name));
+			//$ths .= str_replace("_","&nbsp;",ucfirst($name));
+			$column_link = false;
+			if ($order_by_columns) {
+				if (((is_numeric($column_name) || count(explode(",",$var_name))==1) && ($order_by_columns===true || !isset($order_by_columns[$name]))) || (isset($order_by_columns[$name]) && $order_by_columns[$name]==true)) {
+
+					$ths .= "<a class='thlink' href='".$request_link."&order_by=$name&order_dir=$order_dir'>".str_replace("_","&nbsp;",ucfirst($name))."</a>";
+					$column_link = true;
+				}
+			}
+			if (!$column_link)
+				$ths .= str_replace("_","&nbsp;",ucfirst($name));
 			$ths .= '</th>';
 			$no_columns++;
 		}
@@ -1490,18 +1529,87 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 }
 
 /**
+ * Get column and direction to order table elements by
+ * @param $fields Array. This is the same parameter as $fields from \ref tableOfObjects
+ * @param $default String. Default order column
+ * @return String. Column and direction to use in SELECT query or NULL if $default was not set
+ * Ex: "pieces ASC", "username DESC"
+ */
+function column_order($fields, $default, $custom_order=array())
+{
+	$order_by = getparam("order_by");
+	$dir = (in_array(getparam("order_dir"),array("asc","desc"))) ? strtoupper(getparam("order_dir")) : "ASC";
+
+	$col = null;
+	if (isset($fields[$order_by])) {
+		$col = $fields[$order_by];
+	} elseif (in_array($order_by,$fields))
+		$col = $order_by;
+	
+	if ($col) {
+		if (isset($custom_order[$col])) {
+			if ($custom_order[$col]===true)
+				return "$col $dir";
+			else
+				return $custom_order[$col]." ".$dir;
+		}
+
+		if (count(explode(",",$col))==1)
+			return "$col $dir";
+		elseif ($default) {
+			if (strtolower(substr($default,-4))!=" asc" && strtolower(substr($default,-4))!="desc")
+				return "$default $dir";
+			else
+				return $default;
+		} else
+			return null;
+	}
+
+	foreach ($fields as $key=>$value) {
+		if (substr($key,0,9)=="function_") {
+			$key = explode(":",$key);
+			$key = $key[1];
+		}
+		if ($key === $order_by) {
+			if (isset($custom_order[$key])) {
+				if ($custom_order[$key]===true)
+					return "$key $dir";
+				else
+					return $custom_order[$key]." ".$dir;
+			} elseif (count(explode(",",$value))==1)
+				return "$value $dir";
+			elseif ($default) {
+				if (strtolower(substr($default,-4))!=" asc" && strtolower(substr($default,-4))!="desc")
+					return "$default $dir";
+				else
+					return $default;
+			} 
+			return null;
+		}
+	}
+
+	if ($default) {
+		if (strtolower(substr($default,-4))!=" asc" && strtolower(substr($default,-4))!="desc")
+			return "$default $dir";
+		else
+			return $default;
+	}
+
+	return null;
+}
+
+/**
  * Builds links or makes callbacks that will contain the general actions in the table of objects
- *
  * @param $general_actions Array 
  * Ex: array("&method=add_user"=>"Add user") or array("left"=> array("&method=add_user"=>"Add user"), "right"=> array())
  * or with callback:
- * array("cb"=>"fun_name") or array("cb"=>array("name"=>"fun_name", "params"=> array(param1, param2,...)) or:
+ * array("cb"=>"func_name") or array("cb"=>array("name"=>"func_name", "params"=> array(param1, param2,...)) or:
  * array("left"=>array("cb"=> "func_name"), "right"=>array("cb"=>"func_name")) or: 
  * array("left"=>array("cb"=>array("name"=>"func_name", "params"=>array(param1, param2,...)), "right"=>array("cb"=>"func_name"));
- * @param $base Text representing the name of the page the links from @ref $object_name and @ref $general_actions will be sent
- * Ex: $base = "main.php"
- * @param $css Text the css class name
  * @param $no_columns Int the number of the columns. Used to build the colspan of the cell.
+ * @param $css Text the css class name
+ * @param $base Text. Name of the page the links from @ref $object_name and @ref $general_actions will be sent
+ * Ex: $base = "main.php"
  * @param $on_top Bool if true add css class to cell 'starttable', otherwize 'endtable'  
  */ 
 function links_general_actions($general_actions, $no_columns, $css, $base, $on_top=false)
@@ -1630,11 +1738,13 @@ function trim_value(&$value)
   * Note!! This parameter is taken into account only if the objects have an id defined
   * @param $css Name of the css to use for this table. Default value is 'content'
   * @param $conditional_css Array ("css_name"=>$conditions) $css is the to be applied on certain rows in the table if the object corresponding to that row complies to the array of $conditions
-  * @param $object_actions_names Array with the actions name
+  * @param $object_actions_names Array containg the action names for the $element_actions that are displayed in the table header
   * @param $table_id Text the id of table
   * @param $select_all Bool. If true select all checkboxes made when $insert_checkboxes=true. Defaults to false.
+  * @param $order_by_columns Bool/Array Adds buttons to adds links on the fields from the table header. 
+  * Defaults to false
   */
-function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false)
+function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false, $order_by_columns=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
@@ -1665,6 +1775,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 	if ($table_id)
 		print " id=\"$table_id\"";
 	print '>';
+
+	$order_dir = (!getparam("order_dir") || getparam("order_dir")=="asc") ? "desc" : "asc";
 	if ($lines) {
 		print '<tr class="'.$css.'">';
 		$no_columns = 0;
@@ -1682,6 +1794,7 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 		}
 		// print the name of the columns + add column for each action on object
 
+		$request_link = build_link_request(array("order_by","order_dir"));
 		foreach ($formats as $column_name => $var_name) {
 			$exploded = explode(":",$column_name);
 			if (count($exploded)>1)
@@ -1694,7 +1807,15 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 					$name = $var_name;
 			}
 			print '<th class="'.$css.'">';
-			print str_replace("_","&nbsp;",ucfirst($name));
+			$column_link = false;
+			if ($order_by_columns) {
+				if ((is_numeric($column_name) || count(explode(",",$var_name))==1) && ($order_by_columns===true || !isset($order_by_columns[$name]) || $order_by_columns[$name]==true)) {
+					print "<a class='thlink' href='".$request_link."&order_by=$name&order_dir=$order_dir'>".str_replace("_","&nbsp;",ucfirst($name))."</a>";
+					$column_link = true;
+				}
+			}
+			if (!$column_link)
+				print str_replace("_","&nbsp;",ucfirst($name));
 			print '</th>';
 			$no_columns++;
 		}
