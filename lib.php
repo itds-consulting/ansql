@@ -3995,5 +3995,53 @@ function requiredFieldsJs($form_fields, $excluded_fields)
 	</script><?php
 }
 
+/**
+ * Build generic search box: Dropdown to select option to search by and input for searched value
+ * @param $search_options Array. Options to search by
+ * @param $custom_fields Array. Custom search fields that will be added before the $search_options.
+ * Ex: array("title"=>array("Search1", "Search2"),array("<input type.../>", "<select>..</select>"))
+ */
+function generic_search($search_options, $custom_fields=array())
+{
+	$search_options = format_for_dropdown($search_options);
+	$search_options["selected"] = getparam("col");
+
+	$title = array("Search by", "Value", "&nbsp;");
+	$fields = array(array(
+			build_dropdown($search_options, "col", true, "", "", 'onchange="document.getElementById(\'col_value\').value=null;"'),
+			"<input type=\"text\" value=\"".getparam("col_value")."\" name=\"col_value\" id=\"col_value\" size=\"10\"/>",
+			"<input type=\"submit\" value=\"Search\" />"
+		));
+
+	if (isset($custom_fields["title"]) && isset($custom_fields["fields"])) {
+		$title = array_merge($custom_fields["title"],$title);
+		$fields = array(array_merge($custom_fields["fields"],$fields[0]));
+	}
+
+	start_form();
+	addHidden();
+	formTable($fields,$title);
+	end_form();
+}
+
+/**
+ * Get conditions from search box built with \ref generic_search
+ * @param $custom_cols Array (key=>value). If column is key in this array it will be renamed to $value in returned arr
+ * @return Array
+ * Ex: array("username"=>"LIKE%mary%") / array("__sql_customer"=>"LIKE%entils%")
+ */
+function get_search_conditions($custom_cols=array())
+{
+	$col = getparam("col");
+	$col_value = getparam("col_value");
+
+	if (!strlen($col) || !strlen($col_value))
+		return array();
+
+	if (isset($custom_cols[$col]))
+		return array($custom_cols[$col]=>"__LIKE%$col_value%");
+
+	return array($col=>"__LIKE%$col_value%");
+}
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
