@@ -98,12 +98,17 @@ function advanced(identifier)
 		elem_name = elems[i].name;
 		if (identifier.length>elem_name.length && elem_name.substr(0,identifier.length)!=identifier)
 			continue;
+		
+		var elem = document.getElementById("tr_"+elem_name);
+		if (elem == null || elem.style.display == null || elem.style.display == "")
+			continue;
 
 		show_hide("tr_"+elem_name);
 	}
 
-	var img = document.getElementById(identifier+"advanced");
-	if (img!=null && img.tagName=="img") {
+	var img = document.getElementById(identifier+"xadvanced");
+	
+	if (img!=null && img.tagName=="IMG") {
 		var imgsrc= img.src;
 		var imgarray = imgsrc.split("/");
 		if (imgarray[imgarray.length-1] == "advanced.jpg") {
@@ -115,8 +120,8 @@ function advanced(identifier)
 		}
 
 		img.src = imgarray.join("/");
-	} else
-		Console.log("advanced() was called, but img='"+img+"' tagName='"+img.tagName+"'");
+	} else 
+		console.log("advanced() was called, but img='"+img+"' tagName='"+img.tagName+"'");
 }
 
 /**
@@ -631,12 +636,14 @@ function custom_value_dropdown(custom_value,dropdown_id)
 		var parent_td = dropdown.parentNode;
 		if (custom_field==null) {
 			// custom_field wasn't added in the page => add it here
-			var html_to_add = "<br/>"+"<input class='margintop' type='text' name='"+custom_id+"' id='"+custom_id+"' ";
+			var input = document.createElement("INPUT");
+			input.setAttribute("type", "text");
+			input.setAttribute("class", "margintop");
+			input.setAttribute("id", ''+custom_id+'');
+			input.setAttribute("name", ''+custom_id+'');
 			if (custom_value!=null)
-				html_to_add = html_to_add+" value='"+custom_value+"'";
-			html_to_add = html_to_add+" />";
-
-			parent_td.innerHTML = parent_td.innerHTML+html_to_add;
+				input.setAttribute("value", ''+custom_value+'');
+			parent_td.appendChild(input);
 		} else {
 			// custom_field is already in the page => display it
 			custom_field.style.display = "";
