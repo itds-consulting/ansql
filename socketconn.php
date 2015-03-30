@@ -34,13 +34,13 @@ class SocketConn
 	
 	 /*
 	  * @param $mode String. Possible values:
-	  *      -> "send_close" - will send a command and will not wait for the respond=>  send_close($command) will be used
-	  *      -> "send_write_close" - send a command, wait for the response and close the socket => send_write($command, $marker_end, $default_tries)
-	  *      -> "multiple_send_write" - send multiple command, wait for their responses and then close the socket => 
-	  *       command($command, $marker_end , $limited_tries) will be used with different commands and then close($this->socket)
-	  */
-
-	function __construct($ip = null, $port = null, $mode="send_write_close")
+	  *      -> "write_close" - will write command and close the socket
+	  *      -> "write_read" - write a command and read the response - this is the default mode that is set in the constructor
+	  *      -> "write_read_close" - write a command, wait for the response and then close the socket 
+	  *      If multiple_write_read is needed the default mode can be used, by calling the method command() with the commands needed,
+	  *      after that be carreful to close the socket.  
+	  */       
+	function __construct($ip = null, $port = null, $mode="write_read")
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 
@@ -86,10 +86,10 @@ class SocketConn
 	}
 
 	/**
-	 * Send one command through the socket 
+	 * Write command through the socket 
 	 * close the socket
 	 */
-	function send_close($command)
+	private function write_close($command)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 
@@ -98,42 +98,21 @@ class SocketConn
 	}
 	
 	/* 
-	 * Send commmand through the socket 
+	 * Write commmand through the socket 
 	 * Read from the socket the answer 
 	 * Close the socket
 	*/	
-	function send_write_close($command, $marker_end, $default_tries)
+	private function write_read_close($command, $marker_end, $limited_tries)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
 
-		$response = $this->command($txt_command, $marker_end, $default_tries);
+		$this->write($command);
+		$response = $this->read($marker_end,$limited_tries);
+
 		$this->close();
 		return $response;
 	}
 
-
-	/*
-	 * Implements the mode set in constructor for given commands
-	 */ 
-	function __command($command, $marker_end, $default_tries)
-	{
-		Debug::func_start(__METHOD__,func_get_args(),"ansql");
-
-		if (!$this->mode)
-			return;
-		$response = "";
-		if ($this->mode == "send_write_close")
-			$this->send_write_close($command, $marker_end, $default_tries);
-		else if($this->mode == "send_close")
-			 $this->send_close($command);
-		else if ($this->mode == "multiple_send_write") {
-			foreach ($command as $key => $single_command) 
-				$response .= $this->command($single_command, $marker_end, $default_tries); 
-			$this->close();
-		}
-
-		return $response;
-	}
 
 	function write($str)
 	{
@@ -195,10 +174,20 @@ class SocketConn
 	function command($command, $marker_end = "\r\n", $limited_tries=false)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"ansql");
+	   
+		if ($this->mode == "write_read") {
+			 // if after sending command to yate,
+			 // the page seems to stall it might be because the generated message has not handled or retval was not set
+			$this->write($command);
+			return $this->read($marker_end,$limited_tries);
+		
+		} elseif ($this->mode == "write_close") {
+			$this->write_close($command);
 
-		// if after sending command to yate, the page seems to stall it might be because the generated message has not handled or retval was not set
-		$this->write($command);
-		return $this->read($marker_end,$limited_tries);
+		} elseif ($this->mode == "write_read_close") {
+			return $this->write_read_close($command, $marker_end, $limited_tries);
+		}
+
 	}
 }
 
