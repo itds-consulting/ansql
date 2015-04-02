@@ -1674,17 +1674,18 @@ function links_general_actions($general_actions, $no_columns, $css, $base, $on_t
  */ 
 function set_cb($methd_name)
 {
-	if (!isset($methd_name["name"])) {
-		if (is_callable($methd_name))
-			call_user_func($methd_name);
-		else
-			Debug::trigger_report("The function '". $methd_name . "' is not implemented.");
-	} elseif (isset($methd_name["params"])) {
+	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
+	if (is_callable($methd_name))
+		call_user_func($methd_name);
+
+	elseif (is_array($methd_name) && isset($methd_name["name"]) && isset($methd_name["params"])) {
 		if (is_callable($methd_name["name"]))
 			call_user_func_array($methd_name["name"], $methd_name["params"]);
 		else
 			Debug::trigger_report("The function '". $methd_name["name"] . "' is not implemented.");
-	} else 
+	}
+	else 
 		Debug::trigger_report("Incorrect 'cb' - callback set in general actions.");
 }
 
