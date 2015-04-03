@@ -171,6 +171,15 @@ class Debug
 						send_mail($notification_options[$i], $server_email_address, $subject, $body, $attachment,null,false);
 					}
 
+					//Move the file set in $logs_in into log.date after sending it through email 
+					if ($attachment) {
+						$dir_arr = explode("/",$attachment[0]["file"]);
+						$path = "";
+						for ($i=0; $i<count($dir_arr)-1; $i++)
+							$path .= $dir_arr[$i]."/";
+					}
+					rename($attachment[0]["file"], $path ."log.".date("Ymdhis"));
+
 					break;
 				case "web":
 					for ($i=0; $i<count($notification_options); $i++) {
