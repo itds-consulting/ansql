@@ -1504,7 +1504,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		}
 		$link = '';
 		foreach($vars as $var_name => $var)
-			if (strlen($objects[$i]->{$var_name}) < 30)
+			if (strlen($objects[$i]->{$var_name}) < 50)
 				$link .= "&$var_name=".htmlentities(urlencode($objects[$i]->{$var_name}));
 		$link_no = 0;
 		foreach($object_actions as $methd => $methd_name) {
