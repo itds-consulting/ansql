@@ -180,7 +180,7 @@ class Database
 
 		switch ($db_type) {
 			case "mysql":
-				mysql_close(self::$_connection);
+				mysqli_close(self::$_connection);
 				break;
 			case "postgresql":
 				pg_close(self::$_connection);
@@ -223,12 +223,12 @@ class Database
 
 		switch ($db_type) {
 			case "mysql":
-				if (!function_exists("mysql_connect")) {
-					Debug::Output("config", _("You don't have mysql package for php installed."));
-					die("You don't have mysql package for php installed.");
+				if (!function_exists("mysqli_connect")) {
+					Debug::Output("config", _("You don't have mysqli package for php installed."));
+					die("You don't have mysqli package for php installed.");
 				}
 				if (self::$_connection === true || !self::$_connection) 
-					self::$_connection = mysql_connect(${"db_host$connection_index"}, ${"db_user$connection_index"}, ${"db_passwd$connection_index"});
+					self::$_connection = mysqli_connect(${"db_host$connection_index"}, ${"db_user$connection_index"}, ${"db_passwd$connection_index"}, ${"db_database$connection_index"});
 				break;
 			case "postgresql":
 				if (!function_exists("pg_connect")) {
@@ -253,8 +253,7 @@ class Database
 					return; 
 			} elseif (isset($cb_when_backup) && is_callable($cb_when_backup))
 				call_user_func_array($cb_when_backup, array($next_index));
-		} else if ($db_type == "mysql")
-			mysql_select_db(${"db_database$connection_index"},self::$_connection);
+		}
 
 		return self::$_connection;
 	}
@@ -363,7 +362,7 @@ class Database
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
-				return mysql_error(self::$_connection);
+				return mysqli_error(self::$_connection);
 			case "postgresql":
 				return pg_last_error(self::$_connection);
 		}
@@ -382,7 +381,7 @@ class Database
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
-				return mysql_query($query, self::$_connection);
+				return mysqli_query(self::$_connection,$query);
 			case "postgresql":
 				return pg_query(self::$_connection,$query);
 		}
@@ -390,7 +389,7 @@ class Database
 	}
 
 	/**
-	 * Build array decribing query result
+	 * Build array describing query result
 	 * @param $query String - query that was performed
 	 * @param $res Returned value by db_query
 	 * @param $retrieve_last_id false or Array (Name of id field, table name) -- just for INSERT queries
@@ -415,7 +414,7 @@ class Database
 		if (substr($query,0,6) == "insert" && $retrieve_last_id) {
 			switch ($db_type) {
 				case "mysql":
-					$last_id = mysql_insert_id(self::$_connection);
+					$last_id = mysqli_insert_id(self::$_connection);
 					break;
 				case "postgresql":
 					$oid = pg_last_oid($res);
@@ -432,7 +431,7 @@ class Database
 			// return type = array(bool, int2)
 			switch ($db_type) {
 				case "mysql":
-					$affected = mysql_affected_rows(self::$_connection);
+					$affected = mysqli_affected_rows(self::$_connection);
 					break;
 				case "postgresql":
 					$affected = pg_affected_rows($res);
@@ -450,12 +449,12 @@ class Database
 			$i = 0;
 			switch ($db_type) {
 				case "mysql":
-					if (mysql_num_rows($res))
-					while ($row = mysql_fetch_assoc($res))
+					if (mysqli_num_rows($res))
+					while ($row = mysqli_fetch_assoc($res))
 					{
 						$array[$i] = array();
 						foreach ($row as $var_name=>$value)
-							$array[$i][$var_name] = ($func_query_result && function_exists($func_query_result)) ? $func_query_result(self::unescape($value)) : self::unescape($value);
+							$array[$i][$var_name] = ($func_query_result && is_callable($func_query_result)) ? call_user_func($func_query_result, self::unescape($value)) : self::unescape($value);
 						$i++;
 					}
 					break;
@@ -464,7 +463,7 @@ class Database
 					{
 						$array[$i] = array();
 						for($j=0; $j<pg_num_fields($res); $j++)
-							$array[$i][pg_field_name($res,$j)] = ($func_query_result && function_exists($func_query_result)) ? $func_query_result(self::unescape(pg_fetch_result($res,$i,$j))) : self::unescape(pg_fetch_result($res,$i,$j));
+							$array[$i][pg_field_name($res,$j)] = ($func_query_result && is_callable($func_query_result)) ? call_user_func($func_query_result, self::unescape($value)) : self::unescape(pg_fetch_result($res,$i,$j));
 					}
 					break;
 			}
@@ -810,7 +809,7 @@ class Database
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
-				return mysql_real_escape_string($value, self::connect());
+				return mysqli_real_escape_string(self::connect(), $value);
 			case "postgresql":
 				return pg_escape_string(self::connect(), $value);
 		}
