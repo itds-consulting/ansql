@@ -381,7 +381,19 @@ class Database
 		global $db_type;
 		switch ($db_type) {
 			case "mysql":
-				return mysqli_query(self::$_connection,$query);
+				$res = mysqli_query(self::$_connection,$query);
+				$warn_count = mysqli_warning_count(self::$_connection);
+				if ($warn_count) {
+					$warnings = array();
+					$warning = mysqli_get_warnings(self::$_connection);
+					do {
+						$warnings[] = $warning->message;
+					} while ($warning->next()); 
+					$warning = "$warn_count warning(s) when running query: '$query'. ".implode(", ",$warnings);
+					Debug::trigger_report('critical', $warning);
+				}
+				return $res;
+				break;
 			case "postgresql":
 				return pg_query(self::$_connection,$query);
 		}
