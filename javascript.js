@@ -492,8 +492,9 @@ function set_html_obj(id, html)
  * and will hide clicked link and display the one with the next index
  * @param link_index Integer. The index that unites fields to be show as part of another object
  * @param link_name String. Name of the add link. Ex: add, add_contact
+ * @param hidden_fields Array . Contains the name of the input fields of type 'hidden' 
  */
-function fields_another_obj(link_index, link_name)
+function fields_another_obj(link_index, link_name, hidden_fields)
 {
 	if (!is_numeric(link_index)) {
 		Console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
@@ -541,6 +542,18 @@ function fields_another_obj(link_index, link_name)
 
 	// this is the next link that should be displayed
 	show("tr_"+link_name+link_index);
+
+	//if hidden_fields was set, append it to the other already set
+	if (hidden_fields != undefined) {
+		for (var name in hidden_fields) {
+			var input = document.createElement("INPUT");
+   			input.setAttribute("type", "hidden");
+			input.setAttribute("name", ''+hidden_fields[name]+'');
+			input.setAttribute("value", 'off');
+			tr_element_hidden = document.getElementById("tr_hidden_fields");
+        		tr_element_hidden.appendChild(input);
+		}
+	}
 }
 
 /**
