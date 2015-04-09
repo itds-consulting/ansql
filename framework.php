@@ -593,7 +593,7 @@ class Database
 
 		$res = self::db_query($query) !== false;
 		if (!$res)
-			Debug::Output(_("Could not create table")." '$table'. "._("Query failed").": $query");
+			Debug::Output(_("Could not create table")." '$table'. "._("Query failed").": $query". " .Error: ".Database::get_last_db_error());
 
 		return $res;
 	}
@@ -679,7 +679,7 @@ class Database
 					}
 				}
 				if (!self::queryRaw($query)) {
-					Debug::Output('critical', _("Could not update table")." '$table'. ".("Query failed").": '$query'");
+					Debug::Output('critical', _("Could not update table")." '$table'. ".("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
 					$error_sql_update = true;
 					continue;
 				}
@@ -688,7 +688,7 @@ class Database
 					$val = $var->escape($var->_value);
 					$query = "UPDATE ".esc($table)." SET ".esc($name)."=$val";
 					if (!self::queryRaw($query)) {
-						Debug::Output('critical', _("Could not update table fields to default value for")." '$table'. "._("Query failed").": '$query'");
+						Debug::Output('critical', _("Could not update table fields to default value for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
 						$error_sql_update = true;
 					}
 				}
@@ -1430,9 +1430,11 @@ class Model
 
 	/**
 	 * Build various pieces necesary for building an INSERT query. Build error string, error_field array and insert log
+	 * @param #with_serials Bool. Defaults to false. Whether to add the serial fields in the built parts or not.
+	 * This is true only when the parts are used from outside the Model class
 	 * @return array("columns"=>String, "values"=>String, "error"=>String, "error_fields"=>array(), "serials"=>array(), "insert_log"=>String, "update_fields"=>String)
 	 */
-	protected function buildInsertParts()
+	protected function buildInsertParts($with_serials=false)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
@@ -1446,7 +1448,7 @@ class Model
 		foreach ($this->_model as $var_name => $var)
 		{
 			$value = $this->$var_name;
-			if (!strlen($value))
+			if (!strlen($value) && !$with_serials)
 			{
 				// some types have defaults assigned by DB server so we don't set them
 				switch ($var->_type)
