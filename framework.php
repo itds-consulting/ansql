@@ -1740,11 +1740,15 @@ class Model
 	}
 
 	 /**
-	  * Verify if an object has an entry in the database. Before this method is called one must set the values of the fields that will build the WHERE clause. Variables that have a default value will be ignored
+	  * Verify if an object has an entry in the database. Before this method is called one must set
+	  * the values of the fields that will build the WHERE clause. Variables that have a default value 
+	  * will be ignored unless added in $columns_with_default
 	  * @param $id_name Name of the id of this object
+	  * @param $columns_with_default Array. List of the columns with default values that should be added 
+	  * when building condition
 	  * @return id or the object that matches the conditions, false otherwise
 	  */
-	public function objectExists($id_name = NULL)
+	public function objectExists($id_name = NULL, $columns_with_default=array())
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
@@ -1774,7 +1778,7 @@ class Model
 			// ignoring fields that have a default value and the numeric id of the object
 			if ($this->{$var_name} != '' && $var_name != $id_name) 
 			{
-				if($clone->{$var_name} != '')
+				if($clone->{$var_name} != '' && !in_array($var_name, $columns_with_default))
 					continue;
 				$conditions[$var_name] = $this->{$var_name};
 			}
