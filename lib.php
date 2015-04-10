@@ -1126,7 +1126,10 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print " autocomplete=\"".$field_format["autocomplete"]."\"";
 			if ($display != "hidden" && isset($field_format["comment"])) {
 				$q_mark = true;
-				print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';;
+				if (is_file("images/question.jpg"))
+					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+				else
+					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
 			} else
 				print '>';
 			if($display == 'file' && isset($field_format["file_example"]) && $field_format["file_example"] != "__no_example")
@@ -1156,8 +1159,14 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if ($display != "hidden") {
 		if (isset($field_format["comment"])) {
 			$comment = $field_format["comment"];
-			if (!$q_mark)
-				print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+
+			if (!$q_mark) {
+				if (is_file("images/question.jpg"))
+					print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+				else
+					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
+			}
+
 			print '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
 		}
 		print '</td>';
@@ -3757,7 +3766,10 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 				$res .= " autocomplete=\"".$field_format["autocomplete"]."\"";
 			if($display != "hidden" && isset($field_format["comment"])) {
 				$q_mark = true;
-				$res .= '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';;
+				if (is_file("images/question.jpg"))
+					$res .= '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+				else
+					$res .= '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
 			} else
 				$res .= '>';
 			break;
@@ -3771,8 +3783,12 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 	if(isset($field_format["comment"]))
 	{
 		$comment = $field_format["comment"];
-		if(!$q_mark)
-			$res .= '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+		if(!$q_mark) {
+			if (is_file("images/question.jpg"))
+				$res .= '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+			else
+				$res .= '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
+		}
 		$res .= '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
 	}
 	return $res;
