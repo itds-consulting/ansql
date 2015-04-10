@@ -31,6 +31,7 @@ if (is_file("../config.php"))
 <head>
 	<title> Debug Page </title>
 	<link type="text/css" rel="stylesheet" href="../css/main.css" />
+	<script language="javascript" type="text/javascript" src="javascript.js"></script>
 </head>
 <body>
 <?php
@@ -78,15 +79,17 @@ function debug()
 
 	$display_errors = (ini_get("display_errors")) ? 't' : 'f';
 
+	$dump_xdebug = (isset($_SESSION["dump_xdebug"])) ? "t" : "f";
 	$debug_queries = (isset($_SESSION["debug_all"])) ? "t" : "f";
 	$log_errors = (ini_get("log_errors")) ? "t" : "f";
 	$error_log = ($a = ini_get("error_log")) ? $a : '';
 	$arr = array(
-		"pass_debug"=>array("compulsory"=>true, "column_name"=>"Password"),
-		"debug_queries"=>array("value"=>$debug_queries, "display"=>"checkbox"),
-		"error_reporting"=>array($errors, "display"=>"select"), 
-		"display_errors"=>array("value"=>$display_errors, "display"=>"checkbox"),
-		"log_errors"=>array("value"=>$log_errors, "display"=>"checkbox"),
+		"pass_debug"=>array("compulsory"=>true, "column_name"=>"Password", "comment"=>"Password to be allowed to modify the debugging options (set in config.php usually)"),
+		"dump_xdebug"=>array("value"=>$dump_xdebug, "display"=>"checkbox", "comment"=>"Dump xdebug log in log file - not the php xdebug, but application and library specific xdebug."),
+		"debug_queries"=>array("value"=>$debug_queries, "display"=>"checkbox", "comment"=>"Dump query log in log file."),
+		"error_reporting"=>array($errors, "display"=>"select", "comment"=>"Controls php error_reporting. If set it will be kept in session and it will modify error_reporting until logging out or modifying it again from this form."), 
+		"display_errors"=>array("value"=>$display_errors, "display"=>"checkbox", "comment"=>"Controls php display_errors. If set it will be kept in session and it will modify error_reporting until logging out or modifying it again from this form."),
+		"log_errors"=>array("value"=>$log_errors, "display"=>"checkbox", "comment"=>"Controls php log_errors. If set it will be kept in session and it will modify error_reporting until logging out or modifying it again from this form."),
 		"error_log"=>array("value"=>$error_log/*, "display"=>"checkbox"*/)
 	);
 
@@ -111,10 +114,15 @@ function debug_database()
 		return;
 	}
 
-	if(getparam("debug_queries") == "on")
+	if (getparam("debug_queries") == "on")
 		$_SESSION["debug_all"] = "on";
 	else
 		unset($_SESSION["debug_all"]);
+
+	if (getparam("dump_xdebug") == "on")
+		$_SESSION["dump_xdebug"] = "on";
+	else
+		unset($_SESSION["dump_xdebug"]);
 
 	$err = getparam("error_reporting");
 	$error_reporting = NULL;

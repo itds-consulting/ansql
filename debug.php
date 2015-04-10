@@ -232,13 +232,16 @@ class Debug
 			$tag = $default_tag;
 		}
 		if (!$message) {
-			self::output("Error in Debug::debug() tag=$tag, empty message in .");
+			self::output("critical","Error in Debug::debug() tag=$tag, empty message in .",false);
 			return;
 		}
 		if ( ($debug_all==true && !in_array($tag,$debug_tags)) || 
 		     ($debug_all==false && in_array($tag,$debug_tags)) ) {
 			$date = gmdate("[D M d H:i:s Y]");
-			self::concat_xdebug("\n$date".strtoupper($tag).": ".$message);
+			if (!isset($_SESSION["dump_xdebug"]))
+				self::concat_xdebug("\n$date".strtoupper($tag).": ".$message);
+			else
+				self::output($tag, $message, false);
 		}
 	}
 
@@ -260,15 +263,19 @@ class Debug
 	 * If $logs_in is not configured default is $logs_in = array("web")
 	 * @param $tag String Tag for the message
 	 * @param $msg String Message to pe logged/printed
+	 * @param $write_to_xdebug Bool. Default true. Write to xdebug log on not.
+	 * Set to false when called from inside xdebug to avoid loop
 	 */
-	public static function output($tag,$msg=NULL)
+	public static function output($tag,$msg=NULL,$write_to_xdebug=true)
 	{
 		global $logs_in;
 
 		// log output in xdebug as well
 		// if xdebug is written then this log will be duplicated
 		// but it will help debugging to have it inserted in appropriate place in xdebug log
-		self::xdebug($tag,$msg);
+		if ($write_to_xdebug)
+			self::xdebug($tag,$msg);
+
 		if ($msg==null && strpos($tag," ")) {
 			$msg = $tag;
 			$tag = "output";
