@@ -46,6 +46,15 @@ $debug_notify = array(
 */
 $debug_notify = array("web"=>array("notify"));
 
+// if true, then several Debug buttons are displayed at the top of the page
+// Ex: Dump $_SESSION, See $_REQUEST
+$debug_buttons = array(
+	"dump_session"=>'Dump $_SESSION', 
+	"dump_request"=>'Dump $_REQUEST',
+	// 
+	// "custom_debug_opt1" => callback
+);
+
 if(is_file("defaults.php"))
 	include("defaults.php");
 if(is_file("config.php"))
@@ -391,19 +400,48 @@ class Debug
 	// METHODS THAT COME AFTER THIS USE FUNCTIONS FROM lib.php THAT WAS NOT REQUIRED IN THIS FILE
 	// IN CASE YOU WANT TO USE THE Debug CLASS SEPARATELY YOU NEED TO REIMPLEMENT THEM
 
+	/**
+	 * Displays buttons to trigger bug report, dump_request, dump_session + custom callbacks
+	 * This must be called from outside ansql. Ex: get_content() located in menu.php
+	 */
 	public static function button_trigger_report()
 	{
 		global $debug_notify;
 		global $module;
+		global $debug_buttons;
+		global $dump_request_params;
 
 		print "<div class='trigger_report'>";
 		if (isset($debug_notify["mail"]) && count($debug_notify["mail"]))
 			print "<a class='llink' href='main.php?module=".$module."&method=form_bug_report'>Send bug report</a>";
 		if (isset($_SESSION["triggered_report"]) && $_SESSION["triggered_report"]==true && isset($debug_notify["web"]) && in_array("notify",$debug_notify["web"]))
 			print "<div class='triggered_error'>!ERROR <a class='llink' href='".$_SESSION["main"]."?module=$module&method=clear_triggered_error'>Clear</a></div>";
+
+		//buttons to Dump $_SESSION, See $_REQUEST + custom callback
+		if (isset($debug_buttons) && is_array($debug_buttons)) {
+			foreach ($debug_buttons as $method=>$button) {
+				switch ($method) {
+					case "dump_session":
+						print "<a class='llink' href='pages.php?method=$method' target='_blank'>$button</a>";
+						break;
+					case "dump_request":
+						$dump_request_params = true;
+						print "<a class='llink' onclick='show_hide(\"dumped_request\");'>$button</a>";
+						break;
+					default:
+						call_user_func($button);
+				}
+			}
+		}
+
 		print "</div>";
 	}
 
+	/**
+	 * Builds and displays form so user can send a bugreport
+	 * This must be called from outside ansql from function 
+	 * that could be located in menu.php
+	 */
 	public static function form_bug_report()
 	{
 		$fields = array(
@@ -418,6 +456,12 @@ class Debug
 		end_form();
 	}
 
+	/**
+	 * Triggers a bug report containing the info submitted by the user.
+	 * Report was sent from \ref form_bug_report.
+	 * This must be called from outside ansql from function 
+	 * that could be located in menu.php
+	 */ 
 	public static function send_bug_report()
 	{
 		$report = getparam("bug_description");
@@ -462,6 +506,24 @@ class Debug
 			self::$_xdebug_log .= $mess;
 		else
 			$_SESSION["xdebug"] .= $mess;
+	}
+}
+
+
+/**
+ * Function called when dump_session is set in $debug_buttons. 
+ * Dumps $_SESSION or calls $cb_dump_session if set and is callable
+ */
+function dump_session()
+{
+	global $cb_dump_session;
+
+	if (isset($cb_dump_session) && is_callable($cb_dump_session))
+		call_user_func($db_dump_session);
+	else {
+		print "<pre>";
+		var_dump($_SESSION);
+		print "</pre>";
 	}
 }
 ?>
