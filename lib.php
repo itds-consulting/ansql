@@ -1022,8 +1022,21 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			print '>';
 			if ($display != "mul_select" && $display != "select_without_non_selected")
 				print '<option value="">Not selected</option>';
-			$options = (is_array($var_name)) ? $var_name : array();
-			if (isset($options["selected"]))
+
+			// PREVIOUS implementation when only 0 key could be used for dropdown options
+			// $options = (is_array($var_name)) ? $var_name : array();
+
+			// try gettting it from value
+			if ($value && is_array($value))
+				$options = $value;
+			elseif (is_array($var_name))
+				$options = $var_name;
+			else
+				$options = array();
+
+			if (isset($field_format["selected"]))
+				$selected = $field_format["selected"];
+			elseif (isset($options["selected"]))
 				$selected = $options["selected"];
 			elseif (isset($options["SELECTED"]))
 				$selected = $options["SELECTED"];
@@ -3674,8 +3687,17 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$q_mark = false;
+
+	$value = NULL;
 	if(isset($field_format["value"]))
 		$value = $field_format["value"];
+
+	if (!strlen($value) && isset($field_format["cb_for_value"]) && is_callable($field_format["cb_for_value"]["name"])) {
+		if (count($field_format["cb_for_value"])==2)
+			$value = call_user_func_array($field_format["cb_for_value"]["name"],$field_format["cb_for_value"]["params"]);
+		else
+			$value = call_user_func($field_format["cb_for_value"]["name"]);
+	}
 
 	$display = (isset($field_format["display"])) ? $field_format["display"] : "text";
 	$var_name = (isset($field_format[0])) ? $field_format[0] : $field_name;
@@ -3694,8 +3716,21 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 			$res .=  '>';
 			if($display != "mul_select" && $display != "select_without_non_selected")
 				$res .=  '<option value="">Not selected</option>';
-			$options = (is_array($var_name)) ? $var_name : array();
-			if(isset($options["selected"]))
+
+			// PREVIOUS implementation when only 0 key could be used for dropdown options
+			// $options = (is_array($var_name)) ? $var_name : array();
+
+			// try gettting it from value
+			if ($value && is_array($value))
+				$options = $value;
+			elseif (is_array($var_name))
+				$options = $var_name;
+			else
+				$options = array();
+
+			if (isset($field_format["selected"]))
+				$selected = $field_format["selected"];
+			elseif(isset($options["selected"]))
 				$selected = $options["selected"];
 			elseif(isset($options["SELECTED"]))
 				$selected = $options["SELECTED"];
