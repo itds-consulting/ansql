@@ -526,6 +526,8 @@ class Database
 		{
 			if(is_numeric($name))
 			{
+				Debug::trigger_report('critical',"You are trying to add a column named $name, numeric names of columns are not allowed");
+
 				//  do not allow numeric names of columns
 				exit(_("You are trying to add a column named ").$name.", "._("numeric names of columns are not allowed").".");
 			}
@@ -574,8 +576,11 @@ class Database
 
 		// do not allow creation of tables with more than one serial field
 		// protection is inforced here because i rely on the fact that there is just one numeric id or none
-		if($nr_serial_fields > 1)
+		if($nr_serial_fields > 1) {
+			Debug::trigger_report('critical', "Table $table has $nr_serial_fields serial or bigserial fields. You can use 1 serial or bigserial field per table or none. ");
+
 			exit(_("Error").": "._("Table ").$table." "._("has")." ".$nr_serial_fields." ".("serial or bigserial fields. You can use 1 serial or bigserial field per table or none."));
+		}
 
 		$query = "CREATE TABLE $table ($query)";
 		if ($db_type == "postgresql")
@@ -928,7 +933,7 @@ class Model
 			return;
 		foreach ($this->_model as $name => $var) {
 			if($name == "__sql_relation") {
-				Debug::trigger_report('critical', _("Invalid column name").": __sql_relation.");
+				Debug::trigger_report('critical', "Invalid column name: __sql_relation.");
 				exit(_("Invalid column name").": __sql_relation.");
 			}
 			$this->$name = $var->_value;
@@ -1732,8 +1737,10 @@ class Model
 		else
 			$query = "SELECT $id FROM $table WHERE ".esc($param)."='".Database::escape($value)."' $additional";
 		$res = Database::query($query);
-		if ($res===false)
+		if ($res===false) {
+			Debug::trigger_report('critical',"Could not do: $query");
 			exit(_("Could not do").": $query");
+		}
 		if (count($res))
 			return true;
 		return false;
@@ -1762,7 +1769,7 @@ class Model
 		$class = get_class($this);
 		if(!$id_name || !$this->variable($id_name))
 		{
-			self::trigger_report('critical',"$id_name "._("is not a defined variable inside the")." $class "._("object."));
+			Debug::trigger_report('critical',"$id_name "._("is not a defined variable inside the")." $class "._("object."));
 			exit();
 		}
 
@@ -2161,17 +2168,23 @@ class Model
 			// don't let user extend the object using a numeric key
 			if(is_numeric($var_name))
 			{
-				Debug::trigger_report('critical',"$var_name "._("is not a valid variable name. Please do not use numbers or numeric strings as names for variables").".");
+				Debug::trigger_report('critical',"$var_name "."is not a valid variable name. Please do not use numbers or numeric strings as names for variables.");
 
 				exit("$var_name "._("is not a valid variable name. Please do not use numbers or numeric strings as names for variables").".");
 			}
 			$tb_name = (!is_array($table_name)) ? $table_name : $table_name["table"];
 			$obj = Model::getObject($tb_name);
-			if (!$obj)
-				exit(_("Can't get object for table $tb_name"));	
+			if (!$obj) {
+				Debug::trigger_report('critical',"Can't get object for table $tb_name");
+
+				exit(_("Can't get object for table $tb_name"));
+			}
 			$ref_var = ($references) ? $obj->variable($references) : $obj->variable($var_name);
-			if (!$ref_var)
+			if (!$ref_var) {
+				Debug::trigger_report('critical',"Can't get referenced variable for var_name=$var_name");
+
 				exit(_("Can't get referenced variable for var_name=$var_name"));
+			}
 			$join_type = (is_array($table_name)) ? $table_name["join"] : NULL;	
 			$this->_model[$var_name] = new Variable($ref_var->_type,null,$tb_name,false,$references,$join_type);
 			$this->{$var_name} = NULL;
@@ -3134,8 +3147,10 @@ class Model
 			if (!isset($inner_query[$compulsory[$i]]))
 				$error .= _("Field").' '.$compulsory[$i].' '._("is not defined").". ";
 		}
-		if ($error != '')
+		if ($error != '') {
+			Debug::trigger_report('critical', $error);
 			exit($error);
+		}
 
 		if ($where == '')
 			$where = ' WHERE ';
@@ -3147,9 +3162,11 @@ class Model
 		$column = $inner_query["column"];
 		$relation = $inner_query["relation"];
 		$outer_column = $this->getColumnName($column,$table,false,false);
-		if (!isset($inner_query["options"])) {
-			if (!isset($inner_query["other_table"]) && !isset($inner_query["inner_table"]))
-				exit(_("You must either insert")." 'other_table' "._("or")." 'inner_table'");
+		if (!array_key_exists("options",$inner_query)) {
+			if (!isset($inner_query["other_table"]) && !isset($inner_query["inner_table"])) {
+				Debug::trigger_report("critical", _("You must either insert")." 'other_table' "._("or")." 'inner_table'. ".'$inner_query='.print_r($inner_query,true));
+				return $where;
+			}
 
 			$inner_table = (isset($inner_query["inner_table"])) ? $inner_query["inner_table"] : $inner_query["other_table"];
 			$inner_column = (isset($inner_query["inner_column"])) ? $inner_query["inner_column"] : $inner_query["column"];
@@ -3157,8 +3174,11 @@ class Model
 			$where .= " $outer_column $relation (SELECT $inner_column from ".esc($inner_table)." ";
 			$inner_where = '';
 
-			if(!($obj = self::getObject($inner_table)))
+			if(!($obj = self::getObject($inner_table))) {
+				Debug::trigger_report('critical', "Quit when wanting to create object from table $inner_table");
+
 				exit(_("Quit when wanting to create object from table")." $inner_table");
+			}
 
 			if(isset($inner_query["conditions"]))
 				$inner_where .= $obj->makeWhereClause($inner_query["conditions"],true);
@@ -3169,8 +3189,15 @@ class Model
 			$group_by = (isset($inner_query['group_by'])) ? 'group by '.$inner_query['group_by'] : '';
 			$having = (isset($inner_query['having'])) ? 'having '.$inner_query['having'] : '';
 			$where .= $inner_where ." $group_by $having )";
-		} else
+		} elseif (isset($inner_query["options"]) && strlen($inner_query["options"]))
 			$where .= " $outer_column $relation (".$inner_query["options"].")";
+		else {
+			// $inner_query["options"] is null
+			if (strtolower($relation)=="in")
+				$where .= " false";
+			else
+				$where .= " true";
+		}
 		
 		return $where;
 	}
