@@ -282,8 +282,11 @@ class Debug
 		// log output in xdebug as well
 		// if xdebug is written then this log will be duplicated
 		// but it will help debugging to have it inserted in appropriate place in xdebug log
-		if ($write_to_xdebug)
+
+		// still, skip writting to xdebug if xdebug is currently dumped constantly
+		if ($write_to_xdebug && !isset($_SESSION["dump_xdebug"]))
 			self::xdebug($tag,$msg);
+
 
 		if ($msg==null && strpos($tag," ")) {
 			$msg = $tag;
