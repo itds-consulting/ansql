@@ -55,7 +55,7 @@ class ActionLog extends Model
 	public static function writeLog($log, $query = NULL)
 	{
 		// it's important that the next line is placed here
-		// in case no object was created then self::$_performers won't be setted
+		// in case no object was created then self::$_performers won't be set
 		// self::$_performers is set when the first object derived from model is created
 		$actionlog = new ActionLog;
 		$performers = self::$_performers;
