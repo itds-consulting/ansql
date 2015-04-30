@@ -924,7 +924,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if (isset($field_format["value"]))
 		$value = $field_format["value"];
 
-	if (!strlen($value) && isset($field_format["cb_for_value"]) && is_callable($field_format["cb_for_value"]["name"])) {
+	if (!strlen($value) && isset($field_format["cb_for_value"]) && isset($field_format["cb_for_value"]["name"]) && is_callable($field_format["cb_for_value"]["name"])) {
 		if (count($field_format["cb_for_value"])==2)
 			$value = call_user_func_array($field_format["cb_for_value"]["name"],$field_format["cb_for_value"]["params"]);
 		else
