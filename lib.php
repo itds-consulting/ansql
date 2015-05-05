@@ -1129,8 +1129,21 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "hidden":
 		case "text-nonedit":
 			print '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
-			if ($display != "file" && $display != "password")
-				print ' value="'.$value.'"';
+			if ($display != "file" && $display != "password") {
+				if (!is_array($value))
+					print ' value="'.$value.'"';
+				else {
+					if (isset($field_format["selected"]))
+						$selected = $field_format["selected"];
+					elseif (isset($value["selected"]))
+						$selected = $value["selected"];
+					elseif (isset($value["SELECTED"]))
+						$selected = $value["SELECTED"];
+					else
+						$selected = '';
+					print ' value="'.$selected.'"';
+				}
+			}
 			if (isset($field_format["javascript"]))
 				print $field_format["javascript"];
 			if ($display == "text-nonedit")
@@ -3791,8 +3804,22 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 		case "hidden":
 		case "text-nonedit":
 			$res .= '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
-			if($display != "file" && $display != "password")
-				$res .= ' value="'.$value.'"';
+			if ($display != "file" && $display != "password") {
+				if (!is_array($value))
+					$res .= ' value="'.$value.'"';
+				else {
+					
+					if (isset($field_format["selected"]))
+						$selected = $field_format["selected"];
+					elseif (isset($value["selected"]))
+						$selected = $value["selected"];
+					elseif (isset($value["SELECTED"]))
+						$selected = $value["SELECTED"];
+					else
+						$selected = '';
+					$res .= ' value="'.$selected.'"';
+				}
+			}
 			if(isset($field_format["javascript"]))
 				$res .= $field_format["javascript"];
 			if($display == "text-nonedit")
