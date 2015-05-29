@@ -443,7 +443,7 @@ function build_link_request($exclude_params=array())
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method, $action;
 
-	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
+	$link = (isset($_SESSION["main"]) && strlen($_SESSION["main"])) ? $_SESSION["main"] : "main.php";
 	$link .= "?";
 	foreach($_REQUEST as $param=>$value) {
 		if (	$param == "page" || 
@@ -1155,7 +1155,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				if (is_file("images/question.jpg"))
 					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
 				else
-					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
+					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
 			} else
 				print '>';
 			if($display == 'file' && isset($field_format["file_example"]) && $field_format["file_example"] != "__no_example")
@@ -3473,6 +3473,8 @@ function get_mp3_len($file)
 
 function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file", $title_text=null)
 {
+	global $download_option;
+
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $upload_path;
 
@@ -3495,8 +3497,10 @@ function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file", $tit
 	fclose($fh);
 	chmod($file, 0777);
 
-	//print "Content was exported. <a href=\"$upload_path/$file_name$date$format\">Download</a>";
-	print "Content was exported. <a href=\"download.php?file=$file_name$format\">Download</a>";
+	if (isset($download_option) && $download_option=="direct_file")
+		print "Content was exported. <a href=\"$upload_path/$file_name$format\">Download</a>";
+	else
+		print "Content was exported. <a href=\"download.php?file=$file_name$format\">Download</a>";
 }
 
 function mysql_in_file($fh, $formats, $array, $sep)
