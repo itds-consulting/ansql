@@ -238,6 +238,8 @@ function errormess($text, $path=NULL, $return_text="Go back to application")
  */ 
 function link_to_main_page($path, $return_text)
 {
+	global $module;
+
 	if (isset($_SESSION["main"]))
                 $link = $_SESSION["main"];
         else

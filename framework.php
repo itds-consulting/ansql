@@ -3414,6 +3414,22 @@ class Model
 			return $db_engine;
 		return "innodb";
 	}
+
+
+	/**
+	 * Concatenates values from @param $options so they can be used as 'options' when building an inner query
+	 * @param $options Array. Contains values that will be concatenated
+	 * @return String
+	 * Ex: array(1,2) => "'1','2'"
+	 */
+	public static function optionsInnerQuery($options)
+	{
+		if (!is_array($options) || !count($options))
+			return "";
+
+		$options = implode("','",$options);
+		return "'".$options."'";
+	}
 }
 
 ?>
