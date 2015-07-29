@@ -529,8 +529,14 @@ function fields_another_obj(link_index, link_name, hidden_fields)
 		// the containing tr is built by concatenanting "tr_" + element_id
 		id_tr_element = "tr_" + element_name;
 
-		if (id_tr_element.substr(element_name.length+2, id_tr_element.length)!=link_index)
+		if (isNaN(id_tr_element.substr(element_name.length+1, id_tr_element.length)) && id_tr_element.substr(element_name.length+2, id_tr_element.length)!=link_index)
 			continue;
+
+		if (!isNaN(id_tr_element.substr(element_name.length+1, id_tr_element.length))){
+			if (id_tr_element.substr(element_name.length+1, id_tr_element.length)!=link_index) {
+				continue;
+			}
+		}
 
 		tr_element = document.getElementById(id_tr_element);
 		// this field is advanced -> display it only if user already requested to see advanced fields
@@ -648,6 +654,7 @@ function custom_value_dropdown(custom_value,dropdown_id)
 		var dropdown = document.getElementById(dropdown_id);
 		var parent_td = dropdown.parentNode;
 		if (custom_field==null) {
+			parent_td.appendChild(document.createElement("br"));
 			// custom_field wasn't added in the page => add it here
 			var input = document.createElement("INPUT");
 			input.setAttribute("type", "text");
