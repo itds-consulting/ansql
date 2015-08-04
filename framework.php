@@ -3129,7 +3129,7 @@ class Model
 	 * @param $where Clause to append to 
 	 * @return WHERE clause
 	 */
-	protected function makeInnerQuery($inner_query=array(), $table = NULL, $where='')
+	public function makeInnerQuery($inner_query=array(), $table = NULL, $where='')
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
