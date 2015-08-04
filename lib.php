@@ -1925,6 +1925,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 		}
 		$link = '';
 		foreach ($array[$i] as $col_name => $col_value) {
+			if (is_array($col_value))
+				continue;
 			if (strlen($col_value)<55)
 				$link .= "&$col_name=".htmlentities(urlencode($col_value));
 		}
