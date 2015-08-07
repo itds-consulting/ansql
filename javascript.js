@@ -537,7 +537,7 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields)
 			var index_arr = id_tr_element.split("_");
 			if (index_arr[index_arr.length-1] !=link_index)
 				continue;
-		} else if (id_tr_element.substr(element_name.length+1, id_tr_element.length)!=link_index) 
+		} else if (id_tr_element.substr(element_name.length+2, id_tr_element.length)!=link_index)  
 			continue;
 
 		tr_element = document.getElementById(id_tr_element);
