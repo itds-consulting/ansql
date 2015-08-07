@@ -493,8 +493,9 @@ function set_html_obj(id, html)
  * @param link_index Integer. The index that unites fields to be show as part of another object
  * @param link_name String. Name of the add link. Ex: add, add_contact
  * @param hidden_fields Array . Contains the name of the input fields of type 'hidden' 
+ * @param level_fields Bool. If field isset and is true the fields from FORM are on more levels
  */
-function fields_another_obj(link_index, link_name, hidden_fields)
+function fields_another_obj(link_index, link_name, hidden_fields, level_fields)
 {
 	if (!is_numeric(link_index)) {
 		Console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
@@ -529,20 +530,21 @@ function fields_another_obj(link_index, link_name, hidden_fields)
 		// the containing tr is built by concatenanting "tr_" + element_id
 		id_tr_element = "tr_" + element_name;
 
-		if (isNaN(id_tr_element.substr(element_name.length+1, id_tr_element.length)) && id_tr_element.substr(element_name.length+2, id_tr_element.length)!=link_index)
-			continue;
-
-		if (!isNaN(id_tr_element.substr(element_name.length+1, id_tr_element.length))){
-			if (id_tr_element.substr(element_name.length+1, id_tr_element.length)!=link_index) {
+		// if form fields are displayed on more levels
+		// split the form elements by '_' to get their id 
+		// and skip the elements that don't have to be displayed
+		if (level_fields!=undefined) {
+			var index_arr = id_tr_element.split("_");
+			if (index_arr[index_arr.length-1] !=link_index)
 				continue;
-			}
-		}
+		} else if (id_tr_element.substr(element_name.length+1, id_tr_element.length)!=link_index) 
+			continue;
 
 		tr_element = document.getElementById(id_tr_element);
 		// this field is advanced -> display it only if user already requested to see advanced fields
 		if (tr_element.getAttribute("advanced")=="true" && show_advanced==false)
 			continue;
-    
+
 		show(id_tr_element);
 	}
 
