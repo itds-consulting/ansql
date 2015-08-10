@@ -769,6 +769,9 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 
 	$show_advanced = false;
 	$have_advanced = false;
+
+	$custom_submit = array();
+
 	//find if there are any fields marked as advanced that have a value(if so then all advanced fields should be displayed)
 	foreach($fields as $field_name=>$field_format)
 	{
@@ -810,8 +813,12 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 		}
 	}
 
-	foreach($fields as $field_name=>$field_format) 
-		display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width);
+	foreach($fields as $field_name=>$field_format) {
+		if (!isset($field_format["display"]) || $field_format["display"]!="custom_submit")
+			display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width);
+		else
+			$custom_submit[$field_name] = $field_format;
+	}
 	
 
 	if($have_advanced && !$compulsory_notice)
@@ -852,6 +859,11 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 		print 'Fields marked with <font class="compulsory">*</font> are required.</td>';
 		print '</tr>';
 	}
+
+	if(count($custom_submit))
+		foreach($custom_submit as $field_name=>$field_format)
+			display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width);
+
 	if($submit != "no" && $submit != "no_submit")
 	{
 		print '<tr class="'.$css.'">';
@@ -973,9 +985,12 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		}
 	}
 
-	if ($display == "message") {
+	if ($display=="message" || $display=="objtitle" || $display=="custom_submit") {
 		print '<td class="'.$css.' double_column" colspan="2">';
-		print $value;
+		if ($display=="objtitle")
+			print "<div class='objtitle'>$value</div>";
+		else
+			print $value;
 		print '</td>';
 		print '</tr>';
 		return;

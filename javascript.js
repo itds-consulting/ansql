@@ -121,7 +121,7 @@ function advanced(identifier)
 
 		img.src = imgarray.join("/");
 	} else 
-		console.log("advanced() was called, but img='"+img+"' tagName='"+img.tagName+"'");
+		console.log("advanced() was called, but img is null and tagName='"+img.tagName+"'");
 }
 
 /**
@@ -522,6 +522,9 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields)
 	} else
 		show_advanced = false;
 	console.log("Show advanced: "+show_advanced);
+
+	// show objtitle, if defined
+	show("tr_objtitle"+link_index);
 
 	var id_tr_element, tr_element;
 	for (var i=0; i<elems.length; i++) {
