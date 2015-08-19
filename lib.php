@@ -1943,7 +1943,7 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 			if (is_array($col_value))
 				continue;
 			if (strlen($col_value)<55)
-				$link .= "&$col_name=".htmlentities(urlencode($col_value));
+				$link .= "&$col_name=".urlencode($col_value);
 		}
 		$link_no = 0;
 		foreach ($element_actions as $methd => $methd_name) {
@@ -1960,7 +1960,7 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 				$current_link = substr($methd,8)."?".trim($link,"&");
 
 			if (substr($methd_name,0,11) != "__inactive_")
-				print '<a class="'.$css. "$cond_css".'" href="'.$current_link.'">'.$methd_name.'</a>';
+				print '<a class="'.$css. "$cond_css".'" href="'.htmlentities($current_link).'">'.$methd_name.'</a>';
 			else {
 				$methd_name = substr($methd_name,11);
 				if (substr($methd_name,0,4)=="<img") 
@@ -2049,7 +2049,7 @@ function ack_delete($object, $value = NULL, $message = NULL, $object_id = NULL, 
 			$link .= "$param=$value&";
 	$link .= '&module=' . $module . '&method=' . $method . '&action=database&' . $object_id . '=' . $value_id . $additional;
 
-	print '<a class="llink" href="'.$link.'">Yes</a>';
+	print '<a class="llink" href="'.htmlentities($link).'">Yes</a>';
 
 	print '&nbsp;&nbsp;&nbsp;&nbsp;'; 
 
@@ -2060,7 +2060,7 @@ function ack_delete($object, $value = NULL, $message = NULL, $object_id = NULL, 
 	} else {
 		$link = $_SESSION["main"].'?module='.$module.'&method='.$next;
 	}
-	print '<a class="llink" href="'.$link.'">No</a>';
+	print '<a class="llink" href="'.htmlentities($link).'">No</a>';
 }
 
 /**
