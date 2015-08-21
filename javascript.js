@@ -525,6 +525,8 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields)
 
 	// show objtitle, if defined
 	show("tr_objtitle"+link_index);
+	if (level_fields!=undefined)
+		show("tr_objtitle_level_"+link_index);
 
 	var id_tr_element, tr_element;
 	for (var i=0; i<elems.length; i++) {
