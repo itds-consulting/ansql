@@ -1031,11 +1031,13 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "select":
 		case "mul_select":
 		case "select_without_non_selected":
-			print '<select class="'.$css.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'" ';
+			print '<select class="'.$css.'" id="'.$form_identifier.$field_name.'" ';
 			if (isset($field_format["javascript"]))
 				print $field_format["javascript"];
 			if ($display == "mul_select")
-				print ' multiple="multiple" size="5"';
+				print ' multiple="multiple" size="5" name="'.$form_identifier.$field_name.'[]"';
+			else
+				print 'name="'.$form_identifier.$field_name.'"';
 			print '>';
 			if ($display != "mul_select" && $display != "select_without_non_selected")
 				print '<option value="">Not selected</option>';
@@ -1148,7 +1150,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			print '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if ($display != "file" && $display != "password") {
 				if (!is_array($value)) {
-					if (strpos('"',$value)!==false)
+					if ($value && strpos('"',$value)!==false)
 						print ' value="'.$value.'"';
 					else
 						print " value='".$value."'";
