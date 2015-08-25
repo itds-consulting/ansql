@@ -1147,8 +1147,12 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "text-nonedit":
 			print '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if ($display != "file" && $display != "password") {
-				if (!is_array($value))
-					print ' value="'.$value.'"';
+				if (!is_array($value)) {
+					if (strpos('"',$value)!==false)
+						print ' value="'.$value.'"';
+					else
+						print " value='".$value."'";
+				}
 				else {
 					if (isset($field_format["selected"]))
 						$selected = $field_format["selected"];
