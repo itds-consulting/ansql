@@ -46,8 +46,9 @@ $debug_notify = array(
 */
 $debug_notify = array("web"=>array("notify"));
 
-// if true, then several Debug buttons are displayed at the top of the page
+// if $enable_debug_buttons is true, then several Debug buttons are displayed at the top of the page
 // Ex: Dump $_SESSION, See $_REQUEST
+// you can also add additional buttons if you define the callbacks for them
 $debug_buttons = array(
 	"dump_session"=>'Dump $_SESSION', 
 	"dump_request"=>'Dump $_REQUEST',
@@ -60,6 +61,8 @@ if(is_file("defaults.php"))
 if(is_file("config.php"))
 	include("config.php");
 
+if (!isset($enable_debug_buttons) || $enable_debug_buttons!=true)
+	$debug_buttons = false;
 
 class Debug
 {
