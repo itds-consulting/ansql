@@ -4151,5 +4151,81 @@ function get_search_conditions($custom_cols=array())
 
 	return array($col=>"__LIKE%$col_value%");
 }
+
+/**
+ * Reads a file in reverse order and returns the last N lines 
+ * as an array (N given as parameter).
+ * @param $path String the path with the filename.
+ * @param $line_count Integer the lines number that will be read. 
+ * @param $block_size Integer the bytes that will be read.
+ * @param $offset Integer the offset in bytes
+ * @param $leftover String the remaining data read.
+ * @param $lines Array the remaining lines from previous data read.
+ * @returns Array with:
+ *      - the lines readed from the end of the file, 
+ *      - the value of the offset
+ *      - the leftover string remained from previous reading data
+ *      - the remaining lines already read
+ */ 
+function get_file_last_lines($path, $line_count, $block_size = 512, $offset = null, $leftover = '', $lines = array())
+{
+	if (count($lines) >= $line_count)
+		return array(array_slice($lines, 0, $line_count), $offset, $leftover, array_slice($lines, $line_count));
+
+	$fh = fopen($path, 'r');
+	
+	if ($offset === null)
+		// go to the end of the file
+		fseek($fh, 0, SEEK_END);
+	else
+		// go to the last offset in the file
+		fseek($fh, $offset, SEEK_SET);
+
+
+	do {
+		// need to know whether we can actually go back
+		// $block_size bytes
+		$can_read = $block_size;
+		if (ftell($fh) < $block_size)
+			$can_read = ftell($fh);
+
+		// go back as many bytes as we can
+		// read them to $data and then move the file pointer
+		// back to where we were.
+		fseek($fh, -$can_read, SEEK_CUR);
+		if ($can_read == 0)
+			$data = '';
+		else
+			$data = fread($fh, $can_read);
+		$data .= $leftover;
+		fseek($fh, -$can_read, SEEK_CUR);
+		
+		// remove the last element from data
+		if (substr($data, strlen($data)-1, strlen($data)) == "\n")
+			$data = substr($data, 0, strlen($data)-1);
+
+		// split lines by \n. Then reverse them,
+		// now the last line is most likely not a complete
+		// line which is why we do not directly add it, but
+		// append it to the data read the next time.
+		$split_data = array_reverse(explode("\n", $data));
+		$new_lines = array_slice($split_data, 0, -1);
+		$lines = array_merge($lines, $new_lines);
+		$leftover = $split_data[count($split_data) - 1];
+	} while(count($lines) < $line_count && ftell($fh) != 0);
+
+
+	if (ftell($fh) == 0) {
+		$lines[] = $leftover;
+		$leftover = "";
+	}
+	
+	$offset = ftell($fh);
+	fclose($fh);
+	
+	// Usually, we will read too many lines, correct that here.
+	return array(array_slice($lines, 0, $line_count), $offset, $leftover, array_slice($lines, $line_count));
+}
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
