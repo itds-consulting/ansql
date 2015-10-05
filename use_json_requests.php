@@ -98,7 +98,7 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 			$func_build_request_url = "build_request_url";
 
 		$url = $func_build_request_url($out,$request);
-		if (!$url) {
+		if (!$url || (is_array($url) && !$url[0])) {
 			$resp = array("code"=>"-104", "message"=>_("Please specify where to send request."));
 			write_error($request, $out, "", "", $resp);
 			return $resp;
