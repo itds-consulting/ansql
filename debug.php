@@ -88,8 +88,27 @@ class Debug
 		Debug::xdebug($tag,"Entered ".$func."(".Debug::format_args($args).")");
 	}
 
+
+	/**
+	 * Calling trigger_report() will register this shutdown_function
+	 * This will then be called just when program 
+	 */
+	public static function shutdown_trigger_report()
+	{
+		global $count_triggered;
+		global $log_triggered;
+
+		if ($count_triggered==1)
+			$mess = "There was ".$count_triggered." report";
+		else
+			$mess = "There were ".$count_triggered." reports";
+		$mess .= ": $log_triggered";
+		return self::trigger_report("shutdown","$mess",true);
+	}
+
 	/**
 	 * Function triggers the sending of a bug report
+	 * Depending on param $shutdown it agregates the received reports and registers shutdown function shutdown_trigger_report()
 	 * Current supported methods: mail, web (dump or notify)
 	 * Ex:
 	 * $debug_notify = array(
@@ -107,17 +126,35 @@ class Debug
 	 * @param $message String Used only when triggered from code
 	 * If single parameter is provided and string contains " "(spaces) then it's assumed 
 	 * the default tag is used. Default tag is 'logic'
+	 * @param $shutdown Bool. Default false. If false, it will just register a shutdown function that sends report at the end. 
+	 * If true, we assume we are at shutdown and trigger_report is actually performed
 	 */
-	public static function trigger_report($tag,$message=null)
+	public static function trigger_report($tag,$message=null,$shutdown=false)
 	{
 		global $debug_notify;
 		global $server_email_address;
 		global $logs_in;
 		global $proj_title;
 		global $module;
+		global $count_triggered;
+		global $log_triggered;
 
 		if ($tag) 
 			self::xdebug($tag,$message);
+
+		if (!$shutdown) {
+			if (!isset($count_triggered)) {
+				$count_triggered = 1;
+				$log_triggered = ($message) ? $message : $tag;
+				self::xdebug("first_trigger","----------------------");
+				register_shutdown_function(array('Debug','shutdown_trigger_report'),array());
+			} else {
+				$count_triggered++;
+				$log_triggered .= ($message) ? "; " . $message : "; ".$tag;
+				self::xdebug("trigger","----------------------");
+			}
+			return;
+		}
 
 		// save xdebug
 		$xdebug = self::get_xdebug();
@@ -173,7 +210,18 @@ class Debug
 					if ($message)
 						$body .= "Error that triggered report: ".$message."\n";
 
-					$attachment = ($logs_file = self::get_log_file()) ? array(array("file"=>$logs_file,"content_type"=>"text/plain")) : false;
+					$logs_file = self::get_log_file();
+					if ($logs_file) {
+						$dir_arr = explode("/",$logs_file);
+						$path = "";
+						for ($i=0; $i<count($dir_arr)-1; $i++)
+							$path .= $dir_arr[$i]."/";
+
+						$new_file = $path ."log.".date("Ymdhis");
+						rename($logs_file, $new_file);
+					}
+
+					$attachment = ($logs_file) ? array(array("file"=>$new_file,"content_type"=>"text/plain")) : false;
 					if (!$attachment)
 						// logs are not kept in file, add xdebug to email body
 						$body .= "\n\n$xdebug";
@@ -182,15 +230,6 @@ class Debug
 					for ($i=0; $i<count($notification_options); $i++) {
 						send_mail($notification_options[$i], $server_email_address, $subject, $body, $attachment,null,false);
 					}
-
-					//Move the file set in $logs_in into log.date after sending it through email 
-					if ($attachment) {
-						$dir_arr = explode("/",$attachment[0]["file"]);
-						$path = "";
-						for ($i=0; $i<count($dir_arr)-1; $i++)
-							$path .= $dir_arr[$i]."/";
-					}
-					rename($attachment[0]["file"], $path ."log.".date("Ymdhis"));
 
 					break;
 				case "web":
