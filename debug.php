@@ -217,11 +217,14 @@ class Debug
 						for ($i=0; $i<count($dir_arr)-1; $i++)
 							$path .= $dir_arr[$i]."/";
 
-						$new_file = $path ."log.".date("Ymdhis");
+						$new_file = $path ."log.".date("YmdHis");
+						$attach_file = $path ."attach_log.".date("YmdHis");
+
+						exec("tail -n 500 $logs_file > $attach_file");
 						rename($logs_file, $new_file);
 					}
 
-					$attachment = ($logs_file) ? array(array("file"=>$new_file,"content_type"=>"text/plain")) : false;
+					$attachment = ($logs_file) ? array(array("file"=>$attach_file,"content_type"=>"text/plain")) : false;
 					if (!$attachment)
 						// logs are not kept in file, add xdebug to email body
 						$body .= "\n\n$xdebug";
@@ -230,6 +233,7 @@ class Debug
 					for ($i=0; $i<count($notification_options); $i++) {
 						send_mail($notification_options[$i], $server_email_address, $subject, $body, $attachment,null,false);
 					}
+					exec("rm -f $attach_file");
 
 					break;
 				case "web":
