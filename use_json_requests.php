@@ -99,8 +99,8 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 
 		$url = $func_build_request_url($out,$request);
 		if (!$url || (is_array($url) && !$url[0])) {
-			$resp = array("code"=>"-104", "message"=>_("Please specify where to send request."));
-			write_error($request, $out, "", "", $resp);
+			$resp = array("code"=>"-104", "message"=>_("Please specify url where to send request."));
+			write_error($request, $out, "", "", $url, $resp);
 			return $resp;
 		}
 	} else
@@ -109,21 +109,12 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 	$curl = curl_init($url);
 	if ($curl === false) {
 		$resp = array("code"=>"-103", "message"=>_("Could not initialize curl request."));
-		write_error($request, $out, "", "", $resp);
+		write_error($request, $out, "", "", $url, $resp);
 		return $resp;
 	}
-/*	if ($request != "get_captcha") 
-		print session_name()."=".session_id();
-	else {
-		$fh = fopen("/var/spool/api/test1.txt", "a");
-		fwrite($fh, "Request: ".$request.". Contor: ".$i."Session_name: --- ".session_name()."=".session_id()."\n");
-	}*/
-//	session_start();
 
 	if (isset($_SESSION["cookie"])) {
 		$cookie = $_SESSION["cookie"];
-	/*	if ($request == "get_captcha")
-		fwrite($fh, "cookie=".$cookie);*/
 	}
 
 	curl_setopt($curl,CURLOPT_POST,true);
@@ -146,11 +137,11 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 	$http_code = "-";
 	$ret = curl_exec($curl);
 
-	//var_dump($ret);
 	if ($ret === false) {
+		$error = curl_error($curl);
 		// if no response from api / request times out this will be received
-		$resp = array("code"=>"-100", "message"=>_("Could not send request. Please try again later."));
-		write_error($request, $out, $ret, $http_code, $resp);
+		$resp = array("code"=>"-100", "message"=>_("Could not send request. Please try again later. Error: $error."));
+		write_error($request, $out, $ret, "CURL exec error: $error", $url, $resp);
 		curl_close($curl);
 		return $resp;
 	} else {
@@ -165,8 +156,6 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 		foreach ($raw_headers as $header) {
 			if( preg_match('/^(.*?)\\:\\s+(.*?)$/m', $header, $header_parts) ){
 				$headers[$header_parts[1]] = $header_parts[2];
-				//if ($header_parts[1] == "Set-Cookie"  && substr($header_parts[2],0,10)=="PHPSESSID=") {
-				//	$_SESSION["cookie"] = $header_parts[2];
 
 				if ($header_parts[1] == "Set-Cookie") {
 					$cookie = $header_parts[2];
@@ -176,11 +165,6 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 					$value = explode(";",$cookie[1]);
 					$value = $value[0];
 					$_SESSION["all_cookies"][$cookie[0]] = $value;
-
-				/*	if ($request != "get_captcha")
-						print "<br/>------ got cookie from server:".$_SESSION["cookie"]."<br/>";
-					else
-						fwrite($fh,"------- got cookie from server:".$_SESSION["cookie"]."\n");*/
 				}
 				if ($header_parts[1] == "Content-Encoding" && substr(trim($header_parts[2]),0,4)=="gzip")
 					$gzip = true;
@@ -200,32 +184,31 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 			$ret = gzinflate(substr($zipped_ret,10));
 		} else
 			$ret = substr($ret,$info['header_size']);
-//print $ret;
-//exit();
+
 		$code = curl_getinfo($curl,CURLINFO_HTTP_CODE);
 		$type = curl_getinfo($curl,CURLINFO_CONTENT_TYPE);
 		if ($type == "application/json") {
 			$inp = json_decode($ret,true);
 			if (!$inp || $inp==$ret) {
 				$resp = array("code"=>"-101", "message"=>_("Could not parse JSON response."));
-				write_error($request, $out, $ret, $http_code, $resp);
+				write_error($request, $out, $ret, $http_code, $url, $resp);
 				curl_close($curl);
 				return $resp;
 			}
 			check_errors($inp);
 			curl_close($curl);
-			if (($inp["code"]=="215" || $inp["code"]=="226") && $recursive) {
+			/*if (($inp["code"]=="215" || $inp["code"]=="226") && $recursive) {
 				$res = make_curl_request(array(),"get_user",$response_is_array,false);
 				if ($res["code"]=="0" && isset($res["user"])) 
 					$_SESSION["site_user"] = $res["user"];
 				// else
 				//       bad luck, maybe submit bug report
-			}
+			}*/
 			return $inp;
 		} elseif ($type == "image/jpeg") {
 			if ($response_is_array) {
-				$resp = array("code"=>"-102", "message"=>_("Invalid content type for response."));
-				write_error($request, $out, $ret, $http_code, $resp);
+				$resp = array("code"=>"-102", "message"=>_("Invalid content type image/jpeg for response."));
+				write_error($request, $out, $ret, $http_code, $url, $resp);
 				return $resp;
 			
 			}
@@ -233,8 +216,8 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 			print $ret;
 		} else {
 			//print $ret;
-			$resp = array("code"=>"-101", "message"=>_("Could not parse response."));
-			write_error($request, $out, $ret, $http_code, $resp);
+			$resp = array("code"=>"-101", "message"=>_("Could not parse response from API."));
+			write_error($request, $out, $ret, $http_code, $url, $resp);
 			curl_close($curl);
 			return $resp;
 			//return $ret;
@@ -242,14 +225,14 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 	}
 }
 
-function write_error($request, $out, $ret, $http_code, $displayed_response=null)
+function write_error($request, $out, $ret, $http_code, $url, $displayed_response=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 
 	global $parse_errors, $display_parse_error;
 
 	$user_id = (isset($_SESSION["user_id"])) ? $_SESSION["user_id"] : "-";
-	$text = "------".date("Y-m-d H:i:s").",request=$request,user_id=$user_id\n"
+	$text = "------".date("Y-m-d H:i:s").",request=$request,url=$url,user_id=$user_id\n"
 		."Sent: ".json_encode($out)."\n"
 		."Received HTTP CODE=$http_code : ".$ret."\n";
 	if ($displayed_response)
