@@ -786,7 +786,7 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 			$value = NULL;
 		if(isset($field_format["value"]))
 			$value = $field_format["value"];
-		if (!$object)
+		if (!$object || !is_object($object))
 			break;
 		$variable = $object->variable($field_name);
 		if((!$variable && $value && !$hide_advanced))
@@ -931,14 +931,17 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if (isset($field_format["triggered_by"]))
 		$needs_trigger = true;
 
-	if ($object)
-		$value = (!is_array($field_name) && isset($object->{$field_name})) ? $object->{$field_name} : NULL;
-	else
+	if ($object) {
+		if (is_array($object))
+			$value = (!is_array($field_name) && isset($object[$field_name])) ? $object[$field_name] : NULL;
+		elseif (is_object($object))
+			$value = (!is_array($field_name) && isset($object->{$field_name})) ? $object->{$field_name} : NULL;
+	} else
 		$value = NULL;
 	if (isset($field_format["value"]))
 		$value = $field_format["value"];
 
-	if (!strlen($value) && isset($field_format["cb_for_value"]) && isset($field_format["cb_for_value"]["name"]) && is_callable($field_format["cb_for_value"]["name"])) {
+	if (!is_array($value) && !strlen($value) && isset($field_format["cb_for_value"]) && isset($field_format["cb_for_value"]["name"]) && is_callable($field_format["cb_for_value"]["name"])) {
 		if (count($field_format["cb_for_value"])==2)
 			$value = call_user_func_array($field_format["cb_for_value"]["name"],$field_format["cb_for_value"]["params"]);
 		else
@@ -973,11 +976,12 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			print ' style="display:table-row;" trigger=\"true\" ';
 	}
 	print '>';
+
 	// if $var_name is an array we won't use it
 	$var_name = (isset($field_format[0])) ? $field_format[0] : $field_name;
 	$display = (isset($field_format["display"])) ? $field_format["display"] : "text";
 
-	if ($object) {
+	if ($object && !is_array($object)) {
 		$variable = (!is_array($var_name)) ? $object->variable($var_name) : NULL;
 		if ($variable) {
 			if ($variable->_type == "bool" && $display!="text")
@@ -1022,6 +1026,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			print ' style="width:'.$td_width["right"].'"';
 		print '>';
 	}
+
 	switch($display) {
 		case "textarea":
 			print '<textarea class="'.$css.'" name="'.$form_identifier.$field_name.'" cols="20" rows="5">';
@@ -1031,6 +1036,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "select":
 		case "mul_select":
 		case "select_without_non_selected":
+
 			print '<select class="'.$css.'" id="'.$form_identifier.$field_name.'" ';
 			if (isset($field_format["javascript"]))
 				print $field_format["javascript"];
@@ -1045,13 +1051,20 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			// PREVIOUS implementation when only 0 key could be used for dropdown options
 			// $options = (is_array($var_name)) ? $var_name : array();
 
-			// try gettting it from value
-			if ($value && is_array($value))
-				$options = $value;
-			elseif (is_array($var_name))
-				$options = $var_name;
-			else
-				$options = array();
+			if ($display != "mul_select") {
+				// try gettting it from value
+				if ($value && is_array($value))
+					$options = $value;
+				elseif (is_array($var_name))
+					$options = $var_name;
+				else
+					$options = array();
+			} else {
+				if (is_array($var_name))
+					$options = $var_name;
+				else
+					$options = array();
+			}
 
 			if (isset($field_format["selected"]))
 				$selected = $field_format["selected"];
@@ -1061,10 +1074,13 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				$selected = $options["SELECTED"];
 			else
 				$selected = '';
+
 			foreach ($options as $var=>$opt) {
 				if ($var === "selected" || $var === "SELECTED")
 					continue;
 				$css = (is_array($opt) && isset($opt["css"])) ? 'class="'.$opt["css"].'"' : "";
+
+				// $opt = array("field"=>..., "field_id"=>...) 
 				if (is_array($opt) && isset($opt[$field_name.'_id'])) {
 					$optval = $field_name.'_id';
 					$name = $field_name;
@@ -1098,6 +1114,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				}
 			}
 			print '</select>';
+
 			if(isset($field_format["add_custom"]))
 				print $field_format["add_custom"];
 
@@ -3762,13 +3779,20 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 			// PREVIOUS implementation when only 0 key could be used for dropdown options
 			// $options = (is_array($var_name)) ? $var_name : array();
 
-			// try gettting it from value
-			if ($value && is_array($value))
-				$options = $value;
-			elseif (is_array($var_name))
-				$options = $var_name;
-			else
-				$options = array();
+			if ($display != "mul_select") {
+				// try gettting it from value
+				if ($value && is_array($value))
+					$options = $value;
+				elseif (is_array($var_name))
+					$options = $var_name;
+				else
+					$options = array();
+			} else {
+				if (is_array($var_name))
+					$options = $var_name;
+				else
+					$options = array();
+			}
 
 			if (isset($field_format["selected"]))
 				$selected = $field_format["selected"];
