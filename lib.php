@@ -3048,21 +3048,22 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 	foreach ($fields as $name=>$def) {
 		if (!isset($def["display"]))
 			$def["display"] = "text";
-		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed")
+		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed" || $def["display"]=="objtitle")
 			continue;
 		if (in_array($name, $error_fields))
 			$fields[$name]["error"] = true;
 		if (substr($name,-2) == "[]" && $def["display"] == "mul_select")
-			$val = getparam($field_prefix.substr($name,0,strlen($name)-2));
+			$val = (isset($_REQUEST[$field_prefix.substr($name,0,strlen($name)-2)])) ? $_REQUEST[$field_prefix.substr($name,0,strlen($name)-2)] : null;
 		else
-			$val = getparam($field_prefix.$name);
-		if ($val) {
+			$val = (isset($_REQUEST[$field_prefix.$name])) ? $_REQUEST[$field_prefix.$name] : null;
+		if ($val || $val=="") {
 			if (isset($fields[$name][0]) && is_array($fields[$name][0]))
 				$fields[$name][0]["selected"] = $val;
 			elseif ($def["display"] == "checkbox")
 				$fields[$name]["value"] = ($val == "on") ? "t" : "f";
 			else
 				$fields[$name]["value"] = $val;
+ 
 		}
 	}
 }
