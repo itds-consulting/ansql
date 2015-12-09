@@ -485,33 +485,49 @@ function set_html_obj(id, html)
 }
 
 /**
- * Show fields for 'Add another ...' link. 
+ * Show fields after 'Add another ...' link is pressed. 
  * This fields must already exist and be hidden.
  * When made using display_pair() you must set triggered_by => "" for the fields
  * Function will show all fields ending in link_index from form 
  * and will hide clicked link and display the one with the next index
  * @param link_index Integer. The index that unites fields to be show as part of another object
  * @param link_name String. Name of the add link. Ex: add, add_contact
- * @param hidden_fields Array . Contains the name of the input fields of type 'hidden' 
- * @param level_fields Bool. If field isset and is true the fields from FORM are on more levels
+ * @param hidden_fields Array. Contains the name of the input fields of type 'hidden' 
+ * @param level_fields Bool. If true, the fields in the FORM are on more levels
+ * @param name_obj_title String. Common piece of the name of the objtitle field for this level of objects
+ * @param border_elems Object. {"start":"", "end":""}. Name between which we start showing elements. Used when you have more types of objects so _index is not unique  
+ * Ex: {"end":name_border} // between start of the form and name_border
+ * Ex: {"start":name_border} // between name_border and end of form
+ * Ex: {"start":border1, "end":border2} // between border1 and border2 
  */
-function fields_another_obj(link_index, link_name, hidden_fields, level_fields)
+function fields_another_obj(link_index, link_name, hidden_fields, level_fields, name_obj_title, border_elems, multiple_subtitle)
 {
+	console.log("Entered fields_another_obj() ", arguments);
+
 	if (!is_numeric(link_index)) {
 		Console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
 		return;
 	}
 
+	if (name_obj_title==undefined)
+		name_obj_title = "objtitle";
+
 	var element_name;
 
 	// this is the link that was clicked and should be hidden
 	var current_link_id = link_name+(link_index-1);
+	if (document.getElementById(current_link_id)==null)
+		// maybe previous index is not with build by decresing 1 but by removing the last digit: _ or _1 are current_link_id for _2 or _12
+		current_link_id = link_name+link_index.substr(0,link_index.length-1);
+
 	hide(current_link_id);
 
 	// retrieve all elements from same form as the clicked link
 	var parentform = parent_by_tag(document.getElementById(current_link_id),"form");
-	if (parentform==null)
+	if (parentform==null) {
+		Console.error("Can't retrieve parent for for element with id" + current_link_id);
 		return;
+	}
 	elems = parentform.elements;
 
 	// see if there are advanced fields (check button -- it's displayed only when there are fields marked as advanced)
@@ -524,28 +540,64 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields)
 	console.log("Show advanced: "+show_advanced);
 
 	// show objtitle, if defined
-	show("tr_objtitle"+link_index);
-	if (level_fields!=undefined)
-		show("tr_objtitle_level_"+link_index);
+	show("tr_" + name_obj_title + link_index);
+
+	console.log("level_fields="+level_fields);
+	if (level_fields!=undefined && level_fields==true)
+		show("tr_"+name_obj_title+"_level_"+link_index);
+
+	if (multiple_subtitle!=undefined && multiple_subtitle==true) {
+		var id_to_show;
+		for (var k=0; k<10; k++) {
+			if (k==0)
+				id_to_show = "tr_"+name_obj_title+"_level_"+link_index;
+			else
+				id_to_show = "tr_"+name_obj_title+"_level"+k+"_"+link_index;
+			show(id_to_show);
+			console.log("Tried to show:'"+id_to_show+"'");
+		}
+	}
 
 	var id_tr_element, tr_element;
+	var have_start = true;
+	var have_end = false;
+
+	if (border_elems!=undefined && border_elems.start!=undefined)
+		have_start = false;
+
 	for (var i=0; i<elems.length; i++) {
+
 		element_name = elems[i].name;
+
+		if (!have_start && elems[i].name==border_elems.start)
+			have_start = true;
+
+		if (border_elems!=undefined && border_elems.end!=undefined && border_elems.end==elems[i].name)
+			have_end = true;
+
+		if (!have_start || have_end) {
+			//console.log("Skipping "+elems[i].name+": have_start="+have_start+" have_end="+have_end);
+			continue;
+		}
+
 		// we assume that elements in form have the same "id" and "name"
 		// the containing tr is built by concatenanting "tr_" + element_id
 		id_tr_element = "tr_" + element_name;
 
 		// if form fields are displayed on more levels
-		// split the form elements by '_' to get their id 
+		// split the form elements name by '_' to get their id 
 		// and skip the elements that don't have to be displayed
-		if (level_fields!=undefined) {
+		// otherwise just display links ending in link_index
+		if (level_fields!=undefined && level_fields==true) {
 			var index_arr = id_tr_element.split("_");
-			if (index_arr[index_arr.length-1] !=link_index)
+			if (index_arr[index_arr.length-1] !=link_index) 
 				continue;
+
 		} else if (id_tr_element.substr(element_name.length+2, id_tr_element.length)!=link_index)  
 			continue;
 
 		tr_element = document.getElementById(id_tr_element);
+
 		// this field is advanced -> display it only if user already requested to see advanced fields
 		if (tr_element.getAttribute("advanced")=="true" && show_advanced==false)
 			continue;
