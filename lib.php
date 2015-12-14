@@ -3056,14 +3056,13 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 			$val = (isset($_REQUEST[$field_prefix.substr($name,0,strlen($name)-2)])) ? $_REQUEST[$field_prefix.substr($name,0,strlen($name)-2)] : null;
 		else
 			$val = (isset($_REQUEST[$field_prefix.$name])) ? $_REQUEST[$field_prefix.$name] : null;
-		if ($val || $val=="") {
+		if ($val || $val=="" || strlen($val)) {
 			if (isset($fields[$name][0]) && is_array($fields[$name][0]))
 				$fields[$name][0]["selected"] = $val;
 			elseif ($def["display"] == "checkbox")
 				$fields[$name]["value"] = ($val == "on") ? "t" : "f";
 			else
 				$fields[$name]["value"] = $val;
- 
 		}
 	}
 }
