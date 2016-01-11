@@ -454,12 +454,22 @@ function build_link_request($exclude_params=array())
 			($param == "method" && $method) || 
 			($param == "module" && $module) ||
 		       	in_array($param,$exclude_params) || 
-			!strlen($value)
+			(!is_array($value) && !strlen($value))
 		)
 			continue;
-		if (substr($link,-1) != "?")
-			$link .= "&";
-		$link .= "$param=".urlencode($value);
+
+		
+		if (!is_array($value)) {
+			if (substr($link,-1) != "?")
+				$link .= "&";
+			$link .= "$param=".urlencode($value);
+		} else {
+			foreach($value as $arr_val) {
+				if (substr($link,-1) != "?")
+					$link .= "&";
+				$link .= "$param"."[]=".$arr_val;
+			}
+		}
 	}
 	if ($module)
 		$link .= "&module=$module";
@@ -1060,7 +1070,11 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				else
 					$options = array();
 			} else {
-				if (is_array($var_name))
+				// try gettting it from value
+				// !! DEFINE "selected" even if selected is not defined
+				if ($value && is_array($value) && array_key_exists("selected",$value))
+					$options = $value;
+				elseif (is_array($var_name))
 					$options = $var_name;
 				else
 					$options = array();

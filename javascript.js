@@ -568,6 +568,8 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields, 
 	for (var i=0; i<elems.length; i++) {
 
 		element_name = elems[i].name;
+		if (element_name.substr(-2)=="[]")
+			element_name = element_name.substr(0,element_name.length-2);
 
 		if (!have_start && elems[i].name==border_elems.start)
 			have_start = true;
@@ -637,11 +639,21 @@ function link_from_fields(form_name)
 	for (e=0;e<form_obj.elements.length;e++) {
 		if (form_obj.elements[e].name!='') {
 			if (form_obj.elements[e].type=="checkbox" && form_obj.elements[e].checked!=true)
-				continue;
-			qs += (qs=='')?'?':'&';
-			qs += form_obj.elements[e].name+'='+encodeURIComponent(form_obj.elements[e].value);
+				continue; 
+			if (form_obj.elements[e].type!="select-multiple") {
+				qs += (qs=='')?'?':'&';
+				qs += form_obj.elements[e].name+'='+encodeURIComponent(form_obj.elements[e].value);
+			} else {
+				for (var i = 0; i < form_obj.elements[e].options.length; i++) {
+					if (form_obj.elements[e].options[i].selected) {
+						qs += (qs=='')?'?':'&';
+						qs +=  form_obj.elements[e].name+"="+form_obj.elements[e].options[i].value;
+					}
+				}
+			}
 		}
 	}
+	console.log("Result link_from_fields: "+qs);
 	return qs;
 }
 
