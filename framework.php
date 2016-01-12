@@ -1769,7 +1769,7 @@ class Model
 		$class = get_class($this);
 		if(!$id_name || !$this->variable($id_name))
 		{
-			Debug::trigger_report('critical',"$id_name "._("is not a defined variable inside the")." $class "._("object."));
+			Debug::trigger_report('critical',_("Class")." $class "._("doesn't have an id. You can't use method objectExists."));
 			exit();
 		}
 
