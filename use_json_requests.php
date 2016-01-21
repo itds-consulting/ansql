@@ -239,7 +239,8 @@ function write_error($request, $out, $ret, $http_code, $url, $displayed_response
 		$text .= "Displayed: ".json_encode($displayed_response)."\n";
 
 	// keep writing errors separately but also write them to common logs file
-	Debug::trigger_report('ansql_json', $text);
+	if ($displayed_response["code"] && get_type_error($displayed_response["code"]) == "fatal")
+		Debug::trigger_report('ansql_json', $text);
 
 	if (isset($parse_errors) && strlen($parse_errors)) {
 		$fh = fopen($parse_errors, "a");
