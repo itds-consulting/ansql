@@ -385,6 +385,9 @@ class ConfFile extends GenericFile
 			if (count($params)>2 || count($params)<2)
 				// skip row (wrong format)
 				continue;
+			if (is_numeric($params[0]))
+				// if key is numeric add __ so we don't get this mixed up with comments
+				$params[0] = "__".$params[0];
 			if ($last_section == ""){
 				$this->sections[$params[0]] = trim($params[1]);
 				$this->structure[$params[0]] = trim($params[1]);
@@ -429,6 +432,10 @@ class ConfFile extends GenericFile
 			$section = $value;
 			foreach($section as $param=>$value)
 			{
+				// if key was numeric __ was added when reading
+				if (substr($param,0,2)=="__")
+					$param = substr($param,2);
+
 				if (is_array($value)) {
 					foreach($value as $key => $val)
 						fwrite($this->write_handler, $param."=".ltrim($val).$this->lines);
