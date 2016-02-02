@@ -227,11 +227,11 @@ function show_section(section_index,count_sections,part_ids,custom_css)
 		section_tab = document.getElementById("tab_"+part_ids+i);
 		section_div = document.getElementById("sect_"+part_ids+i);
 		if (section_tab==null) {
-			Console.log("Don't have section tab for "+i);
+			console.log("Don't have section tab for "+i);
 			continue;
 		}
 		if (section_div==null) {
-			Console.log("Don't have section div for "+i);
+			console.log("Don't have section div for "+i);
 			continue;
 		}
 		if (i==section_index) {
@@ -509,7 +509,7 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields, 
 	console.log("Entered fields_another_obj() ", arguments);
 
 	if (!is_numeric(link_index)) {
-		Console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
+		console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
 		return;
 	}
 
@@ -529,7 +529,7 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields, 
 	// retrieve all elements from same form as the clicked link
 	var parentform = parent_by_tag(document.getElementById(current_link_id),"form");
 	if (parentform==null) {
-		Console.error("Can't retrieve parent for for element with id" + current_link_id);
+		console.error("Can't retrieve parent for for element with id" + current_link_id);
 		return;
 	}
 	elems = parentform.elements;
