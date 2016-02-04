@@ -173,7 +173,7 @@ class Debug
 					if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_NAME'])
 						$ip = $_SERVER['SERVER_ADDR']." (".$_SERVER['SERVER_NAME'].")";
 					else {
-						exec("ifconfig",$info);
+						exec("/sbin/ifconfig",$info);
 						$info = implode($info,"\n");
 						$pos_ipv4 = strpos($info,"inet addr:");
 						$pos_ipv6 = strpos($info,"inet6 addr: ");
