@@ -138,11 +138,16 @@ class Debug
 		global $module;
 		global $count_triggered;
 		global $log_triggered;
+		global $software_version;
 
 		if ($tag) 
 			self::xdebug($tag,$message);
 
 		if (!$shutdown) {
+			// find software_version here, not when called from registered shutdown function, because it seems exec() can't be called from there
+			if (!isset($software_version) && function_exists("get_version"))
+				$software_version = get_version();
+
 			if (!isset($count_triggered)) {
 				$count_triggered = 1;
 				$log_triggered = ($message) ? $message : $tag;
@@ -187,10 +192,12 @@ class Debug
 						$ip = substr($ip,0,$break);
 						if (isset($_SERVER["HOSTNAME"]))
 							$ip .= " (".$_SERVER["HOSTNAME"].")";
-					}
+					} 
 					
 					$body = "Application is running on ".$ip."\n";
 					$body .= "Application: '$proj_title'"."\n";
+					if (isset($software_version))
+						$body .= "Version: $software_version"."\n";
 
 					if (isset($_SESSION["username"])) {
 						$user = $_SESSION["username"];
