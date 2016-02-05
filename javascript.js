@@ -382,7 +382,7 @@ function check_required_fields()
 
 	var field_name, field_value, field, tr_field;
 	for (field_name in required_fields) {
-		tr_field = document.getElementByIn("tr_"+field_name);
+		tr_field = document.getElementById("tr_"+field_name);
 		if ((tr_field.getAttribute("trigger") == "\\\"true\\\"" || tr_field.getAttribute("trigger")=="true") && tr_field.style.display=="none")
 			continue;
 
