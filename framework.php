@@ -1391,7 +1391,11 @@ class Model
 		$this->_modified_col = array();
 
 		foreach($params as $param_name=>$param_value) {
-			if($this->variable($param_name)) {
+			$var = $this->variable($param_name);
+			if ($var) {
+				if($var->_type=="bool")
+					$param_value = Model::sqlBool($param_value);
+
 				if($this->{$param_name} != $param_value)
 					$this->_modified_col[$param_name] = true;
 				$this->{$param_name} = $param_value;
@@ -2343,9 +2347,9 @@ class Model
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
-		if (($value === true) || ($value === 't'))
+		if ($value===true || $value==='t' || $value==='1' || $value===1)
 			return 't';
-		if (($value === false) || ($value === 'f'))
+		if ($value===false || $value==='f' || $value==='0' || $value===0)
 			return 'f';
 		return $defval;
 	}
