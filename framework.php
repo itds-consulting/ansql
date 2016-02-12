@@ -725,8 +725,23 @@ class Database
 						continue;
 					elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
 						continue;
-					elseif (($dbtype == "varchar" && substr($type,0,7)=="varchar" && $db_type=='postgresql') && $db_default==$class_default && $db_not_null===$var->_required)
-						continue;
+					elseif (substr($dbtype,0,7)=="varchar" && substr($type,0,7)=="varchar" && $db_default==$class_default && $db_not_null===$var->_required) {
+						if ($db_type=='postgresql')
+							continue;
+
+						$length = intval(substr($dbtype,8,strlen($dbtype)-9));
+						$newlength = intval(substr($type,8,strlen($type)-9));
+
+						if ($newlength>$length) {
+							$query = "ALTER TABLE ".esc($table)." CHANGE ".esc($name)." ".esc($name)." $type";
+
+							if (!self::queryRaw($query)) {
+								Debug::Output('critical', _("Could not change table field $name from $dbtype to $type for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
+								$error_sql_update = true;
+							}
+							continue;
+						}
+					}
 					elseif ($orig_type=="serial" || $orig_type=="bigserial")
 						continue;
 					$db_str_not_null = ($db_not_null) ? " NOT NULL" : "";
@@ -744,11 +759,25 @@ class Database
 						continue;
 					elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
 						continue;
-					elseif ($dbtype == "varchar" && substr($type,0,7)=="varchar" && $db_type=='postgresql')
-						continue;
+					elseif (substr($dbtype,0,7)=="varchar" && substr($type,0,7)=="varchar") {
+						if ($db_type=='postgresql')
+							continue;
+
+						$length = intval(substr($dbtype,8,strlen($dbtype)-9));
+						$newlength = intval(substr($type,8,strlen($type)-9));
+
+						if ($newlength>$length) {
+							$query = "ALTER TABLE ".esc($table)." CHANGE ".esc($name)." ".esc($name)." $type";
+
+							if (!self::queryRaw($query)) {
+								Debug::Output('critical', _("Could not change table field $name from $dbtype to $type for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
+								$error_sql_update = true;
+							}
+							continue;
+						} 
+					}
 
 					Debug::Output('critical', _("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'");
-
 				}
 
 				$error_sql_update = true;
