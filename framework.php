@@ -2455,8 +2455,7 @@ class Model
 		//print "default_identifier=$default_identifier\n";
 		foreach ($classes as $class)
 		{
-			// calling static class methods is done using an array("class","method")		
-			if (get_parent_class($class) == "Model" || get_parent_class(get_parent_class($class)) == "Model")
+			if (self::checkAncestors($class))
 			{
 				$vars = null;
 				if (!method_exists($class,"variables"))
@@ -2484,6 +2483,22 @@ class Model
 					self::$_performers[strtolower($class)] = $performer;
 			}
 		}
+	}
+
+	/**
+	 * Check class ancestors to see if one of them is Model
+	 * @param $class String
+	 * @return Bool
+	 */
+	static function checkAncestors($class)
+	{
+		$parent = get_parent_class($class);
+
+		if ($parent=="Model")
+			return true;
+		elseif (!$parent)
+			return false;
+		return self::checkAncestors($parent);
 	}
 
 	/**
