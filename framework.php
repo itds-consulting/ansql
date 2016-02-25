@@ -1843,21 +1843,25 @@ class Model
 		return false;
 	}
 
+
 	/**
 	 * Recursive function that deletes the object(s) matching the condition and all the objects having foreign keys to
 	 * this one with _critical=true, the other ones having _critical=false with the associated column set to NULL
 	 * @param $conditions Array of conditions for deleting (if count=0 then we look for the id of the object) 
 	 * @param $seen Array of classes from were we deleted
 	 * @param $recursive Bool default true. Whether to delete/clean objects pointing to this one 
+	 * @param $cb_recursive String default NULL. If set and $recursive=true it will call this method recursively instead of objDelete
 	 * @return array(true/false,message) if the object(s) were deleted or not
 	 */
-	public function objDelete($conditions=array(), $seen=array(), $recursive=true)
+	public function objDelete($conditions=array(), $seen=array(), $recursive=true, $cb_recursive=null)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
 		$vars = self::getVariables(get_class($this));
 		if (!$vars)
 			return null;
+		if ($recursive && $cb_recursive==null)
+			$cb_recursive = "objDelete";
 
 		$orig_cond = $conditions;
 		$table = $this->getTableName();
@@ -1935,7 +1939,7 @@ class Model
 		foreach ($to_delete as $object_name=>$conditions) {
 			$obj = new $object_name;
 			for ($i=0;$i<count($conditions);$i++)
-				$obj->objDelete($conditions[$i],$seen);
+				$obj->$cb_recursive($conditions[$i],$seen);
 		}
 
 		if ($res && $res[0]) {
