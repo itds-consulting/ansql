@@ -214,6 +214,9 @@ function make_curl_request($out, $request=null, $response_is_array=true, $recurs
 			}
 			curl_close($curl);
 			print $ret;
+		} elseif ($type == "application/octet-stream" || substr($type,0,10) == "text/plain") {
+			curl_close($curl);
+			return $ret;
 		} else {
 			//print $ret;
 			$resp = array("code"=>"-101", "message"=>_("Could not parse response from API."));
