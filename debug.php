@@ -79,13 +79,18 @@ class Debug
 	 * @param $args Array of arguments
 	 * @param $tag String Optional. If not set $default_tag is used
 	 */
-	public static function func_start($func,$args,$tag=null)
+	public static function func_start($func,$args,$tag=null,$obj_class=null,$obj_id=null)
 	{
 		global $default_tag;
 		if (!$tag)
 			$tag = $default_tag;
 
-		Debug::xdebug($tag,"Entered ".$func."(".Debug::format_args($args).")");
+		if ($obj_class)
+			$mess = "Entered ".$func." for '$obj_class' id='$obj_id' (".Debug::format_args($args).")";
+		else
+			$mess = "Entered ".$func."(".Debug::format_args($args).")";
+
+		Debug::xdebug($tag,$mess);
 	}
 
 
