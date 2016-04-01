@@ -36,8 +36,11 @@ function getInternetExplorerVersion()
  * Function tries to set the right  style.display depending on the tag type
  * @param element_id String. Id of the element to be displayed
  */
-function show(element_id)
+function show(element_id, display)
 {
+	if (display==null)
+		display = "block";
+
 	if (typeof ie == 'undefined' || ie==null)
 		ie = getInternetExplorerVersion();
 
@@ -51,16 +54,16 @@ function show(element_id)
 		case "input":
 		case "select":
 		case "iframe":
-			element.style.display = (ie > 1 && ie<=9) ? "block" : "table-row";
+			element.style.display = (ie > 1 && ie<=9) ? display : "table-row";
 			break;
 		case "td":
-			element.style.display = (ie > 1 && ie<=9) ? "block" : "table-cell";
+			element.style.display = (ie > 1 && ie<=9) ? display : "table-cell";
 			break;
 		case "table":
-			element.style.display = (ie > 1 && ie<=9) ? "block" : "table";
+			element.style.display = (ie > 1 && ie<=9) ? display : "table";
 			break;
 		default:
-			element.style.display = "block";
+			element.style.display = display;
 	}
 }
 
