@@ -54,6 +54,7 @@ function show(element_id, display)
 		case "input":
 		case "select":
 		case "iframe":
+		case "font":
 			element.style.display = (ie > 1 && ie<=9) ? display : "table-row";
 			break;
 		case "td":
