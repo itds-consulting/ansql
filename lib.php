@@ -3626,7 +3626,7 @@ function mysql_in_file($fh, $formats, $array, $sep)
 	}
 }
 
-function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_header=true)
+function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_header=true, $keep_bools=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	$col_nr = 0;
@@ -3655,6 +3655,7 @@ function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_head
 		} 
 		fwrite($fh,"\n");
 	}
+
 	for($i=0; $i<count($array); $i++) 
 	{
 		$col_nr = 0;
@@ -3678,9 +3679,16 @@ function write_in_file($fh, $formats, $array, $sep, $key_val_arr=true, $col_head
 				}elseif(isset($array[$i][$names_in_array])){
 					$column_value = $array[$i][$names_in_array];
 				}
-				if(!strlen($column_value))
-					$column_value = "";
-				$column_value = "\"=\"\"".$column_value."\"\"\"";
+
+				if (!$keep_bools) {
+					if(!strlen($column_value))
+						$column_value = "";
+					$column_value = "\"=\"\"".$column_value."\"\"\"";
+				} else {
+					if (!is_bool($column_value) && $column_value!==null)
+						$column_value = "\"=\"\"".$column_value."\"\"\"";
+					
+				}
 				if ($col_nr)
 					$column_value =  $sep.$column_value;
 				fwrite($fh,$column_value);
