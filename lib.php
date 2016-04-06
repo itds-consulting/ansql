@@ -1573,6 +1573,8 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 					for($var_nr=0; $var_nr<count($use_vars); $var_nr++)
 						if(array_key_exists($use_vars[$var_nr], $vars))
 							array_push($params, $objects[$i]->{$use_vars[$var_nr]});
+						else
+							array_push($params,null);
 					$column_value = call_user_func_array($function_name,$params);
 				}
 			} elseif(isset($objects[$i]->{$var_name})){
@@ -1963,7 +1965,10 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 				if (count($use_vars)) {
 					$params = array();
 					for ($var_nr=0; $var_nr<count($use_vars); $var_nr++)
-						array_push($params, $array[$i][$use_vars[$var_nr]]);
+						if (isset($array[$i][$use_vars[$var_nr]]))
+							array_push($params, $array[$i][$use_vars[$var_nr]]);
+						else
+							array_push($params, null);
 					$column_value = call_user_func_array($function_name,$params);
 				}
 			} elseif (isset($array[$i][$names_in_array])) {
