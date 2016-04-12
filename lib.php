@@ -2062,8 +2062,9 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
  * @param $value_id String the value id of the object 
  * @param $additional String added to the value id
  * @param $next String use it to change the method param 
+ * @param $action_obj String. Action to acknowledge. Default: "delete" 
  */ 
-function ack_delete($object, $value = NULL, $message = NULL, $object_id = NULL, $value_id = NULL, $additional = NULL, $next = NULL)
+function ack_delete($object, $value = NULL, $message = NULL, $object_id = NULL, $value_id = NULL, $additional = NULL, $next = NULL, $action_obj="delete")
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method;
@@ -2073,7 +2074,7 @@ function ack_delete($object, $value = NULL, $message = NULL, $object_id = NULL, 
 	if (!$value_id)
 		$value_id = getparam($object_id);
 
-	print "<br/><br/>Are you sure you want to delete ".str_replace("_","&nbsp;",$object)." $value?";
+	print "<br/><br/>Are you sure you want to $action_obj ".str_replace("_","&nbsp;",$object)." $value?";
 	if ($message) {
 		if (substr($message,0,2) != "__") {
 			if(substr($message,0,1) == ",")
