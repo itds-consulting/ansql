@@ -999,8 +999,10 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		}
 	}
 
-	if ($display=="message" || $display=="objtitle" || $display=="custom_submit") {
-		print '<td class="'.$css.' double_column" colspan="2">';
+	if ($display=="message" || $display=="objtitle" || $display=="custom_submit" || $display=="custom_field") {
+		$custom_field_css = ($display=="custom_field") ? "custom_field" : 'double_column';
+
+		print '<td class="'.$css.' '.$custom_field_css.'" colspan="2">';
 		if ($display=="objtitle")
 			print "<div class='objtitle'>$value</div>";
 		else
@@ -3068,7 +3070,7 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 	foreach ($fields as $name=>$def) {
 		if (!isset($def["display"]))
 			$def["display"] = "text";
-		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed" || $def["display"]=="objtitle")
+		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed" || $def["display"]=="objtitle" || $def["display"]=="custom_field")
 			continue;
 		if (in_array($name, $error_fields))
 			$fields[$name]["error"] = true;
