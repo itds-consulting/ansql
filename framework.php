@@ -475,7 +475,7 @@ class Database
 					{
 						$array[$i] = array();
 						for($j=0; $j<pg_num_fields($res); $j++)
-							$array[$i][pg_field_name($res,$j)] = ($func_query_result && is_callable($func_query_result)) ? call_user_func($func_query_result, self::unescape($value)) : self::unescape(pg_fetch_result($res,$i,$j));
+							$array[$i][pg_field_name($res,$j)] = ($func_query_result && is_callable($func_query_result)) ? call_user_func($func_query_result, self::unescape(pg_fetch_result($res,$i,$j))) : self::unescape(pg_fetch_result($res,$i,$j));
 					}
 					break;
 			}
@@ -725,23 +725,19 @@ class Database
 						continue;
 					elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
 						continue;
-					elseif (substr($dbtype,0,7)=="varchar" && substr($type,0,7)=="varchar" && $db_default==$class_default && $db_not_null===$var->_required) {
+					elseif ($dbtype!=$type) {
 						if ($db_type=='postgresql')
-							continue;
-
-						$length = intval(substr($dbtype,8,strlen($dbtype)-9));
-						$newlength = intval(substr($type,8,strlen($type)-9));
-
-						if ($newlength>$length) {
+							$query = "ALTER TABLE ".esc($table)." ALTER COLUMN ".esc($name)." TYPE $type";
+						else
 							$query = "ALTER TABLE ".esc($table)." CHANGE ".esc($name)." ".esc($name)." $type";
 
-							if (!self::queryRaw($query)) {
-								Debug::Output('critical', _("Could not change table field $name from $dbtype to $type for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
-								$error_sql_update = true;
-							}
-							continue;
+						if (!self::queryRaw($query)) {
+							Debug::Output('critical', _("Could not change table field $name from $dbtype to $type for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
+							$error_sql_update = true;
 						}
+						continue;
 					}
+				
 					elseif ($orig_type=="serial" || $orig_type=="bigserial")
 						continue;
 					$db_str_not_null = ($db_not_null) ? " NOT NULL" : "";
@@ -759,23 +755,20 @@ class Database
 						continue;
 					elseif (($dbtype == "bigint(20) unsigned" || $dbtype == "bigint(20)")  && $type == "bigint(20) unsigned not null auto_increment")
 						continue;
-					elseif (substr($dbtype,0,7)=="varchar" && substr($type,0,7)=="varchar") {
+					elseif ($dbtype!=$type) {
+
 						if ($db_type=='postgresql')
-							continue;
-
-						$length = intval(substr($dbtype,8,strlen($dbtype)-9));
-						$newlength = intval(substr($type,8,strlen($type)-9));
-
-						if ($newlength>$length) {
+							$query = "ALTER TABLE ".esc($table)." ALTER COLUMN ".esc($name)." TYPE $type";
+						else
 							$query = "ALTER TABLE ".esc($table)." CHANGE ".esc($name)." ".esc($name)." $type";
 
-							if (!self::queryRaw($query)) {
-								Debug::Output('critical', _("Could not change table field $name from $dbtype to $type for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
-								$error_sql_update = true;
-							}
-							continue;
-						} 
+						if (!self::queryRaw($query)) {
+							Debug::Output('critical', _("Could not change table field $name from $dbtype to $type for")." '$table'. "._("Query failed").": '$query'". " .Error: ".Database::get_last_db_error());
+							$error_sql_update = true;
+						}
+						continue;
 					}
+
 
 					Debug::Output('critical', _("Field")." '".$name."' "._("in table")." "."'$table' "._("is of type")." '$dbtype' "._("but should be")." '$type'");
 				}
