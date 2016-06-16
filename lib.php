@@ -705,7 +705,7 @@ function check_valid_mail($mail)
  * @param $additional Array contains the parameters and their values to be set as input hidden 
  * @param $empty_page_param Bool. If true it will set 'method' and 'module' hidden fields to existing value if they don't appear in $additional. Defaults to false
  */ 
-function addHidden($action=NULL, $additional = array(), $empty_page_params=false)
+function addHidden($action=NULL, $additional = array(), $empty_page_params=false, $skip_params=array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $method,$module;
@@ -726,8 +726,8 @@ function addHidden($action=NULL, $additional = array(), $empty_page_params=false
 
 	if (isset($_SESSION["previous_page"])) {
 		foreach ($_SESSION["previous_page"] as $param=>$value)
-			if (!isset($additional[$param]) && $param!="module" && $param!="method" && $param!="action")
-				print '<input type="hidden" name="' . $param . '" value="' . $value . '">';
+			if (!isset($additional[$param]) && $param!="module" && $param!="method" && $param!="action" && !in_array($param,$skip_params))
+				print '<input type="hidden" id="'.$param.'" name="' . $param . '" value="' . $value . '">';
 	}
 }
 
@@ -4171,7 +4171,7 @@ function generic_search($search_options, $custom_fields=array())
 
 	$title = array("Search by", "Value", "&nbsp;");
 	$fields = array(array(
-			build_dropdown($search_options, "col", true, "", "", 'onchange="document.getElementById(\'col_value\').value=null;"'),
+			build_dropdown($search_options, "col", true, "", "", 'onchange="clean_cols_search()"'),
 			"<input type=\"text\" value=\"".getparam("col_value")."\" name=\"col_value\" id=\"col_value\" size=\"10\"/>",
 			"<input type=\"submit\" value=\"Search\" />"
 		));
@@ -4182,7 +4182,7 @@ function generic_search($search_options, $custom_fields=array())
 	}
 
 	start_form();
-	addHidden();
+	addHidden(null,array(),false,array("col_value"));
 	formTable($fields,$title);
 	end_form();
 }

@@ -751,3 +751,18 @@ function custom_value_dropdown(custom_value,dropdown_id)
 	} else if (custom_field!=null && custom_field.style.display!="none")
 		custom_field.style.display = "none";
 }
+
+/**
+ * Clean columns when php generic_search() function is used
+ */
+function clean_cols_search()
+{
+	var col_value = document.getElementById('col_value');
+	if (col_value!=null)
+		col_value.value = null; 
+
+	var total=document.getElementById('total'); 
+	if (total!=null) 
+		total.value = null;
+	return true;
+}
