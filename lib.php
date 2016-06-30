@@ -3072,7 +3072,7 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 			$def["display"] = "text";
 		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed" || $def["display"]=="objtitle" || $def["display"]=="custom_field")
 			continue;
-		if (in_array($name, $error_fields))
+		if (in_array(strtolower($name), $error_fields))
 			$fields[$name]["error"] = true;
 		if (substr($name,-2) == "[]" && $def["display"] == "mul_select")
 			$val = (isset($_REQUEST[$field_prefix.substr($name,0,strlen($name)-2)])) ? $_REQUEST[$field_prefix.substr($name,0,strlen($name)-2)] : null;
@@ -4280,6 +4280,14 @@ function get_file_last_lines($path, $line_count, $block_size = 512, $offset = nu
 	
 	// Usually, we will read too many lines, correct that here.
 	return array(array_slice($lines, 0, $line_count), $offset, $leftover, array_slice($lines, $line_count));
+}
+
+// Replace \n with <br/> and " " with &nbsp;
+function format_comment($text)
+{
+	$text = str_replace("\n","<br/>",$text);
+	$text = str_replace(" ","&nbsp;",$text);
+	return $text;
 }
 
 /* vi: set ts=8 sw=4 sts=4 noet: */
