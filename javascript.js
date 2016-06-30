@@ -752,6 +752,29 @@ function custom_value_dropdown(custom_value,dropdown_id)
 		custom_field.style.display = "none";
 }
 
+// Toggle menu build with TabbedSettings class. Show/hide (Advanced/Basic) tabs and buttons
+function toggle_menu()
+{
+	var i = (open_tabs==undefined) ? 1 : open_tabs;
+	var current_state = document.getElementById("section_"+i).style.display;
+	var next_state = (current_state!="none") ? "none" : "table-cell";
+	var toggle_content = (current_state!="none") ? "Advanced >>" : "<< Basic";
+	var menu_tab;
+
+	menu_tab = document.getElementById("menu_fill");
+	if (menu_tab) 
+		menu_tab.style.display = current_state;
+
+	while(true) {
+		menu_tab = document.getElementById("section_"+i);
+		if (menu_tab==null)
+			break;
+		menu_tab.style.display = next_state;
+		i++;
+	}
+	set_html_obj("menu_toggle",toggle_content);
+}
+
 /**
  * Clean columns when php generic_search() function is used
  */
