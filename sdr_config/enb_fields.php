@@ -265,7 +265,6 @@ Srb2.rlcPollByte = 0
 	"display" => "objtitle"
     ),
 
-    
     "mme_address" => array(
 	"column_name" => "Address",
 	"comment" => "Ex: 192.168.56.62"
@@ -277,7 +276,105 @@ Srb2.rlcPollByte = 0
 	"comment" => "Ex: 5"
     ),
     "dscp" => array(
+	"column_name" => "DSCP",
 	"comment" => "Ex: expedited"
+    ),
+    "add_mme_1" => array("value"=>"<a id=\"add_mme_1\" class='llink' onclick=\"fields_another_obj(2, 'add_mme_');\">Add another MME</a>", "display"=>"message"),
+
+
+    "objtitle2" => array("display"=>"objtitle", "triggered_by"=>"2", "value"=>"2<sup>nd</sup> MME"),
+
+    "mme_address_2" => array(
+	"column_name" => "Address",
+	"comment" => "Ex: 192.168.56.62",
+	"triggered_by" => "2"
+    ),
+    "local_2" => array(
+	"column_name" => "Local",
+	"comment" => "Ex: 192.168.56.1",
+	"triggered_by" => "2"
+    ),
+    "streams_2" => array(
+	"column_name" => "Streams",
+	"comment" => "Ex: 5",
+	"triggered_by" => "2"
+    ),
+    "dscp_2" => array(
+	"column_name" => "DSCP",
+	"comment" => "Ex: expedited",
+	"triggered_by" => "2"
+    ),
+    "add_mme_2" => array("value"=>"<a id=\"add_mme_2\" class='llink' onclick=\"fields_another_obj(3, 'add_mme_');\">Add another MME</a>", "display"=>"message", "triggered_by" => "2"),
+
+    "objtitle3" => array("display"=>"objtitle", "triggered_by"=>"3", "value"=>"3<sup>rd</sup> MME"),
+
+    "mme_address_3" => array(
+	"column_name" => "Address",
+	"comment" => "Ex: 192.168.56.62",
+	"triggered_by" => "3"
+    ),
+    "local_3" => array(
+	"column_name" => "Local",
+	"comment" => "Ex: 192.168.56.1",
+	"triggered_by" => "3"
+    ),
+    "streams_3" => array(
+	"column_name" => "Streams",
+	"comment" => "Ex: 5",
+	"triggered_by" => "3"
+    ),
+    "dscp_3" => array(
+	"column_name" => "DSCP",
+	"comment" => "Ex: expedited",
+	"triggered_by" => "3"
+    ),
+    "add_mme_3" => array("value"=>"<a id=\"add_mme_3\" class='llink' onclick=\"fields_another_obj(4, 'add_mme_');\">Add another MME</a>", "display"=>"message", "triggered_by" => "3"),
+
+    "objtitle4" => array("display"=>"objtitle", "triggered_by"=>"4", "value"=>"4<sup>th</sup> MME"),
+
+    "mme_address_4" => array(
+	"column_name" => "Address",
+	"comment" => "Ex: 192.168.56.62",
+	"triggered_by" => "4"
+    ),
+    "local_4" => array(
+	"column_name" => "Local",
+	"comment" => "Ex: 192.168.56.1",
+	"triggered_by" => "4"
+    ),
+    "streams_4" => array(
+	"column_name" => "Streams",
+	"comment" => "Ex: 5",
+	"triggered_by" => "4"
+    ),
+    "dscp_4" => array(
+	"column_name" => "DSCP",
+	"comment" => "Ex: expedited",
+	"triggered_by" => "4"
+    ),
+    "add_mme_4" => array("value"=>"<a id=\"add_mme_4\" class='llink' onclick=\"fields_another_obj(5, 'add_mme_');\">Add another MME</a>", "display"=>"message", "triggered_by" => "4"),
+
+    "objtitle5" => array("display"=>"objtitle", "triggered_by"=>"5", "value"=>"5<sup>th</sup> MME"),
+
+    "mme_address_5" => array(
+	"column_name" => "Address",
+	"comment" => "Ex: 192.168.56.62",
+	"triggered_by" => "5"
+    ),
+    "local_5" => array(
+	"column_name" => "Local",
+	"comment" => "Ex: 192.168.56.1",
+	"triggered_by" => "5"
+    ),
+    "streams_5" => array(
+	"column_name" => "Streams",
+	"comment" => "Ex: 5",
+	"triggered_by" => "5"
+    ),
+    "dscp_5" => array(
+	"column_name" => "DSCP",
+	"comment" => "Ex: expedited",
+	"triggered_by" => "5"
     )
 ),
 
