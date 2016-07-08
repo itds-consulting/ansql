@@ -275,14 +275,16 @@ class TabbedSettings
 			foreach($structure as $m_section => $params) {
 				foreach ($params as $key => $m_subsection) {
 					foreach($fields[$m_section][$m_subsection] as $param_name => $data) {
+
 						$paramname = str_replace(".", "_", $param_name);
 						if (isset($data["display"]) && $data["display"] == "select") 
 							$fields[$m_section][$m_subsection][$param_name][0]["selected"] = getparam($paramname);
 						elseif (isset($data["display"]) && $data["display"] == "checkbox")
 							$fields[$m_section][$m_subsection][$param_name]["value"] = getparam($paramname)=="on"? "1" : "0";
+						elseif (isset($data["display"]) && in_array($data["display"], array("message","objtitle")))
+							continue;
 						else
 							$fields[$m_section][$m_subsection][$param_name]["value"] = getparam($paramname);
-
 					}
 				}
 			}
