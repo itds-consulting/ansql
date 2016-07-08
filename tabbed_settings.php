@@ -24,50 +24,61 @@ require_once("check_validity_fields.php");
  * Class used to build tabbed based editing form when you have many settings grouped in sections with/without subsections
  * To use it, derive from it and reimplement at least @ref getMenuStructure
  */
-class TabbedSettings 
+abstract class TabbedSettings 
 {
-	protected $error = "";
-	protected $warnings = "";
-	protected $current_section = "";
+	protected $error              = "";
+	protected $warnings           = "";
+	protected $current_section    = "";
 	protected $current_subsection = "";
-	protected $open_tabs = 1;
+	protected $open_tabs          = 1;
 
 	function __construct()
 	{
 	}
 
-	// Reimplement this
-	function getMenuStructure()
-	{
-		return array();
-	}
+	// Should return Array
+	abstract function getMenuStructure();
 
-	// Reimplement this
-	function getSectionsDescription()
-	{
-		return array();
-	}
+	// Should return Array
+	abstract function getSectionsDescription();
+
+	// Should return Array
+	abstract function getDefaultFields();
+
+	// Should return Array
+	abstract function getApiFields();
+
+	// Should return Array
+	abstract function applyRequestFields($request_fields=null,$exists_in_response=null);
+
+	// returns Array(true/false, "error")
+	abstract function storeFormResult(array $fields);
 
 	// Validate form result. Use field definition to do this: select/checkbox/Factory calibrated param/or call function to make callback specified in "validity" in field format
 	// Returns array(true/false, "fields"=>.. (fields to build form), "request_fields"=> .. (fields to be sent to API or written to file)
 	// "fields" has a section,subsection structure, while "request_fields" has only the subsections(specified in interface)  (that should be sent to API or written to file )
 	function validateFields($section, $subsection)
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
 		$allow_empty_params = $this->allow_empty_params;
+		if (!is_array($allow_empty_params)) {
+			Debug::trigger_report("critical", "Class variable allow_empty_params is not array.");
+			return array(false);
+		}
 
 		$fields = $this->getDefaultFields();
 
-		$new_fields = array();
-		$request_fields = array();
-		$this->error_field = array();
+		$new_fields           = array();
+		$request_fields       = array();
+		$this->error_field    = array();
 		$this->warning_field  = array();
 		
 		if (!isset($fields[$section][$subsection]))
-			return array(true,"fields"=>array(),"request_fields"=>array());
+			return array(true, "fields"=>array(), "request_fields"=>array());
 
-		foreach ($fields[$section][$subsection] as $param_name => $data) {
+		foreach ($fields[$section][$subsection] as $param_name=>$data) {
+
 			if (isset($data["display"]) && in_array($data["display"],array("objtitle","message")))
 				continue;
 
@@ -76,7 +87,7 @@ class TabbedSettings
 			$new_fields[$section][$subsection][$param_name] = $data;
 
 			$field_param = getparam($paramname);
-			if (isset($data["display"]) && $data["display"] == "checkbox" && $field_param == NULL) 
+			if (isset($data["display"]) && $data["display"]=="checkbox" && $field_param==NULL) 
 				$field_param = "off";
 			$field_param = htmlspecialchars_decode($field_param);
 
@@ -86,32 +97,32 @@ class TabbedSettings
 			}
 
 			$res = array(true);
-			if (isset($data["display"]) && $data["display"] == "select" && !isset($data["validity"])) 
+			if (isset($data["display"]) && $data["display"]=="select" && !isset($data["validity"])) 
 				$res = $this->validSelectField($param_name, $field_param, $data[0]);
 			elseif (isset($data["validity"])) 
 				$res = $this->cbValidityField($data["validity"], $param_name, $field_param);
 
 			if (!$res[0])
-				$this->error_field[] = array($res[1], $param_name);
+				$this->error_field[]   = array($res[1], $param_name);
 			elseif ($res[0] && isset($res[1]))
 				$this->warning_field[] = array($res[1], $param_name);
 
 			// set to "" parameters that are not set or are set to "Factory calibrated"
-			// they will be written commented in ybts.conf
+			// In the end (after API request/other method) they will be written commented in ybts.conf/etc..
 			if (!valid_param($field_param) || $field_param=="Factory calibrated")
 				$field_param = "";
 
 			// build also request_fields fields with different structure
 			$request_fields[$subsection][$param_name] = $field_param;
 
-			if (isset($data["display"]) && $data["display"] == 'select')
+			if (isset($data["display"]) && $data["display"]=='select')
 				$new_fields[$section][$subsection][$param_name][0]["selected"] = $field_param;
 			else
-				$new_fields[$section][$subsection][$param_name]["value"] = $field_param;
+				$new_fields[$section][$subsection][$param_name]["value"]       = $field_param;
 		}
 
 		$status = (!count($this->error_field)) ? true : false;
-		return array($status, "fields"=> $new_fields, "request_fields"=>$request_fields);
+		return array($status, "fields"=>$new_fields, "request_fields"=>$request_fields);
 	}
 
 
@@ -131,14 +142,14 @@ class TabbedSettings
 	 */
 	function cbValidityField($validity, $param_name, $field_param)
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs_validations");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_validations");
 
 		if (function_exists("call_user_func_array")) { //this function exists in PHP 5.3.0
 			$total = count($validity);
-			$args = array($param_name,$field_param);
+			$args  = array($param_name,$field_param);
 			
 			for ($i=1; $i<$total; $i++) 
-				$args[] = $total==2 ? getparam($validity[$i]) : $validity[$i];
+				$args[] = ($total==2) ? getparam($validity[$i]) : $validity[$i];
 
 			//call a function ($validity[0] = the function name; and his args as an array)
 			$res = call_user_func_array($validity[0],$args);
@@ -147,9 +158,9 @@ class TabbedSettings
 			if (count($validity)>= 3) {
 				$param1 = $validity[1];
 				$param2 = $validity[2];
-				$param3 = isset($validity[3])? $validity[3] : false;
+				$param3 = (isset($validity[3])) ? $validity[3] : false;
 				//call to specified validity function
-				$res = $func_name($param_name, $field_param,$param1,$param2,$param3);
+				$res = $func_name($param_name, $field_param, $param1, $param2, $param3);
 			} else  {
 				if (!isset($validity[1])) 
 					$res = $func_name($param_name, $field_param);
@@ -162,7 +173,7 @@ class TabbedSettings
 
 	function validSelectField($field_name, $field_value, $select_array)
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs_validations");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_validations");
 
 		return check_valid_values_for_select_field($field_name, $field_value, $select_array);
 	}
@@ -173,17 +184,17 @@ class TabbedSettings
 	 */
 	function buildConfSections()
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
 		$structure = $this->getMenuStructure();
 
 		$fields_structure = array();
-		foreach($structure as $section => $data) {
-			$section = str_replace(" ", "_",strtolower($section));
+		foreach ($structure as $section=>$data) {
+			$section = str_replace(" ", "_", strtolower($section));
 			if (!$data)
-				$data = array(str_replace(" ", "_",strtolower($section)));
+				$data = array(str_replace(" ", "_", strtolower($section)));
 			foreach($data as $key => $subsection) {
-				$subsection = str_replace(" ", "_",strtolower($subsection));
+				$subsection = str_replace(" ", "_", strtolower($subsection));
 				if (!$subsection)
 					$subsection = $section;
 				$fields_structure[$section][] = $subsection;
@@ -197,15 +208,15 @@ class TabbedSettings
 	 */
 	function findSection($subsection)
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
 		$menu = $this->getMenuStructure();
-		$subsection = str_replace("_", " ",strtolower($subsection));
+		$subsection = str_replace("_", " ", strtolower($subsection));
 
 		foreach ($menu as $section=>$subsections) {
 			foreach ($subsections as $menu_subsection)
-				if ($subsection == strtolower($menu_subsection))
-					return str_replace("_", " ",strtolower($section));
+				if ($subsection==strtolower($menu_subsection))
+					return str_replace("_", " ", strtolower($section));
 		}
 
 		return;
@@ -226,23 +237,30 @@ class TabbedSettings
 
 		$fields = $this->applyRequestFields($response_fields, true);
 
-		foreach($structure as $m_section => $data) {
-			foreach($data as $key => $m_subsection) {
-				foreach($fields[$m_section][$m_subsection] as $param_name => $data) {
+		foreach ($structure as $m_section=>$data) {
+			foreach ($data as $key=>$m_subsection) {
+				foreach ($fields[$m_section][$m_subsection] as $param_name=>$data) {
+
 					$paramname = str_replace(".", "_", $param_name);
-					$val_req = getparam($paramname);
-					if (isset($data["display"]) && $data["display"] == 'checkbox') {
+					$val_req   = getparam($paramname);
+
+					if (isset($data["display"]) && $data["display"]=='checkbox') {
+
 						$value = $data["value"];
-						if ($data["value"] != "on" && $data["value"] != "off")
-							$value = $data["value"] == "1" ? "on" : "off";
-						$val_req = getparam($paramname) ? getparam($paramname) : "off";
-					} elseif (isset($data["display"]) && $data["display"] == 'select')
-						$value = isset($data[0]["selected"]) ? $data[0]["selected"] : "";	
+						if ($value!="on" && $value!="off")
+							$value = ($value=="1") ? "on" : "off";
+
+						$val_req = (getparam($paramname)) ? getparam($paramname) : "off";
+
+					} elseif (isset($data["display"]) && $data["display"]=='select')
+						$value = (isset($data[0]["selected"])) ? $data[0]["selected"] : "";
+
 					else
 						$value = isset($data["value"]) ? $data["value"] : "";
 
-					if ($value != $val_req) {
+					if ($value!=$val_req) {
 						$fields_modified = true;
+						// exit all 3 cicles if we discover we have fields that were modified
 						break 3;
 					}
 				}
@@ -258,12 +276,12 @@ class TabbedSettings
 	 */
 	function editForm($section, $subsection, $error=null, $error_fields=array())
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
-		$structure = $this->buildConfSections();
+		$structure       = $this->buildConfSections();
 
 		$response_fields = $this->getApiFields();
-		$default_fields = $this->getDefaultFields();
+		$default_fields  = $this->getDefaultFields();
 
 		//if the params are not set in ybts get the default values to be displayed
 		if (!$response_fields)  
@@ -272,17 +290,20 @@ class TabbedSettings
 			$fields = $this->applyRequestFields($response_fields);
 		
 		if (strlen($this->error)) {//get fields value from getparam
-			foreach($structure as $m_section => $params) {
-				foreach ($params as $key => $m_subsection) {
-					foreach($fields[$m_section][$m_subsection] as $param_name => $data) {
+			foreach ($structure as $m_section=>$params) {
+				foreach ($params as $key=>$m_subsection) {
+					foreach ($fields[$m_section][$m_subsection] as $param_name=>$data) {
 
 						$paramname = str_replace(".", "_", $param_name);
-						if (isset($data["display"]) && $data["display"] == "select") 
+						if (isset($data["display"]) && $data["display"]=="select") 
 							$fields[$m_section][$m_subsection][$param_name][0]["selected"] = getparam($paramname);
-						elseif (isset($data["display"]) && $data["display"] == "checkbox")
-							$fields[$m_section][$m_subsection][$param_name]["value"] = getparam($paramname)=="on"? "1" : "0";
+
+						elseif (isset($data["display"]) && $data["display"]=="checkbox")
+							$fields[$m_section][$m_subsection][$param_name]["value"] = (getparam($paramname)=="on") ? "1" : "0";
+
 						elseif (isset($data["display"]) && in_array($data["display"], array("message","objtitle")))
 							continue;
+
 						else
 							$fields[$m_section][$m_subsection][$param_name]["value"] = getparam($paramname);
 					}
@@ -293,12 +314,12 @@ class TabbedSettings
 		print "<div id=\"err_$subsection\">";
 		if (!isset($fields[$section][$subsection]))
 			print "Could not find parameters for section '$section', subsection'$subsection'";
-		error_handle($error, $fields[$section][$subsection],$error_fields);
+		error_handle($error, $fields[$section][$subsection], $error_fields);
 		print "</div>";
 		start_form();
-		foreach($structure as $m_section => $data) {
-			foreach($data as $key => $m_subsection) {
-				$style = $m_subsection == $subsection ? "" : "style='display:none;'";
+		foreach ($structure as $m_section=>$data) {
+			foreach ($data as $key=>$m_subsection) {
+				$style = ($m_subsection==$subsection) ? "" : "style='display:none;'";
 				
 				print "<div id=\"$m_subsection\" $style>";
 				if (!isset($fields[$m_section][$m_subsection])) {
@@ -306,7 +327,7 @@ class TabbedSettings
 					print "</div>";
 					continue;
 				}
-				editObject(null,$fields[$m_section][$m_subsection],"Set parameters values for section [$m_subsection] to sent to API.");
+				editObject(null, $fields[$m_section][$m_subsection], "Set parameters values for section [$m_subsection] to sent to API.");
 				print "</div>";
 			}
 		}
@@ -320,14 +341,13 @@ class TabbedSettings
 	 */
 	function sectionDescriptions()
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
-		$subsection = $this->current_subsection;
-
+		$subsection   = $this->current_subsection;
 		$section_desc = $this->getSectionsDescription();
 
-		foreach ($section_desc as $subsect => $desc) {
-			$style = (isset($section_desc[$subsection]) && $subsect == $subsection) ? "" : "style='display:none;'";
+		foreach ($section_desc as $subsect=>$desc) {
+			$style = (isset($section_desc[$subsection]) && $subsect==$subsection) ? "" : "style='display:none;'";
 			print "<div id=\"info_$subsect\" $style>". $desc ."</div>";
 		}
 	}
@@ -337,7 +357,7 @@ class TabbedSettings
 	 */
 	function tabbedMenu()
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
 		$current_section    = $this->current_section;
 		$current_subsection = $this->current_subsection;
@@ -345,7 +365,7 @@ class TabbedSettings
 
 		$i = 0;
 		foreach ($structure as $section_name=>$subsections) {
-			if ($i >= $this->open_tabs)
+			if ($i>=$this->open_tabs)
 				break;
 			$first_sections[] = strtolower($section_name);
 			$i++;
@@ -360,21 +380,21 @@ class TabbedSettings
 			var main_subsections = {};
 		<?php
 		$i = $j = 0; 
-		foreach ($structure as $j_section => $j_subsections) {
-			$j_section = str_replace(" ", "_",strtolower($j_section));
+		foreach ($structure as $j_section=>$j_subsections) {
+			$j_section = str_replace(" ", "_", strtolower($j_section));
 			if (count($j_subsections)) {
 				echo "sect_with_subsect[\"" . $j . "\"]='" . $j_section . "';";
-				echo "main_subsections[\"$j_section\"]='".str_replace(" ", "_",strtolower($j_subsections[0]))."';";
+				echo "main_subsections[\"$j_section\"]='" . str_replace(" ", "_",strtolower($j_subsections[0])) . "';";
 				$j++;
 			} else { 
 				echo "subsections[\"" . $i . "\"]='" . $j_section . "';";
-				echo "main_subsections[\"$j_section\"]='".$j_section."';";
+				echo "main_subsections[\"$j_section\"]='" . $j_section . "';";
 				$i++;
 			}
 
 			foreach ($j_subsections as $key => $j_subsection) {
 				if (isset($j_subsection)) {
-					$j_subsection = str_replace(" ", "_",strtolower($j_subsection));
+					$j_subsection = str_replace(" ", "_", strtolower($j_subsection));
 					echo "subsections[\"" . $i . "\"]='" . $j_subsection . "';";
 					$i++;
 				}  
@@ -392,18 +412,18 @@ class TabbedSettings
 		$total = count($structure);
 		$button_pos = $this->open_tabs-1; // position of Advanced/Basic button
 
-		foreach($structure as $menu => $submenu) {
+		foreach($structure as $menu=>$submenu) {
 
 			$menu_name = $menu;
-			$menu = str_replace(" ","_",strtolower($menu));
-			$subsect = str_replace(" ","_",strtolower($menu));
-			$css     = ($menu==$current_section) ? "open" : "close";
+			$menu      = str_replace(" ", "_", strtolower($menu));
+			$subsect   = str_replace(" ", "_", strtolower($menu));
+			$css       = ($menu==$current_section) ? "open" : "close";
 
 			print "<td class='menu_$css' id='section_$i' onclick=\"show_submenu_tabs($i, $total, '$subsect')\"";
 			// If section that should be opened is the first one then it's ok to hide advanced
 			if ($i>=$this->open_tabs && in_array($current_section,$first_sections))
 				print "style='display:none;'";
-			print ">". str_replace(" ","&nbsp;",$menu_name)."</td>";
+			print ">" . str_replace(" ","&nbsp;",$menu_name) . "</td>";
 
 			print "<td class='menu_space'>&nbsp;</td>";
 
@@ -436,9 +456,9 @@ class TabbedSettings
 		<?php
 		$css = "open";
 		$i = 0;
-		foreach($structure as $menu => $submenu) {
-			$menu = str_replace(" ","_",strtolower($menu));
-			if ($menu == $current_section) 
+		foreach ($structure as $menu=>$submenu) {
+			$menu = str_replace(" ", "_", strtolower($menu));
+			if ($menu==$current_section) 
 				$style = "";
 			else
 				$style = "style='display:none;'";
@@ -447,13 +467,13 @@ class TabbedSettings
 				continue;
 			}
 			print "<div class='submenu' id='submenu_$i' $style>";
-			foreach ($submenu as $key => $name) {
-				$link = str_replace(" ","_",strtolower($name));
-				if ($link == $current_subsection) 
+			foreach ($submenu as $key=>$name) {
+				$link = str_replace(" ", "_", strtolower($name));
+				if ($link==$current_subsection) 
 					$css = "open";
 				else
 					$css = "close";
-				print "<div class='submenu_$css' id=\"tab_$link\" onclick=\"show_submenu_fields('$link')\">".$name."</a></div>";
+				print "<div class='submenu_$css' id=\"tab_$link\" onclick=\"show_submenu_fields('$link')\">" . $name . "</a></div>";
 				print "<div class='submenu_space'>&nbsp;</div>";
 			}
 			$i++;
@@ -468,7 +488,7 @@ class TabbedSettings
 	// Main method to call to display editing form organized in tabs and subtabs
 	function displayTabbedSettings()
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
 		?>
 		<table class="page" cellspacing="0" cellpadding="0">
@@ -486,7 +506,7 @@ class TabbedSettings
 	// Apply form result and display form with succes message or error/warnings
 	function applyFormResults()
 	{
-		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+		Debug::func_start(__METHOD__, func_get_args(), "tabs");
 
 		global $module;
 
@@ -494,12 +514,12 @@ class TabbedSettings
 
 		$fields = array();
 		$this->warnings = "";
-		$this->error = "";
+		$this->error    = "";
 
 		$warning_fields = array();
 		$error_fields = array();
-		foreach ($structure as $m_section => $data) {
-			foreach($data as $key => $m_subsection) {
+		foreach ($structure as $m_section=>$data) {
+			foreach($data as $key=>$m_subsection) {
 
 				$this->error_field = array();
 				$this->warning_field = array();
@@ -507,20 +527,20 @@ class TabbedSettings
 				Debug::xdebug($module,"Preparing to validate subsection $m_subsection");
 				$res = $this->validateFields($m_section, $m_subsection);
 
-				foreach ($this->warning_field as $key => $err) {
+				foreach ($this->warning_field as $key=>$err) {
 					$this->warnings .=  $err[0]."<br/>";
 					$warning_fields[] =  $err[1];
 				}
-				foreach ($this->error_field as $key => $err) {
+				foreach ($this->error_field as $key=>$err) {
 					$this->error .=  $err[0]."<br/>";
 					$error_fields[] =  $err[1];
 				}
 
 				if (!$res[0]) {
-					$this->current_section = $m_section;
+					$this->current_section    = $m_section;
 					$this->current_subsection = $m_subsection;
-					$_SESSION["section"] = $m_section;
-					$_SESSION["subsection"] = $m_subsection;
+					$_SESSION["section"]      = $m_section;
+					$_SESSION["subsection"]   = $m_subsection;
 					break;
 				} else {
 					$fields = array_merge($fields, $res["request_fields"]);  
@@ -549,16 +569,16 @@ class TabbedSettings
 			<td class="content_form"><?php 
 			if (strlen($this->error)) {
 				if (strlen($this->warnings))
-					message("Warning! ".$this->warnings, "no");
+					message("Warning! " . $this->warnings, "no");
 				$this->editForm($this->current_section, $this->current_subsection, $this->error, $error_fields);
 			} else {
 				$message = (!$fields_modified) ? "Finished editing sections. Nothing to update." : "Finished applying configuration.";
-				print "<div id=\"notice_".$this->current_subsection."\">";
+				print "<div id=\"notice_" . $this->current_subsection . "\">";
 				message($message, "no");
 				print "</div>";
 
 				if (strlen($this->warnings))
-					message("Warning! ".$this->warnings,"no");
+					message("Warning! " . $this->warnings,"no");
 
 				$this->editForm($this->current_section, $this->current_subsection);
 			}
