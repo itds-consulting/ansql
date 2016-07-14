@@ -4290,5 +4290,68 @@ function format_comment($text)
 	return $text;
 }
 
+/**
+ * Build net addresses dropdown from received data
+ * The types of dropdown are 'select_without_non_selected' || 'select'
+ * @param $net_interfaces Array The interfaces with their associated IPs
+ * @param $select Bool The type of dropdown, if true 'select' otherwize 'select_without_non_selected'
+ * @param $dropdown_key String The name of the dropdown from FORM
+ * @param $type_ip String The type of IP: 'ipv4', 'ipv6', 'both' to be displayed in dropdown
+ * @return $interfaces_ips Array The format used to display the dropdown
+ */
+function build_net_addresses_dropdown($net_interfaces, $select=false, $type_ip = "both", $dropdown_key = "local")
+{
+	$interfaces_ips = "";
+
+	foreach ($net_interfaces["net_address"] as $key=>$interface) {
+		if (!$select)
+			$interfaces_ips[] = array($dropdown_key."_id"=>"__disabled", $dropdown_key=>"------".$interface["interface"]."------");
+
+		if ($type_ip == "both" || $type_ip == "ipv4") {
+			if (!isset($interface["ipv4"]))
+				continue;
+			foreach ($interface["ipv4"] as $k=>$ip) {
+				if (!$select)
+					$interfaces_ips[] = array($dropdown_key."_id"=>$ip["address"], $dropdown_key=>$ip["address"]);
+				else
+					$interfaces_ips[] = $ip["address"];
+			}
+		}
+		if ($type_ip == "both" || $type_ip == "ipv6") {
+			if (!isset($interface["ipv6"]))
+				continue;
+			foreach ($interface["ipv6"] as $k=>$ip) {
+				if (!$select)
+					$interfaces_ips[] = array($dropdown_key."_id"=>$ip["address"], $dropdown_key=>$ip["address"]);
+				else
+					$interfaces_ips[] = $ip["address"];
+			}
+		}
+	}
+	return $interfaces_ips;
+}
+
+/**
+ * Change the old key with a new key in an specific array used to build 
+ * a dropdown that is used to display:'select_without_non_selected'
+ */   
+function change_keys_dropdown($array, $old_key, $new_key)
+{
+	$old_keys = array($old_key."_id", $old_key);
+	$new_keys = array($new_key."_id", $new_key);
+
+	for ($i=0; $i<count($array); $i++) {
+		for ($j=0; $j<2; $j++) {
+			if (isset($array[$i][$old_keys[$j]])) {
+				$array[$i][$new_keys[$j]] = $array[$i][$old_keys[$j]];
+				if (is_array($array[$i]) && isset($array[$i][$old_keys[$j]]))
+					unset($array[$i][$old_keys[$j]]);
+			}
+		}
+	}
+
+	return $array;
+}
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
