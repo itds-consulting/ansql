@@ -19,6 +19,7 @@
 
 require_once("ansql/tabbed_settings.php");
 require_once("ansql/sdr_config/enb_fields.php");
+require_once("ansql/sdr_config/check_validity_fields_enb.php");
 
 class EnbTabbedSettings extends TabbedSettings
 {
@@ -227,18 +228,17 @@ class EnbTabbedSettings extends TabbedSettings
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
 		$parent_res = parent::validateFields($section, $subsection);
-		if (!$parent_res[0])
+		if (!$parent_res[0]) 
 			return $parent_res;
-
+		
 		$extra_validations = array(
-			/*array("mode"=>"roaming", "subsection"=>"roaming",      "cb"=>"validate_roaming_params"),
-			array("mode"=>"dataroam","subsection"=>"gprs_roaming", "cb"=>"validate_dataroam_params"),
-			array("mode"=>"dataroam","subsection"=>"roaming",      "cb"=>"validate_piece_roaming")*/
+			array("subsection"=>"gtp",  "cb"=>"validate_gtp_params"),
+			array("subsection"=>"mme",  "cb"=>"validate_mme_params")
 		);
 
 		foreach ($extra_validations as $validation) {
-			if (getparam("mode")==$validation["mode"] && $subsection==$validation["subsection"]) {
-				$res = $validation["cb"]();
+			if ($subsection==$validation["subsection"]) {
+				$res = call_user_func($validation["cb"]);
 				if (!$res[0])
 					$this->error_field[]   = array($res[1], $res[2][0]);
 				elseif ($res[0] && isset($res[1]))

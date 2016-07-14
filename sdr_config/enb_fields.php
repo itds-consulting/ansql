@@ -2,6 +2,7 @@
 
 function get_default_fields_enb()
 {
+	global $server_name, $request_protocol;
 
 $enodeb_params = array(
 /* "section" => array(
@@ -25,30 +26,35 @@ This value is concatinated with the PLMN ID to create
 a 44-bit global eNodeB identity.
 This value must be set; there is no default.",
 	"required" => true,
-    ),
+	"validity"=> array("check_valid_enodebid")
+	),
 
     "MCC" => array(
 	"comment" => "Mobile Country Code part of the PLMN Identity
 The same for every eNodeB in the network.",
-	"required" => true
+	"required" => true,
+	"validity" => array("check_field_validity", false, false,"^[0-9]{3}$")
     ),
 
     "MNC" => array(
 	"comment" => "Mobile Network Code part of the PLMN Identity
 The same for every eNodeB in the network.",
-	"required" => true
+	"required" => true,
+	"validity" => array("check_field_validity", false, false,"^[0-9]{2,3}$")
     ),
 
     "TAC" => array(
 	"comment" => "Tracking Area Code
 This value must be set; there is no default.",
-	"required" => true
+	"required" => true,
+	"validity" => array("check_field_validity", 0, 65535)
     ),
 
     "CellIdentity" => array(
 	"column_name" => "Cell Identity",
 	"comment" => "Must 7 digits in length
 Ex: 0000001",
+	"validity" => array("validate_cell_identity")
     ),
 
     "Name" => array(
@@ -56,14 +62,19 @@ Ex: 0000001",
 According to 3GPP 36.413, this parameter is optional; if it is set,
 the MME may use it as a human readable name of the eNB. See paragraphs
 8.7.3.2 and 9.1.8.4 of the above referenced specification.",
+	"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9]+$")
     ),
 
-    "Band" => array(
+	"Band" => array(
+	 array("selected"=> 1, 1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44),
+	"display" => "select",	
 	"comment" => 'Band selection ("freqBandIndicator" in SIB1)
 In most systems, this is set by the hardware type and should not be changed.'
     ),
 
     "Bandwidth" => array(
+	array("selected"=>25, 6,15,25,50,75,100),
+	"display" => "select",
 	"comment" => format_comment("
 Bandwidth is the LTE radio channel BW, in number of resource blocks
 (in the frequency domain). The allowed values and the corresponding
@@ -98,7 +109,8 @@ EARFCN 3100, 2655.0 MHz, Band 7 ("2600")
 EARFCN 5790, 740.0 MHz, Band 17 ("700 b")
 EARFCN 6300, 806.0 MHz, Band 20 ("800 DD")
 Special ISM EARFCN extension: 2400 MHz @ EARFCN 50000 offset; valid range: 50000 - 50959'),
-	"required" => true
+	"required" => true,
+	"validity" => array("validate_earfcn_band", "Band"),
     ),
 
     "__" => array(
@@ -113,8 +125,10 @@ The combination 3*NID1+NID2 should never be the same for cells with overlapping 
 
     "NID1" => array(
 	"required" => true,
-	"comment" => "NID1 is between 0 and 167",
+	"comment"  => "NID1 is between 0 and 167",
 	"required" => true,
+	"validity" => array("check_field_validity", 0, 167)
+
     ),
     "NID2" => array(
 	array(1, 2, 3),
@@ -127,13 +141,15 @@ The combination 3*NID1+NID2 should never be the same for cells with overlapping 
 	"comment" => 'Root Sequence Index ("rootSequenceIndex" in SIB2)
 Cells with overlapping coverage should have different values.
 Allowed values 0..837',
+	"validaty" => array("check_field_validity", 0, 837)
     ),
 
     "Prach.FreqOffset" => array(
 	"value" => 9,
 	"comment" => 'Frequency Offset ("prach_ConfigIndex" in SIB2)
 Cells with overlapping coverage should have different values.
-Allowed values 0..94'
+Allowed values 0..94',
+	"validity" => array("check_field_validity", 0, 94)
     ),
 
     "Pusch.RefSigGroup" => array(
@@ -146,7 +162,8 @@ Cells with overlapping coverage should have different values. Default 2.'
     "OutputLevel" => array(
 	"value" => "40",
 	"comment" => "Settable output level, dBm
-Valid range for a SatSite 142 is 0..43"
+Valid range for a SatSite 142 is 0..43",
+	"validity" => array("check_field_validity",0,43)
     ),
 
     "CrestFactor" => array(
@@ -249,12 +266,17 @@ Srb2.rlcPollByte = 0
 
 "gtp" => array(
 
+	"error_get_network" => array(
+		"display" => "message",
+		"column_name"=> "",
+	    "value" => ""
+	),	
     "addr4" => array(
 	    "comment" => "IPv4 address to use with the eNodeB tunnel end",
 	),
 
     "addr6" => array(
-	    "comment" => "IPv6 address to use with the eNodeB tunnel end"
+		"comment" => "IPv6 address to use with the eNodeB tunnel end",
 	),
 ),
 
@@ -267,13 +289,13 @@ Srb2.rlcPollByte = 0
 
     "mme_address" => array(
 	"column_name" => "Address",
-	"comment" => "Ex: 192.168.56.62"
+	"comment" => "Ex: 192.168.56.62",
     ),
     "local" => array(
-	"comment" => "Ex: 192.168.56.1"
+	"comment" => "Ex: 192.168.56.1",
     ),
     "streams" => array(
-	"comment" => "Ex: 5"
+	"comment" => "Ex: 5",
     ),
     "dscp" => array(
 	"column_name" => "DSCP",
@@ -287,17 +309,17 @@ Srb2.rlcPollByte = 0
     "mme_address_2" => array(
 	"column_name" => "Address",
 	"comment" => "Ex: 192.168.56.62",
-	"triggered_by" => "2"
+	"triggered_by" => "2",
     ),
     "local_2" => array(
 	"column_name" => "Local",
 	"comment" => "Ex: 192.168.56.1",
-	"triggered_by" => "2"
+	"triggered_by" => "2",
     ),
     "streams_2" => array(
 	"column_name" => "Streams",
 	"comment" => "Ex: 5",
-	"triggered_by" => "2"
+	"triggered_by" => "2",
     ),
     "dscp_2" => array(
 	"column_name" => "DSCP",
@@ -311,17 +333,17 @@ Srb2.rlcPollByte = 0
     "mme_address_3" => array(
 	"column_name" => "Address",
 	"comment" => "Ex: 192.168.56.62",
-	"triggered_by" => "3"
+	"triggered_by" => "3",
     ),
     "local_3" => array(
 	"column_name" => "Local",
 	"comment" => "Ex: 192.168.56.1",
-	"triggered_by" => "3"
+	"triggered_by" => "3",
     ),
     "streams_3" => array(
 	"column_name" => "Streams",
 	"comment" => "Ex: 5",
-	"triggered_by" => "3"
+	"triggered_by" => "3",
     ),
     "dscp_3" => array(
 	"column_name" => "DSCP",
@@ -335,17 +357,17 @@ Srb2.rlcPollByte = 0
     "mme_address_4" => array(
 	"column_name" => "Address",
 	"comment" => "Ex: 192.168.56.62",
-	"triggered_by" => "4"
+	"triggered_by" => "4",
     ),
     "local_4" => array(
 	"column_name" => "Local",
 	"comment" => "Ex: 192.168.56.1",
-	"triggered_by" => "4"
+	"triggered_by" => "4",
     ),
     "streams_4" => array(
 	"column_name" => "Streams",
 	"comment" => "Ex: 5",
-	"triggered_by" => "4"
+	"triggered_by" => "4",
     ),
     "dscp_4" => array(
 	"column_name" => "DSCP",
@@ -359,17 +381,17 @@ Srb2.rlcPollByte = 0
     "mme_address_5" => array(
 	"column_name" => "Address",
 	"comment" => "Ex: 192.168.56.62",
-	"triggered_by" => "5"
+	"triggered_by" => "5",
     ),
     "local_5" => array(
 	"column_name" => "Local",
 	"comment" => "Ex: 192.168.56.1",
-	"triggered_by" => "5"
+	"triggered_by" => "5",
     ),
     "streams_5" => array(
 	"column_name" => "Streams",
 	"comment" => "Ex: 5",
-	"triggered_by" => "5"
+	"triggered_by" => "5",
     ),
     "dscp_5" => array(
 	"column_name" => "DSCP",
@@ -428,7 +450,8 @@ Allowed range -70 .. -22. Default -22.'
 
     "GridLength" => array(
 	"value" => 8,
-	"comment" => "The length of the resource grid circular buffer in subframes. Default 8"
+	"comment" => "The length of the resource grid circular buffer in subframes. Default 8",
+	"validity" => array("check_field_validity", 1, 16)
     ),
 
     "LeadModulation" => array(
@@ -437,6 +460,7 @@ Allowed range -70 .. -22. Default -22.'
 Given in OFDM symbol periods
 Minimum 2 symbols, maximum 2 subframes, default 1 subframe.
 Default value: 14",
+	"validity" => array("check_field_validity", 2, 28)
     ),
 
     "LeadScheduling" => array(
@@ -479,7 +503,7 @@ Default value: 14",
     ),
 
     "PcchMcs" => array(
-	array(2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
+	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
 	"display" => "select",
 	"comment" => "PCCH MCS"
     ),
@@ -491,7 +515,7 @@ Default value: 14",
     ),
 
     "RarMcs" => array(
-	array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
+	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
 	"display" => "select",
 	"comment" => "RAR MCS"
     ), 
@@ -516,14 +540,16 @@ Default value: 14",
 
     "UplinkRbs" => array(
 	"comment" => "Integer. The number of uplink resource blocks.<br/>
-Note! UpinkRbs + UplinkRbStartIndex must be less than the total number of RBs
-specified in the system bandwidth configuration"
+Note! UplinkRbs + UplinkRbStartIndex must be less than the total number of RBs
+specified in the system bandwidth configuration",
+	"validity" => array("check_uplink_rbs", "UplinkRbStartIndex", "Bandwidth")
     ),
 
     "UplinkRbStartIndex" => array(
 	"comment" => "Integer. The index if the first RB that can be scheduled for uplink.<br/>
 Note! UpinkRbs + UplinkRbStartIndex must be less than the total number of RBs
-specified in the system bandwidth configuration"
+specified in the system bandwidth configuration",
+	"validity" => array("check_valid_integer")
     ),
 
     "DistributedVrbs" => array(
@@ -532,7 +558,8 @@ specified in the system bandwidth configuration"
     ),
 
     "PrachResponseDelay" => array(
-	"comment" => "Integer. Response delay for PRACH events in subrames."
+	"comment" => "Integer. Response delay for PRACH events in subrames.",
+	"validity" => array("check_valid_integer")
     ),
 ),
 
@@ -540,12 +567,13 @@ specified in the system bandwidth configuration"
 
     "reportingPeriod" => array(
 	"value" => "15",
-	"comment" => 'Measurement reporting period in minutes. Default 15'
+	"comment" => 'Measurement reporting period in minutes. Default 15',
+	"validity" => array("check_field_validity",1,14400)
     ),
 
-    "reportingPath" => array(
+    "reportingPath" => array( 
 	"comment" => 'Path to store XML measurement file for FTP access.
-If this is not set, no file is written.'
+If this is not set, no file is written.',
     ),
 ),
 
@@ -555,14 +583,16 @@ If this is not set, no file is written.'
 	"value" => "43",
 	"comment" => 'Radio maximum output power, dBm
 Set by calibration and should not be changed.
-Default value for SatSite 142 is 43 dBm'
+Default value for SatSite 142 is 43 dBm',
+	"validity" => array("check_field_validity",false,false,false,"43")
     ),
 
     "ReceiverReference" => array(
 	"value" => "-20",
 	"comment" => "Receiver saturation point at full gain, referenced to the antenna port.
 Set by calibration and should not be changed.
-Default value for SatSite 142 is -20 dBm."
+Default value for SatSite 142 is -20 dBm.",
+	"validity" => array("check_field_validity",false,false,false,"-20")
     ),
 ),
 
@@ -576,7 +606,8 @@ Default value for SatSite 142 is -20 dBm."
     'Pdsch.RefPower' => array(
 	"value" => -20,
 	"comment" => 'Reference Signal Power in dB ("referenceSignalPower" in SIB2)
-Allowed values -60 .. 50. Default -20.'
+Allowed values -60 .. 50. Default -20.',
+	"validity" => array("check_field_validity",-60,50)
     ),
 ),
 
@@ -610,7 +641,8 @@ Allowed values -60 .. 50. Default -20.'
 	"comment" => 'Bandwidth available for use by PUCCH formats 2/2a/2b, in RBs ("nRB_CQI" in SIB2)
 Allowed values 0..98, but must not exceed number of RBs in system bandwidth
 Larger values support larger number of connect UEs at the expense of uplink BW.
-Default 3.'
+Default 3.',
+	"validity" => array("check_field_validity",0,98)
     ),
 
     "Pucch.CsAn" => array(
@@ -625,7 +657,8 @@ Default 3'
 	"value" => 45,
 	"column_name" => "Resource allocation offset",
 	"comment" => 'Resource allocation offset parameter ("n1PUCCH_AN" in SIB2)
-Allowed values 0..2047. Default 45'
+Allowed values 0..2047. Default 45',
+	"validity" => array("check_field_validity",0,2047)
     )
 ),
 "prach" => array(
@@ -646,10 +679,10 @@ Larger values reduce PRACH contention at the expense of computational load.'
     ),
 
     "Prach.InitialTarget" => array(
-	"value" => "-90",
+	array("-90","-92", "-94", "-96", "-98", "-100", "-102", "-104", "-106", "-108", "-110", "-112", "-114", "-116", "-118", "-120", "selected" => "-90"),
 	"column_name" => 'Initial RSSI Target',
 	"comment" => 'Initial RSSI Target, dBm ("preambleInitialReceivedTargetPower" in SIB2)
-Allows values multiples of 2, -90 .. -120. Default -90.'
+Allows values multiples of 2, -90 .. -120. Default -90.',
     ),
 
     "Prach.TransMax" => array(
@@ -676,7 +709,8 @@ but we only support value 10.'
     "Prach.ConfigIndex" => array(
 	"value" => 14,
 	"comment" => 'Configuration Index ("prach_ConfigIndex" in SIB2)
-Allowed values 0..63'
+Allowed values 0..63',
+	"validity" => array("check_field_validity",0,63)
     ),
 
     "Prach.ZeroCorr" => array(
@@ -754,22 +788,27 @@ Leave it empty to try any installed driver',
 
     "address" => array(
 	"comment"=> "Example: 127.0.0.1",
+	"validity"=> array("check_valid_ipaddress")
     ),
     
     "port" => array(
 	"comment" => "Example: 9350",
+	"validity"=> array("check_valid_integer") 
     ),
 
     "pci" => array(
 	"comment" => "Example: 0",
+	"validity"=> array("check_valid_integer")
     ),
 
     "earfcn" => array(
 	"comment" => "Example: 0",
+	"validity"=> array("check_valid_integer")
     ),
 
     "broadcast" => array( 
 	"comment" => "Example: 127.0.0.1:9351, 127.0.0.1:9352",
+	"validity"=> array("check_broadcast")
     ),
 
     "max_pdu" => array(
@@ -781,14 +820,16 @@ Leave it empty to try any installed driver',
 
     "AddrSubnet" => array(
 	"comment" => "IPv4 subnet for allocating IP addresses to TUN interfaces
-Ex: 10.167.227.%u"
+Ex: 10.167.227.%u",
+	"validity" => array("check_field_validity", false, false, "^([0-9]{1,3}\.){3}%u$")
     ),
 
     "AuxRoutingTable" => array(
 	"comment" => "Auxiliary routing table that is used for configuring TUN interfaces
 routes. Can be the table number or name (if it's configured in
 /etc/iproute2/rt_tables)
-Ex: 131"
+Ex: 131",
+	"validity" => array("check_auxrouting_table")
     ),
 
     "SymmetricMacCapture" => array(
@@ -942,7 +983,46 @@ Default is yes for all.
 
 );
 
+
+	if (isset($_SESSION["enb_fields"]["interfaces_ips"])) {
+		$interfaces_ips = $_SESSION["enb_fields"]["interfaces_ips"]["both"];
+		$ipv4 = $_SESSION["enb_fields"]["interfaces_ips"]["ipv4_gtp"];
+		$ipv6 = $_SESSION["enb_fields"]["interfaces_ips"]["ipv6_gtp"];
+
+	} else {
+		$url = "$request_protocol://$server_name/api.php";
+		$out = array("request"=>"get_net_address","node"=>"satsite","params"=>"net_address");
+		$res = make_request($out, $url);
+
+		if ($res["code"]=="0") {
+
+			$interfaces_ips = build_net_addresses_dropdown($res, true);
+			$_SESSION["enb_fields"]["interfaces_ips"]["both"] = $interfaces_ips;
+
+			$ipv4 = build_net_addresses_dropdown($res, true, "ipv4");
+			$_SESSION["enb_fields"]["interfaces_ips"]["ipv4_gtp"] = $ipv4;
+			$ipv6 = build_net_addresses_dropdown($res, true, "ipv6");
+			$_SESSION["enb_fields"]["interfaces_ips"]["ipv6_gtp"] = $ipv6;
+
+			// keep the error message in session if request 'get_net_address' failed
+		} else {
+			$_SESSION["enb_fields"]["error_get_net_interfaces"] = "[".$res["code"]."] ".$res["message"];
+		}
+	}						
+
+	if (isset($_SESSION["enb_fields"]["error_get_net_interfaces"])) {
+		$enodeb_params["core"]["gtp"]["error_get_network"] = array("display"=>"message", "value"=> "<div class=\"notice\"><font class=\"error\">Error!! </font><font style=\"font-weight:bold;\">".$_SESSION["enb_fields"]["error_get_net_interfaces"]. " Please fix the error before setting the addresses.</font></div>");
+	} else {
+		$enodeb_params["core"]["gtp"]["addr4"] = array($ipv4,"display"=>"select", "comment" => "IPv4 address to use with the eNodeB tunnel end");
+		$enodeb_params["core"]["gtp"]["addr6"] = array($ipv6,"display"=>"select", "comment" => "IPv6 address to use with the eNodeB tunnel end");
+
+		$enodeb_params["core"]["mme"]["local"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1");
+		$enodeb_params["core"]["mme"]["local_2"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1","column_name"=>"Local", "triggered_by" => "2");
+		$enodeb_params["core"]["mme"]["local_3"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1", "column_name"=>"Local", "triggered_by" => "3");
+		$enodeb_params["core"]["mme"]["local_4"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1", "column_name"=>"Local", "triggered_by" => "4");
+		$enodeb_params["core"]["mme"]["local_5"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1", "column_name"=>"Local", "triggered_by" => "5");
+	}
+
 	return $enodeb_params;
 }
-
 ?>
