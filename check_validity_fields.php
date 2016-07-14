@@ -34,6 +34,14 @@ function is_valid_number($field_value)
 	return true;
 }
 
+function check_valid_integer($field_name, $field_value)
+{
+	$field_value = (int) $field_value;
+	if (filter_var($field_value, FILTER_VALIDATE_INT) === false)
+		return array(false, "Field '".$field_name."' is not a valid integer: $field_value.");	
+	return array(true);
+}
+
 /**
  * validate a field value to be in a given array 
  * [Used for SELECT FIELDS]
@@ -60,18 +68,23 @@ function check_valid_values_for_select_field($field_name, $field_value, $select_
  * Test field to be in an interval [min,max] or
  * compare the field against a given regex
  */
-function check_field_validity($field_name, $field_value, $min=false, $max=false, $regex=false)
+function check_field_validity($field_name, $field_value, $min=false, $max=false, $regex=false, $fixed=false)
 {
 	if ($min !== false && $max !== false)  {
 		if (!is_valid_number($field_value))		
-			return array(false, "Field $field_name is not a valid number: $field_value.");
+			return array(false, "Field '".$field_name."' is not a valid number: $field_value.");
 		if ((int)$field_value<$min || (int)$field_value>$max) 
-			return array(false, "Field $field_name is not valid. It has to be smaller then $max and greater then $min.");
+			return array(false, "Field '".$field_name."' is not valid. It has to be smaller then $max and greater then $min.");
 	} 
 
 	if ($regex) {
 		if (!filter_var($field_value, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/".$regex."/"))))
-			return array(false, "Field $field_name is not valid.");
+			return array(false, "Field '".$field_name."' is not valid.");
+	}
+
+	if ($fixed) {
+		if ($field_value != $fixed)
+			return array(false, "Field '". $field_name ."' is not valid. It must be: ".$fixed);
 	}
 
 	return array(true);
