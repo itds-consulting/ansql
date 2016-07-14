@@ -97,7 +97,7 @@ abstract class TabbedSettings
 			}
 
 			$res = array(true);
-			if (isset($data["display"]) && $data["display"]=="select" && !isset($data["validity"])) 
+			if (isset($data["display"]) && $data["display"]=="select" && !isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
 				$res = $this->validSelectField($param_name, $field_param, $data[0]);
 			elseif (isset($data["validity"])) 
 				$res = $this->cbValidityField($data["validity"], $param_name, $field_param);
@@ -412,7 +412,7 @@ abstract class TabbedSettings
 		$total = count($structure);
 		$button_pos = $this->open_tabs-1; // position of Advanced/Basic button
 
-		foreach($structure as $menu=>$submenu) {
+		foreach ($structure as $menu=>$submenu) {
 
 			$menu_name = $menu;
 			$menu      = str_replace(" ", "_", strtolower($menu));
