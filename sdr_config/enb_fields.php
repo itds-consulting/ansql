@@ -983,13 +983,15 @@ Default is yes for all.
 
 );
 
-
 	if (isset($_SESSION["enb_fields"]["interfaces_ips"])) {
 		$interfaces_ips = $_SESSION["enb_fields"]["interfaces_ips"]["both"];
 		$ipv4 = $_SESSION["enb_fields"]["interfaces_ips"]["ipv4_gtp"];
 		$ipv6 = $_SESSION["enb_fields"]["interfaces_ips"]["ipv6_gtp"];
 
 	} else {
+		if (!$request_protocol)
+			$request_protocol = "http";
+
 		$url = "$request_protocol://$server_name/api.php";
 		$out = array("request"=>"get_net_address","node"=>"satsite","params"=>"net_address");
 		$res = make_request($out, $url);
