@@ -773,6 +773,16 @@ function toggle_menu()
 		i++;
 	}
 	set_html_obj("menu_toggle",toggle_content);
+
+	if (subsections_advanced.length) {
+		for (var i=0; i<subsections_advanced.length; i++) {
+			if (toggle_content == "Advanced >>") {
+				document.getElementById('tab_'+subsections_advanced[i]).style.display = "none";
+			} else {
+				document.getElementById('tab_'+subsections_advanced[i]).style.display = "table-cell";
+			}
+		}
+	}
 }
 
 /**
