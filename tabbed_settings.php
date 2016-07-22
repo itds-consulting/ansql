@@ -26,11 +26,13 @@ require_once("check_validity_fields.php");
  */
 abstract class TabbedSettings 
 {
-	protected $error              = "";
-	protected $warnings           = "";
-	protected $current_section    = "";
-	protected $current_subsection = "";
-	protected $open_tabs          = 1;
+	protected $error               = "";
+	protected $warnings            = "";
+	protected $current_section     = "";
+	protected $current_subsection  = "";
+	protected $open_tabs           = 1;
+	protected $subsections_advanced = array();
+	protected $title;
 
 	function __construct()
 	{
@@ -155,7 +157,7 @@ abstract class TabbedSettings
 			$res = call_user_func_array($validity[0],$args);
 		} else {
 			$func_name = $validity[0];
-			if (count($validity)>= 3) {
+			if (count($validity)>=3) {
 				$param1 = $validity[1];
 				$param2 = $validity[2];
 				$param3 = (isset($validity[3])) ? $validity[3] : false;
@@ -193,7 +195,7 @@ abstract class TabbedSettings
 			$section = str_replace(" ", "_", strtolower($section));
 			if (!$data)
 				$data = array(str_replace(" ", "_", strtolower($section)));
-			foreach($data as $key => $subsection) {
+			foreach ($data as $key=>$subsection) {
 				$subsection = str_replace(" ", "_", strtolower($subsection));
 				if (!$subsection)
 					$subsection = $section;
@@ -295,8 +297,13 @@ abstract class TabbedSettings
 					foreach ($fields[$m_section][$m_subsection] as $param_name=>$data) {
 
 						$paramname = str_replace(".", "_", $param_name);
-						if (isset($data["display"]) && $data["display"]=="select") 
+						if (isset($data["display"]) && $data["display"]=="select") {
 							$fields[$m_section][$m_subsection][$param_name][0]["selected"] = getparam($paramname);
+							if (getparam($paramname)=="Custom") {
+								$fields[$m_section][$m_subsection]["custom_".$param_name]["value"] = getparam("custom_".$param_name);
+								$fields[$m_section][$m_subsection]["custom_".$param_name]["column_name"] = "";
+							}
+						}
 
 						elseif (isset($data["display"]) && $data["display"]=="checkbox")
 							$fields[$m_section][$m_subsection][$param_name]["value"] = (getparam($paramname)=="on") ? "1" : "0";
@@ -378,7 +385,13 @@ abstract class TabbedSettings
 			var subsections = new Array();
 			var sect_with_subsect = new Array();
 			var main_subsections = {};
-		<?php
+			var subsections_advanced = new Array();
+<?php
+
+		foreach ($this->subsections_advanced as $k=>$subsect_name) {
+			$subsect_name = str_replace(" ", "_", strtolower($subsect_name));
+			echo "subsections_advanced[" . $k++ . "]=\"" . $subsect_name . "\";";
+		}
 		$i = $j = 0; 
 		foreach ($structure as $j_section=>$j_subsections) {
 			$j_section = str_replace(" ", "_", strtolower($j_section));
@@ -392,7 +405,7 @@ abstract class TabbedSettings
 				$i++;
 			}
 
-			foreach ($j_subsections as $key => $j_subsection) {
+			foreach ($j_subsections as $key=>$j_subsection) {
 				if (isset($j_subsection)) {
 					$j_subsection = str_replace(" ", "_", strtolower($j_subsection));
 					echo "subsections[\"" . $i . "\"]='" . $j_subsection . "';";
@@ -453,7 +466,8 @@ abstract class TabbedSettings
 		    <!-- Create SUBMENU -->
 		<table class="submenu" cellspacing="0" cellpadding="0">
 		<tr> <td>
-		<?php
+<?php
+		$subsections_advanced = $this->subsections_advanced;
 		$css = "open";
 		$i = 0;
 		foreach ($structure as $menu=>$submenu) {
@@ -467,13 +481,18 @@ abstract class TabbedSettings
 				continue;
 			}
 			print "<div class='submenu' id='submenu_$i' $style>";
+
 			foreach ($submenu as $key=>$name) {
 				$link = str_replace(" ", "_", strtolower($name));
-				if ($link==$current_subsection) 
+				if ($link==$current_subsection) {
 					$css = "open";
-				else
+				} else
 					$css = "close";
-				print "<div class='submenu_$css' id=\"tab_$link\" onclick=\"show_submenu_fields('$link')\">" . $name . "</a></div>";
+				$hide_subsect = "";
+				if (in_array($name, $subsections_advanced) && (in_array($current_section, $first_sections) && $css=="close"))
+					$hide_subsect = "style='display:none;'";
+
+				print "<div class='submenu_$css' id=\"tab_$link\" $hide_subsect onclick=\"show_submenu_fields('$link')\">" . $name . "</a></div>";
 				print "<div class='submenu_space'>&nbsp;</div>";
 			}
 			$i++;
@@ -519,7 +538,7 @@ abstract class TabbedSettings
 		$warning_fields = array();
 		$error_fields = array();
 		foreach ($structure as $m_section=>$data) {
-			foreach($data as $key=>$m_subsection) {
+			foreach ($data as $key=>$m_subsection) {
 
 				$this->error_field = array();
 				$this->warning_field = array();
@@ -539,8 +558,10 @@ abstract class TabbedSettings
 				if (!$res[0]) {
 					$this->current_section    = $m_section;
 					$this->current_subsection = $m_subsection;
-					$_SESSION["section"]      = $m_section;
-					$_SESSION["subsection"]   = $m_subsection;
+					if (!strlen($this->title))
+						Debug::trigger_report("critical", "Implementation error must set title in class that extends TabbedSettings.");	
+					$_SESSION[$this->title]["section"]      = $m_section;
+					$_SESSION[$this->title]["subsection"]   = $m_subsection;
 					break;
 				} else {
 					$fields = array_merge($fields, $res["request_fields"]);  
