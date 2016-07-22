@@ -26,31 +26,54 @@ class BtsTabbedSettings extends TabbedSettings
 {
 	protected $allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg", "RadioFrequencyOffset", "TxAttenOffset", "Radio.RxGain", "my_sip", "reg_sip", "nodes_sip", "gstn_location", "neighbors", "gprs_nnsf_bits", "nnsf_dns", "network_map", "local_breakout" );
 
-	function __construct()
+	protected $default_section    = "radio";
+	protected $default_subsection = "gsm";
+	protected $title = "BTS";
+
+	function __construct($open_tabs=2)
 	{
-		$this->current_section = "GSM";
-		$this->current_subsection = "gsm";
+		$this->current_section = $this->default_section;
+		$this->current_subsection = $this->default_subsection;
+		$this->open_tabs = $open_tabs;
+		$this->subsections_advanced = array("GSM advanced", "GPRS advanced", "Control");
 	}
 
 	function getMenuStructure()
 	{
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
 		//The key is the MENU alias the sections from $fields 
 		//and for each menu is an array that has the submenu data with subsections 
+
 		$structure = array(
-			"GSM" => array("GSM","GSM Advanced"),
-			"GPRS" => array("GPRS", "GPRS Advanced", "SGSN", "GGSN"),
-			"Control" => array(),
-			"Transceiver" => array(),
-			"Tapping" => array(),
-			"Test" => array(),
-			"YBTS" => array("YBTS","Security","Roaming","Handover", "GPRS Roaming")
+			"Radio" => array("GSM","GPRS"/*TBI: ,"Bearers"*/, "GSM advanced", "GPRS advanced", "Control"),
+			"Core" => array(),
+			"System" => array("YBTS", "Security", "Transceiver"),
+			"Test" => array("Test", "Tapping")
 		);
+
+		if (!isset($_SESSION["sdr_mode"])) {
+			Debug::xdebug("tabs_bts", "Could not set 'Core' in structure menu, working mode not set.");
+			return $structure;
+		}
+
+		$sdr_mode = $_SESSION["sdr_mode"];
+
+		if ($sdr_mode == "dataroam") {
+			$structure["Core"] = array("Roaming", "GPRS roaming", "Handover");
+		}
+		elseif ($sdr_mode == "roaming") {
+			$structure["Core"] = array("Roaming", "Handover");
+		}
+		else
+			$structure["Core"] = array("SGSN", "GGSN");
 
 		return $structure;
 	}
 
 	function getSectionsDescription()
 	{
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
+
 		return array(
 			"gsm" => "Section [gsm] controls basic GSM operation.
 			You MUST set and review all parameters here before starting the BTS!",
@@ -77,9 +100,13 @@ class BtsTabbedSettings extends TabbedSettings
 
 	function getApiFields()
 	{
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
+
 		$response_fields = request_api(array(), "get_bts_node", "node");
-		if (!isset($response_fields["ybts"]))
+		if (!isset($response_fields["ybts"])) {
+			Debug::xdebug("tabs_bts", "Could not retrieve ybts fields in " . __METHOD__); 
 			return null;
+		}
 
 		return $response_fields["ybts"];
 	}
@@ -88,7 +115,7 @@ class BtsTabbedSettings extends TabbedSettings
 	{
 		return get_default_fields_ybts();
 	}
-    
+
 	/**
 	 * Build form fields by applying response fields over default fields
 	 * @param $request_fields Array. Fields retrived using getApiFields
@@ -97,21 +124,23 @@ class BtsTabbedSettings extends TabbedSettings
 	 */
 	function applyRequestFields($request_fields=null,$exists_in_response = false)
 	{
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
+
 		$structure = $this->buildConfSections(); //get_fields_structure_from_menu();
 		$fields = $this->getDefaultFields();
 
 		if (!$request_fields)
 			return $fields;
 
-		foreach($structure as $section => $data) {
-			foreach($data as $key => $subsection) {
+		foreach ($structure as $section=>$data) {
+			foreach ($data as $key=>$subsection) {
 				if ($exists_in_response) {
 					if (!isset($request_fields[$subsection])) {
 						$fields["not_in_response"] = true;
 						break 2;
 					}
 
-					foreach($fields[$section][$subsection] as $paramname => $data_fields) {
+					foreach ($fields[$section][$subsection] as $paramname=>$data_fields) {
 						$allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg");
 						if (!in_array($paramname, $allow_empty_params) && !isset($request_fields[$subsection][$paramname])) {
 							$fields["not_in_response"] = true;	
@@ -123,10 +152,10 @@ class BtsTabbedSettings extends TabbedSettings
 		}
 
 		$network_map = "";
-		foreach($structure as $section => $data) {
-			foreach($data as $key => $subsection) {
+		foreach ($structure as $section=>$data) {
+			foreach ($data as $key=>$subsection) {
 				if (isset($request_fields[$subsection])) {
-					foreach($request_fields[$subsection] as $param => $data) {
+					foreach ($request_fields[$subsection] as $param=>$data) {
 						if (!isset($fields[$section][$subsection]))
 							continue;
 						if ($subsection=="gprs_roaming" && Numerify($param)!="NULL") {
@@ -144,6 +173,15 @@ class BtsTabbedSettings extends TabbedSettings
 							if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
 								$data = "Factory calibrated";
 							$fields[$section][$subsection][$param][0]["selected"] = $data;
+
+							if ($subsection == "roaming") {
+								if (isset($_SESSION["ybts_fields"]["interfaces_ips"]["both"]) && 
+									!in_array($data,$_SESSION["ybts_fields"]["interfaces_ips"]["both"])) {
+									$fields[$section][$subsection][$param][0]["selected"] = "Custom";
+									$fields[$section][$subsection]["custom_".$param]["value"] = $data;
+									$fields[$section][$subsection]["custom_".$param]["column_name"] = "";
+								}
+							}
 						} elseif ($fields[$section][$subsection][$param]["display"] == "checkbox") 
 							$fields[$section][$subsection][$param]["value"] = ($data == "yes" || $data=="on" || $data=="1")  ? "on" : "off";
 						else 
@@ -153,17 +191,19 @@ class BtsTabbedSettings extends TabbedSettings
 			}
 		}
 		if (strlen($network_map)) 
-			$fields["YBTS"]["gprs_roaming"]["network_map"]["value"] = $network_map;
+			$fields["core"]["gprs_roaming"]["network_map"]["value"] = $network_map;
 
-		if (isset($fields['GSM']['gsm']['Radio.Band'][0]["selected"])) {
-			$particle = $fields['GSM']['gsm']['Radio.Band'][0]["selected"];
-			$fields['GSM']['gsm']["Radio.C0"][0]["selected"] = "$particle-".$fields['GSM']['gsm']["Radio.C0"][0]["selected"];
+		if (isset($fields['radio']['gsm']['Radio.Band'][0]["selected"])) {
+			$particle = $fields['radio']['gsm']['Radio.Band'][0]["selected"];
+			$fields['radio']['gsm']["Radio.C0"][0]["selected"] = "$particle-".$fields['radio']['gsm']["Radio.C0"][0]["selected"];
 		}
 		return $fields;
 	}
 
 	function validateFields($section, $subsection)
 	{
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
+
 		$parent_res = parent::validateFields($section, $subsection);
 		if (!$parent_res[0])
 			return $parent_res;
@@ -189,52 +229,62 @@ class BtsTabbedSettings extends TabbedSettings
 		return $parent_res;
 	}
 
-	function storeFormResult($fields)
+	// Send API request to save BTS configuration
+	// Break error message in case of error and mark section/subsection tobe opened 
+	function storeFormResult(array $fields)
 	{
 		//if no errors encountered on validate data fields then send API request
+		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
 
 		$c0 = $fields['gsm']['Radio.C0'];
 		$c0 = explode("-",$c0);
 		$c0 = $c0[1];
 		$fields['gsm']['Radio.C0'] = $c0;
 
-		$fields['gprs_roaming']['nnsf_bits'] = $fields['gprs_roaming']['gprs_nnsf_bits'];
-		unset($fields['gprs_roaming']['gprs_nnsf_bits']);
+		if (isset($fields['gprs_roaming'])) {
 
+			$fields['gprs_roaming']['nnsf_bits'] = $fields['gprs_roaming']['gprs_nnsf_bits'];
+			unset($fields['gprs_roaming']['gprs_nnsf_bits']);
 
-		$network_map = $fields['gprs_roaming']['network_map'];
-		$network_map = explode("\r\n",$network_map);
-		unset($fields['gprs_roaming']['network_map']);
-		foreach ($network_map as $assoc) {
-			$assoc = explode("=",$assoc);
-			if (count($assoc)!=2)
-				continue;
-			$fields['gprs_roaming'][$assoc[0]] = trim($assoc[1]);
+			$network_map = $fields['gprs_roaming']['network_map'];
+			$network_map = explode("\r\n",$network_map);
+			unset($fields['gprs_roaming']['network_map']);
+			foreach ($network_map as $assoc) {
+				$assoc = explode("=",$assoc);
+				if (count($assoc)!=2)
+					continue;
+				$fields['gprs_roaming'][$assoc[0]] = trim($assoc[1]);
+			}
 		}
+
+		if (getparam("my_sip")=="Custom")
+			$fields["roaming"]["my_sip"] = getparam("custom_my_sip");
 
 		$fields = array("ybts"=>$fields);
 		$res = make_request($fields, "set_bts_node");
 
 		if (!isset($res["code"]) || $res["code"]!=0) {
 			// find subsection where error was detected so it can be opened
-			$pos_section = strrpos($res["message"],"'",-15);
-			$subsection = substr($res["message"],$pos_section+1);
-			$subsection = substr($subsection,0,strpos($subsection,"'"));
-
+			$mess        = substr($res["message"],-15);
+			$pos_section = strrpos($mess,"'",-5);
+			$subsection  = substr($mess,$pos_section+1);
+			$subsection  = substr($subsection,0,strpos($subsection,"'"));
 			$section = $this->findSection($subsection);
+
 			if (!$section) {
-				$section = "GSM";
-				$subsection = "gsm";
+				Debug::output('bts tabs', "Could not find section for subsection '$subsection'");
+				$section = $this->default_section;
+				$subsection = $this->default_subsection;
 			}
 
 			$this->current_subsection = $subsection;
 			$this->current_section = $section;
-			$_SESSION["subsection"] = $subsection;
-			$_SESSION["section"] = $section;
+			$_SESSION[$this->title]["subsection"] = $subsection;
+			$_SESSION[$this->title]["section"] = $section;
 
 			return array(false, $res["message"]);
 		} else {
-			unset($_SESSION["section"], $_SESSION["subsection"]);
+			unset($_SESSION[$this->title]["section"], $_SESSION[$this->title]["subsection"]);
 			return array(true);
 		}
 	}
