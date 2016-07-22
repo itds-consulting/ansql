@@ -36,6 +36,9 @@ function is_valid_number($field_value)
 
 function check_valid_integer($field_name, $field_value)
 {
+	if (!is_valid_number($field_value))
+		return array(false, "Field '".$field_name."' is not a valid number: $field_value.");
+
 	$field_value = (int) $field_value;
 	if (filter_var($field_value, FILTER_VALIDATE_INT) === false)
 		return array(false, "Field '".$field_name."' is not a valid integer: $field_value.");	
