@@ -23,8 +23,8 @@ require_once("create_radio_band_select_array.php");
  * This returns the $fields array that consists of the SECTION and SUBSECTIONS for "BTS configuration" module (TAB).
  * The subsections are the actual sections (their name) in ybts.conf.
  * Each of this sections contains an array with each parameter name that can be configured.
- * And each parameter name has the following caracteristics:
- * - "display" : select, text, checkbox etc ( the specific type for FORM parameter)
+ * Each parameter name has the following caracteristics:
+ * - "display" : select, text, checkbox etc. (the specific type for FORM parameter)
  * -  array with selected value and all the values allowed
  * - "value" the default value of an input text or checkbox
  * - "comment" the text explaining the field 
@@ -32,17 +32,17 @@ require_once("create_radio_band_select_array.php");
  *
  * There are 4 types of validity functions:
  * - a default function that will be applied when condition ($fields[$section][$subsection]["display"] === "select") is true, that will test if a value is in the array with the selected values
- * - a generic function called "check_field_validity" the will test if a field_value in in a specific interval OR if a value respects a regex
- * - a specific function name that will have the last parameter the value that is the parameter name field that restricts the value of the field checked
- * - a specific function name that has no parameters. This function will implement the field specific restrictions.
+ * - a generic function called "check_field_validity" that will test if a field_value is in a specific interval OR if a value respects a regex OR if is a fixed value
+ * - a specific function name that will have the last parameter that is the name field that restricts the value of the field checked
+ * - a specific function name that has no parameters. This function will implement only the field specific restrictions.
  */
 function get_default_fields_ybts()
 {
-	global $private_version;
+	global $request_protocol, $server_name;
 
 	$radio_c0 = prepare_gsm_field_radio_c0();
 	$fields = array();
-	$fields["GSM"] = array(
+	$fields["radio"] = array(
 		"gsm" => array(
 		"Radio.Band"=>	array( 
 				array(array("Radio.Band_id"=>"850", "Radio.Band"=>"GSM850"), array("Radio.Band_id"=>"900", "Radio.Band"=>"EGSM900"),array("Radio.Band_id"=> "1800", "Radio.Band"=>"DCS1800"),array("Radio.Band_id"=>"1900", "Radio.Band"=>"PCS1900")),
@@ -510,9 +510,7 @@ Allowed interval 0:1530(6)
 Defaults to 24."
 			)
 
-		)
-	);
-	$fields["GPRS"] = array(
+		),
 		"gprs" =>array(
 			"Enable" => array(
 				"display" => "checkbox",
@@ -830,9 +828,10 @@ Mode I implies combined routing updating procedures."
 			),
 			"SGSN.port" => array(
 				"display" => "text",
-                                "value" => "1920",
+                "value" => "1920",
 				"comment" => "Port number of the SGSN required for GPRS service.
-This must match the port specified in the SGSN config file, currently osmo_sgsn.cfg."
+This must match the port specified in the SGSN config file, currently osmo_sgsn.cfg.",
+				"validity" => array("check_valid_integer")
 	                 ),
 			"Timers.Channels.Idle" => array(
 				array("selected"=>6000, 3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,8200,8300,8400,8500,8600,8700,8800,8900,9000),
@@ -889,6 +888,8 @@ Interval allowed 2500:7500(100)
 Defaults to 5000"
 			)
 		),
+	);
+	$fields["core"] =  array(
 		"sgsn" => array(
 			"Debug"=>array(	
 				"display" => "checkbox",
@@ -1003,7 +1004,7 @@ To disable again, execute 'unconfig GGSN.ShellScript'"
 	);
 
 
-	$fields["Transceiver"] = array(
+	$fields["system"] = array(
 		"transceiver" => array(
 			"Path" => array(
 				array("selected"=>"./transceiver", "./transceiver", "./transceiver-bladerf", "./transceiver-rad1", "./transceiver-usrp1", "./transceiver-uhd"),
@@ -1053,89 +1054,10 @@ How long to wait during a read operation from the transceiver before giving up
 Interval allowed: 5..15
 Defaults to 10"
 			)
-		)
-	);
-
-	$fields["Control"] = array(
-		"control" => array(
-			"VEA" => array(
-				"display" => "checkbox",
-				"value" => "1",
-				"comment" => "Use very early assignment for speech call establishment.
-See GSM 04.08 Section 7.3.2 for a detailed explanation of assignment types.
-See GSM 04.08 Sections 9.1.8 and 10.5.2.4 for an explanation of the NECI bit.
-Some handsets exhibit bugs when VEA is used that can affect performance.
-If VEA is selected, [gsm_advanced] CellSelection.NECI should be set to 1.
-Defaults to yes.",
-				"validity" => array("validate_neci_vea")
-			),
-			"LUR.AttachDetach" => array(
-				"display" => "checkbox",
-				"value" => "1",
-				"comment" => "Use the attach/detach procedure. This will make initial LUR more prompt.
-It will also cause an un-registration if the handset powers off and really heavy LUR loads in areas with spotty coverage.
-Defaults to yes."
-			),
-			"SACCHTimeout.BumpDown" => array(
-				array("selected"=>1, 1,2,3),
-				"display" => "select",
-				"comment"=> "RSSI decrease amount. Decrease the RSSI by this amount to induce more power in the MS each time we fail to receive a response from it.
-Interval allowed: 1..3
-Defaults to 1"
-			)
-		)
-	);
-
-	$fields["Tapping"] = array(
-		"tapping" => array(
-			"GSM" =>array(
-				"display" => "checkbox",
-				"value" => "0",
-				"comment" => "Capture GSM signaling at L1/L2 interface via GSMTAP
-Do not leave tapping enabled after finishing troubleshooting.
-Defaults to no."
-			),
-			"GPRS" => array(
-				"display" => "checkbox",
-				"value" => "0",
-				"comment" => "Capture GPRS signaling and traffic at L1/L2 interface via GSMTAP.
-Do not leave tapping enabled after finishing troubleshooting
-Defaults to no"
-			),
-			"TargetIP" => array(
-				"display" => "text",
-				"value" => "127.0.0.1",
-				"comment" => "Target IP address for GSMTAP packets.
-The IP address of receiving Wireshark, if you use it for real time traces.",
-				"validity" => array("check_valid_ipaddress")
-			)
-		)
-	);
-
-	$fields["Test"] = array(
-		"test" => array(
-			"SimulatedFER.Downlink"=>array(	
-				array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
-				"display" => "select",
-				"comment" => "Probability (0-100) of dropping any downlink frame to test robustness."
-			),
-			 "SimulatedFER.Uplink"=> array( 
-				 array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
-				"display" => "select",
-				"comment" => " Probability (0-100) of dropping any uplink frame to test robustness."
-			),
-			"UplinkFuzzingRate" => array(
-				array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
-				"display" => "select",
-				"comment" => "Probability (0-100) of flipping a bit in any uplink frame to test robustness."
-			)
-		)
-	);
-
-	$fields["YBTS"] = array(
+		),
 		"ybts" => array(
 			"mode" => array(
-				array("selected"=> "nib", "nib","roaming"),
+				array("selected"=> "nib", "nib","roaming", "dataroam"),
 				"display" => "select",
 				"comment" => "BTS mode of operation. This setting will specify which Javascript script 
 to load for the operation. Possible values are:
@@ -1330,7 +1252,93 @@ Defaults to 720000",
 			)
 
 		),
+
+	);
+
+	$fields["radio"]["control"] = array(
+			"VEA" => array(
+				"display" => "checkbox",
+				"value" => "1",
+				"comment" => "Use very early assignment for speech call establishment.
+See GSM 04.08 Section 7.3.2 for a detailed explanation of assignment types.
+See GSM 04.08 Sections 9.1.8 and 10.5.2.4 for an explanation of the NECI bit.
+Some handsets exhibit bugs when VEA is used that can affect performance.
+If VEA is selected, [gsm_advanced] CellSelection.NECI should be set to 1.
+Defaults to yes.",
+				"validity" => array("validate_neci_vea")
+			),
+			"LUR.AttachDetach" => array(
+				"display" => "checkbox",
+				"value" => "1",
+				"comment" => "Use the attach/detach procedure. This will make initial LUR more prompt.
+It will also cause an un-registration if the handset powers off and really heavy LUR loads in areas with spotty coverage.
+Defaults to yes."
+			),
+			"SACCHTimeout.BumpDown" => array(
+				array("selected"=>1, 1,2,3),
+				"display" => "select",
+				"comment"=> "RSSI decrease amount. Decrease the RSSI by this amount to induce more power in the MS each time we fail to receive a response from it.
+Interval allowed: 1..3
+Defaults to 1"
+			)
+	);
+
+	$fields["test"] = array(
+		"tapping" => array(
+			"GSM" =>array(
+				"display" => "checkbox",
+				"value" => "0",
+				"comment" => "Capture GSM signaling at L1/L2 interface via GSMTAP
+Do not leave tapping enabled after finishing troubleshooting.
+Defaults to no."
+			),
+			"GPRS" => array(
+				"display" => "checkbox",
+				"value" => "0",
+				"comment" => "Capture GPRS signaling and traffic at L1/L2 interface via GSMTAP.
+Do not leave tapping enabled after finishing troubleshooting
+Defaults to no"
+			),
+			"TargetIP" => array(
+				"display" => "text",
+				"value" => "127.0.0.1",
+				"comment" => "Target IP address for GSMTAP packets.
+The IP address of receiving Wireshark, if you use it for real time traces.",
+				"validity" => array("check_valid_ipaddress")
+			)
+		),
+	
+
+	
+		"test" => array(
+			"SimulatedFER.Downlink"=>array(	
+				array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
+				"display" => "select",
+				"comment" => "Probability (0-100) of dropping any downlink frame to test robustness."
+			),
+			 "SimulatedFER.Uplink"=> array( 
+				 array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
+				"display" => "select",
+				"comment" => " Probability (0-100) of dropping any uplink frame to test robustness."
+			),
+			"UplinkFuzzingRate" => array(
+				array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
+				"display" => "select",
+				"comment" => "Probability (0-100) of flipping a bit in any uplink frame to test robustness."
+			)
+		)
+	);
+
+	$sdr_mode = get_working_mode();
+	if ($sdr_mode=="roaming" ||  $sdr_mode=="dataroam") {
+	$fields["core"] = array(
+
 		"roaming" => array(
+			"error_get_network" => array(
+			"display" => "message",
+			"column_name"=> "",
+			"value" => ""
+			),
 			"expires" => array(
 				"display" => "text",
 				"value" => "3600",
@@ -1358,13 +1366,6 @@ This ensures that registrations are always sent to the same YateUCN server.".
 				"comment" => "Int: Number of bits to use for
 the Non Access Stratum (NAS) Node Selection Function (NNSF)."
 			),
-			"my_sip" => array(
-				"display" => "text",
-				"comment" => "string: ip:port for the local SIP listener.
-Unless otherwise configured, this is the IP of the machine
-where YateBTS is installed.
-Example: my_sip=198.168.1.168"
-			),
 			"gstn_location" => array(
 				"display" => "text",
 				"comment" => "String: unique number that identies the cell in the national database
@@ -1372,9 +1373,18 @@ Associated to each base station by the network operator."
 			),
 			"text_sms" => array(
 				"display" => "checkbox",
+				"value" => "0",
 				"comment" => "If possible decode and send the SMS as text/plain SIP MESSAGE body.
 By default the binary type application/vnd.3gpp.sms is used."
-			)
+			),
+			"my_sip" => array(
+				"display" => "text",
+				"comment" => "string: ip:port for the local SIP listener.
+Unless otherwise configured, this is the IP of the machine
+where YateBTS is installed.
+Example: my_sip=198.168.1.168"
+			),
+
 		),
 
 		"handover" => array(
@@ -1400,7 +1410,7 @@ Default: GSM;text="Handover".'
 			)
 		),
 	);
-
+	}
 /*	$fields["Logging"] = array(
 		"logging" => array(
 			"Level"=> array(
@@ -1414,12 +1424,17 @@ Defaults to NOTICE."
 	);
  */
 
-	if (isset($private_version) && $private_version===true) {
+	if ($sdr_mode) {
 		// add dataroam mode
-		$fields["YBTS"]["ybts"]["mode"][0][] = "dataroam";
-		$fields["YBTS"]["ybts"]["mode"]["comment"] .= "\n- dataroam: voice and data roaming modes. Available only in the private YateBTS version";
+		$fields["system"]["ybts"]["mode"]["value"] = $sdr_mode;
+		$fields["system"]["ybts"]["mode"]["display"] = "fixed";
+		$fields["system"]["ybts"]["hidden_fields"] = array("display"=> "message", "value"=>"<input type=\"hidden\" name=\"mode\" value=\"".$sdr_mode."\" />");
+		if ($sdr_mode=="dataroam")
+			$fields["system"]["ybts"]["mode"]["comment"] .= "\n- dataroam: voice and data roaming modes. Available only in the private YateBTS version";
+	}
 
-		$fields["YBTS"]["gprs_roaming"] = array(
+	if ($sdr_mode=="dataroam") {
+		$fields["core"]["gprs_roaming"] = array(
 			"local_breakout" => array(
 				"display" => "text",
 				"comment" => "boolean or regexp: Activate local IP address termination.
@@ -1461,8 +1476,56 @@ If a string is provided it will replace default domain mnc<NNN>.mcc<NNN>.gprs"
 		}
 	}
 
+	if (isset($_SESSION["ybts_fields"]["interfaces_ips"])) {
+		$interfaces_ips = $_SESSION["ybts_fields"]["interfaces_ips"]["both"];
+
+	} else {
+		if (!$request_protocol)
+            $request_protocol = "http";
+
+		$url = "$request_protocol://$server_name/api.php";
+		$out = array("request"=>"get_net_address","node"=>"satsite","params"=>"net_address");
+		$res = make_request($out, $url);
+
+		if ($res["code"]=="0") {
+
+			$interfaces_ips = build_net_addresses_dropdown($res, true);
+			$_SESSION["ybts_fields"]["interfaces_ips"]["both"] = $interfaces_ips;
+
+			// keep the error message in session if request 'get_net_address' failed
+		} else {
+			$_SESSION["ybts_fields"]["error_get_net_interfaces"] = "[".$res["code"]."] ".$res["message"];
+		}
+	}						
+
+	if (isset($_SESSION["ybts_fields"]["error_get_net_interfaces"])) {
+		$enodeb_params["core"]["roaming"]["error_get_network"] = array("display"=>"message", "value"=> "<div class=\"notice\"><font class=\"error\">Error!! </font><font style=\"font-weight:bold;\">".$_SESSION["ybts_fields"]["error_get_net_interfaces"]. " Please fix the error before setting the addresses.</font></div>");
+	} else {
+		$interfaces_ips["custom"] = "Custom";
+		$fields["core"]["roaming"]["my_sip"][0] = $interfaces_ips;
+
+		$fields["core"]["roaming"]["my_sip"]["display"] = "select";
+		$fields["core"]["roaming"]["my_sip"]["javascript"] = "onchange=\"custom_value_dropdown('','my_sip');\"";
+	}
 
 	return $fields;
 }
 
+function get_working_mode()
+{
+	if (!isset($_SESSION["sdr_mode"])) {
+		$node_types = request_api(array(), "get_node_type", "node_type");
+
+		if (count($node_types)) {
+			$_SESSION["node_types"] = $node_types;;
+			$sdr_mode = $node_types[0]["sdr_mode"];
+			$_SESSION["sdr_mode"] = $sdr_mode;
+
+			return $sdr_mode;
+		}
+		return "";
+	} 
+	return $_SESSION["sdr_mode"];
+
+}
 ?>
