@@ -27,6 +27,7 @@ class EnbTabbedSettings extends TabbedSettings
 
 	protected $default_section    = "radio";
 	protected $default_subsection = "enodeb";
+	protected $title = "ENB";
 
 	function __construct()
 	{
@@ -322,12 +323,12 @@ class EnbTabbedSettings extends TabbedSettings
 
 			$this->current_subsection = $subsection;
 			$this->current_section    = $section;
-			$_SESSION["subsection"]   = $subsection;
-			$_SESSION["section"]      = $section;
+			$_SESSION[$this->title]["subsection"]   = $subsection;
+			$_SESSION[$this->title]["section"]      = $section;
 
 			return array(false, $res["message"]);
 		} else {
-			unset($_SESSION["section"], $_SESSION["subsection"]);
+			unset($_SESSION[$this->title]["section"], $_SESSION[$this->title]["subsection"]);
 			return array(true);
 		}
 	}
