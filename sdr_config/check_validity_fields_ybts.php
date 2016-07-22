@@ -33,7 +33,10 @@ function check_radio_band($field_name, $field_value, $restricted_value)
 	foreach ($permitted_values as $radio_band_val => $radio_c0_val) {
 		if ($restricted_value == $radio_band_val) {
 			$field_value = explode("-",$field_value);
-			$field_value = $field_value[1];
+			if (!isset($field_value[1]))
+				$field_value = null;
+			else
+				$field_value = $field_value[1];
 			$int_value = (int)$field_value;
 			$min = $radio_c0_val[0];
 			$max = $radio_c0_val[1];
@@ -88,7 +91,7 @@ function validate_neci_vea($field_name, $field_value)
 	if ($field_name == "VEA" && ( $field_value == "off" || $field_value == "no" || $field_value == "0")) {
 		$neci = getparam("CellSelection_NECI");
 		if ($neci=="1")
-			return array(true, "Field $field_name doesn't have a recommended value. It has to be checked because CellSelection.NECI param from GSM tab in GSM Advanced subsection was set to 1.");
+			return array(true, "Field $field_name from Control Tab doesn't have a recommended value. It has to be checked because CellSelection.NECI param from Radio tab in GSM Advanced subsection was set to 1.");
 	} 
 
 	if ($field_name == "CellSelection.NECI" && $field_value != "1") {
@@ -138,7 +141,7 @@ function check_timer_raupdate($field_name, $field_value)
 
 	$timerT3212 = getparam("Timer_T3212");
 	if ($field_value!=0 && $timerT3212=="0") {
-		return array(true, "To prevent GPRS Routing Area Updates it is recommended you set $field_name also to 0, setting field Timer.T3212 from GSM Tab set to 0 is not enough.");
+		return array(true, "To prevent GPRS Routing Area Updates it is recommended you set $field_name also to 0, setting field Timer.T3212 from Radio Tab set to 0 is not enough.");
 	}
 
 	return array(true);
@@ -206,7 +209,7 @@ function check_channelcodingcontrol_rssi($field_name, $field_value)
 	$radio_RSSITarget = (int)getparam("Radio_RSSITarget");
 
 	if ($radio_RSSITarget+10 != $field_value)
-		return array(true, "Field $field_name doesn't have a recommended value. This value should normally be Radio.RSSITarget + 10 dB, value added from tab GSM, from GSM Advanced that has the value: $radio_RSSITarget.");
+		return array(true, "Field $field_name doesn't have a recommended value. This value should normally be Radio.RSSITarget + 10 dB, value added from tab Radio, from GSM Advanced that has the value: $radio_RSSITarget.");
 	
 	return array(true);
 }
