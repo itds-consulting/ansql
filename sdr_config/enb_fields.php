@@ -440,9 +440,9 @@ Srb2.rlcPollByte = 0
     ),
 
     "RxLevelMinimum" => array(
-	"value" => "-22",
+	"value" => "-70",
 	"comment" => 'Minimum power level for cell reselection, dBm ("q_RxLevMin" in SIB1)
-Allowed range -70 .. -22. Default -22.'
+Allowed range -70 .. -22. Default -70.'
     ),
 ),
 
@@ -497,7 +497,8 @@ Default value: 14",
     ),
 
     "SibDci" => array(
-	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a", "selected"=>"dci1a"),
+	// commented ones are not supported
+	array(/*"dci0", "dci1", */ "dci1a", /*"dci1a_pdcch", "dci1b",*/ "dci1c", /*"dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for SIB"
     ),
@@ -533,23 +534,10 @@ Default value: 14",
     ), 
 
     "uplinkDci" => array(
-	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a", "selected"=>"dci0"),
+	// commented ones are not supported
+	array("dci0", /*"dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci0"),
 	"display" => "select",
 	"comment" => "DCI for uplink"
-    ),
-
-    "UplinkRbs" => array(
-	"comment" => "Integer. The number of uplink resource blocks.<br/>
-Note! UplinkRbs + UplinkRbStartIndex must be less than the total number of RBs
-specified in the system bandwidth configuration",
-	"validity" => array("check_uplink_rbs", "UplinkRbStartIndex", "Bandwidth")
-    ),
-
-    "UplinkRbStartIndex" => array(
-	"comment" => "Integer. The index if the first RB that can be scheduled for uplink.<br/>
-Note! UpinkRbs + UplinkRbStartIndex must be less than the total number of RBs
-specified in the system bandwidth configuration",
-	"validity" => array("check_valid_integer")
     ),
 
     "DistributedVrbs" => array(
@@ -654,7 +642,7 @@ Default 3'
     ),
 
     "Pucch.An" => array(
-	"value" => 45,
+	"value" => "0",
 	"column_name" => "Resource allocation offset",
 	"comment" => 'Resource allocation offset parameter ("n1PUCCH_AN" in SIB2)
 Allowed values 0..2047. Default 45',
@@ -693,7 +681,7 @@ Allows values multiples of 2, -90 .. -120. Default -90.',
     ),
 
     "Prach.ResponseWindow" => array(
-	array(2,3,4,5,6,7,8,10,"selected"=>"10"),
+	array(/*2,3,4,5,6,7,8,*/10,"selected"=>"10"),
 	"display" => "select",
 	"comment" => 'Response window size in subframes ("ra_ResponseWindowSize" in SIB2)
 Allowed values 2..8, 10 (not 9) by the spec,
@@ -707,10 +695,10 @@ but we only support value 10.'
     ),
 
     "Prach.ConfigIndex" => array(
-	"value" => 14,
-	"comment" => 'Configuration Index ("prach_ConfigIndex" in SIB2)
-Allowed values 0..63',
-	"validity" => array("check_field_validity",0,63)
+	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, "selected"=>14),
+	"display" => "select",
+	"comment" => 'Configuration Index ("prach_ConfigIndex" in SIB2)',
+	//"validity" => array("check_field_validity",0,63)  // prev validation and valid range
     ),
 
     "Prach.ZeroCorr" => array(
