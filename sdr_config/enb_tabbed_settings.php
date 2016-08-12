@@ -28,12 +28,13 @@ class EnbTabbedSettings extends TabbedSettings
 	protected $default_section    = "radio";
 	protected $default_subsection = "enodeb";
 	protected $title = "ENB";
+	protected $menu_css = "menu menu_enb";
 
 	function __construct()
 	{
 		$this->current_section    = $this->default_section;
 		$this->current_subsection = $this->default_subsection;
-		$this->open_tabs = 2;
+		$this->open_tabs = 3;
 	}
 
 	function getMenuStructure()
@@ -45,9 +46,11 @@ class EnbTabbedSettings extends TabbedSettings
 		$structure = array(
 			"Radio" => array("EnodeB", "Bearers"),
 			"Core" => array("GTP", "MME"/*, "S1AP"*/),
+			"Access channels" => array("PRACH", "PDSCH", "PUSCH", "PUCCH", "PDCCH"),
+
 			"Hardware" => array(),
 			"System" => array("System information", "Advanced", "Scheduler", "RadioHardware", "Measurements"),
-			"Access channels" => array("PRACH", "PDSCH", "PUSCH", "PUCCH", "PDCCH"),
+
 			// TBI! Define how sections under developers can be set
 			//"Developers" => array("Radio", "General", "Uu-simulator", "Uu-loopback", "Test-Enb", "Test-scheduler")
 		);
