@@ -33,6 +33,7 @@ abstract class TabbedSettings
 	protected $open_tabs           = 1;
 	protected $subsections_advanced = array();
 	protected $title;
+	protected $menu_css            = "menu";
 
 	function __construct()
 	{
@@ -417,7 +418,7 @@ abstract class TabbedSettings
 		?>	
 		</script>
 		<!-- Create MENU -->
-		<table class="menu" cellspacing="0" cellpadding="0">
+		<table class="<?php print $this->menu_css; ?>" cellspacing="0" cellpadding="0">
 		<tr>
 		<?php
 

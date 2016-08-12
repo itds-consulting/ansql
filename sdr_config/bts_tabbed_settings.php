@@ -29,6 +29,7 @@ class BtsTabbedSettings extends TabbedSettings
 	protected $default_section    = "radio";
 	protected $default_subsection = "gsm";
 	protected $title = "BTS";
+	protected $menu_css = "menu menu_bts";
 
 	function __construct($open_tabs=2)
 	{
