@@ -335,7 +335,7 @@ abstract class TabbedSettings
 					print "</div>";
 					continue;
 				}
-				editObject(null, $fields[$m_section][$m_subsection], "Set parameters values for section [$m_subsection] to sent to API.");
+				editObject(null, $fields[$m_section][$m_subsection], "Set parameters values for section [$m_subsection].");
 				print "</div>";
 			}
 		}

@@ -23,7 +23,7 @@ require_once("ansql/sdr_config/check_validity_fields_enb.php");
 
 class EnbTabbedSettings extends TabbedSettings
 {
-	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Band", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex",  "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5");
+	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Band", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex",  "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection");
 
 	protected $default_section    = "radio";
 	protected $default_subsection = "enodeb";
@@ -48,7 +48,7 @@ class EnbTabbedSettings extends TabbedSettings
 			"Core" => array("GTP", "MME"/*, "S1AP"*/),
 			"Access channels" => array("PRACH", "PDSCH", "PUSCH", "PUCCH", "PDCCH"),
 
-			"Hardware" => array(),
+			"Hardware" => array("Site info", "Site equipment", "Shutdown"),
 			"System" => array("System information", "Advanced", "Scheduler", "RadioHardware", "Measurements"),
 
 			// TBI! Define how sections under developers can be set
@@ -85,6 +85,15 @@ class EnbTabbedSettings extends TabbedSettings
 			"measurements" => "KPI-related performance measurements",
 			"radiohardware" => "Control parameters for the lower PHY",
 
+			"site_info" => "Site specific information.",
+			"site_equipment" => "This is an area for customer-specific parameters for other site equipment,
+like antennas, cables, and anything else too \"dumb\" to carry its own
+configuration and identifying information.
+No defaults are provided.",
+			"shutdown" => "Parameters for safety shutdown of SatSite components.
+Raising these parameters above their default values may result in damage to
+the eNodeB hardware or reduced equipment life."
+
 		/*	"radio" => "These are parameters for configuring the radio device",
 			"general" => "Global configuration for the ENB Yate Module",
 			"uu-simulator" => "Configuration parameters for the Uu interface simulator",
@@ -115,11 +124,13 @@ class EnbTabbedSettings extends TabbedSettings
 
 		if (isset($response_fields["satsite"])) {
 			$hardware_settings = $response_fields["satsite"];
-		} else {
-			$hardware_settings = array();
-			Debug::xdebug("tabs_enb", "Could not retrieve satsite/hardware fields in " . __METHOD__);
+			if (isset($hardware_settings["basic"])) {
+				$hardware_settings["site_info"] = $hardware_settings["basic"];
+				unset($hardware_settings["basic"]);
+			}
+			foreach ($hardware_settings as $section=>$section_def)
+				$res[$section] = $section_def;
 		}
-		$res["hardware"] = $hardware_settings;
 
 		// set mme fields
 		foreach ($response_fields["openenb"] as $section_name=>$section_def) {
@@ -273,11 +284,15 @@ class EnbTabbedSettings extends TabbedSettings
 		$gtp = $fields["gtp"];
 		unset($fields["gtp"]);
 
-		if (isset($fields["hardware"])) {
-			$satsite = $fields["hardware"];
-			unset($fields["hardware"]);
-		} else
-			$satsite = null;
+		$satsite = array();
+		$satsite_sections = array("site_info", "site_equipment", "shutdown");
+		foreach ($satsite_sections as $satsite_section) {
+			$section_name = ($satsite_section!="site_info") ? $satsite_section : "basic";
+			$satsite[$section_name] = $fields[$satsite_section];
+			unset($fields[$satsite_section]);
+		}
+		if (count($satsite))
+			$request_fields["satsite"] = $satsite;
 
 		if (strlen($fields["mme"]["mme_address"])) {
 
@@ -299,9 +314,6 @@ class EnbTabbedSettings extends TabbedSettings
 			}
 		}
 		unset($fields["mme"]);
-
-		if ($satsite)
-			$request_fields["satsite"] = $satsite;
 
 		$request_fields["openenb"]    = array_merge($request_fields["openenb"],$fields);
 		$request_fields["gtp"]["sgw"] = $gtp;

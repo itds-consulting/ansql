@@ -1255,6 +1255,101 @@ Defaults to 720000",
 
 	);
 
+	$fields["hardware"] = array(
+		"site_info" => array(
+		    "location" => array(
+			"column_name" => "Site location",
+			"comment" => "No default is provided
+		Latitude, longitude
+		ddd.dddddd,ddd.dddddd format",
+			"validity" => array("check_valid_geolocation")
+		    ),
+		    "siteName" => array(
+			"column_name" => "Site name"
+		    ),
+		    "antennaDirection" => array(
+			"column_name" => "Antenna direction",
+			"comment" => "The direction the antenna is pointed, in degrees from true north.
+		No default is provided",
+			"validity" => array("check_valid_float")
+		    ),
+		    "antennaBeamwidth" => array(
+			"value" => "360",
+			"column_name" => "Antenna beam width",
+			"comment" => "Default is omni, 360 degrees",
+			"validity" => array("check_field_validity", 1, 360)
+		    ),
+		    "reportingPeriod" => array(
+			"value" => 15,
+			"column_name" => "Reporting period",
+			"comment" => "Reporting period in minutes for HW status. 
+		Default is 15 minutes",
+			"validity" => array("check_valid_integer")
+		    ),
+		),
+		"site_equipment" => array(
+		    "antenna_type"=> array(
+			"comment" => "String"
+		    ),
+		    "antenna_serial_number"=> array(
+			"comment" => "String"
+		    ),
+		    "antenna_cable_type"=> array(
+			"comment" => "String"
+		    ),
+		    "antenna_cable_length"=> array(
+			"comment" => "String"
+		    ),
+		    "power_suply_type"=> array(
+			"comment" => "String"
+		    ),
+		    "power_suply_serial_number"=> array(
+			"comment" => "String"
+		    ),
+		),
+		"shutdown" => array(
+		    "maxVswr" => array(
+			"value" => "1.5",
+			"comment" => "VSWR level for automatic shutdown of the power amplifier if the RF feed is damaged.
+		Default is 1.5",
+			"validity" => array("check_valid_float")
+		    ),
+		    "amplifierShutdownTemp" => array(
+			"value" => 80,
+			"comment" => "Transistor temperature in deg C for safety shutdown of the power amplifier. 
+		Default is 80.",
+			"validity" => array("check_field_validity", 1, 85)
+		    ),
+		    "amplifierRestartTemp" => array(
+			"value" => 70,
+			"comment" => "Default is 70.",
+			"validity" => array("check_field_validity", 1, 85)
+		    ),
+		    "powerSupplyShutdownTemp" => array(
+			"value" => 85,
+			"comment" => "Transformer temperature in deg C for safety shutdown of power supply sections.
+		Default is 85",
+			"validity" => array("check_field_validity", 1, 85)
+		    ),
+		    "powerSupplyRestartTemp" => array(
+			"value" => 75,
+			"comment" => "Default 75.",
+			"validity" => array("check_field_validity", 1, 85)
+		    ),
+		    "softwareShutdownTemp" => array(
+			"value" => 100,
+			"comment" => "CPU core temperature for shutdown of the SatSite
+		If the temperature exceeds this level, all digital radio processing functions are suspended. Default 100.",
+			"validity" => array("check_field_validity", 1, 100)
+		    ),
+		    "softwareRestartTemp" => array(
+			"value" => 80,
+			"comment" => "Default 80",
+			"validity" => array("check_field_validity", 1, 85)
+		    )
+		),
+	);
+
 	$fields["radio"]["control"] = array(
 			"VEA" => array(
 				"display" => "checkbox",

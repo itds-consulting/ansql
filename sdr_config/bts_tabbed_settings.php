@@ -24,7 +24,7 @@ require_once("ansql/sdr_config/create_radio_band_select_array.php");
 
 class BtsTabbedSettings extends TabbedSettings
 {
-	protected $allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg", "RadioFrequencyOffset", "TxAttenOffset", "Radio.RxGain", "my_sip", "reg_sip", "nodes_sip", "gstn_location", "neighbors", "gprs_nnsf_bits", "nnsf_dns", "network_map", "local_breakout" );
+	protected $allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg", "RadioFrequencyOffset", "TxAttenOffset", "Radio.RxGain", "my_sip", "reg_sip", "nodes_sip", "gstn_location", "neighbors", "gprs_nnsf_bits", "nnsf_dns", "network_map", "local_breakout", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection" );
 
 	protected $default_section    = "radio";
 	protected $default_subsection = "gsm";
@@ -48,6 +48,8 @@ class BtsTabbedSettings extends TabbedSettings
 		$structure = array(
 			"Radio" => array("GSM","GPRS"/*TBI: ,"Bearers"*/, "GSM advanced", "GPRS advanced", "Control"),
 			"Core" => array(),
+
+			"Hardware" => array("Site info", "Site equipment", "Shutdown"),
 			"System" => array("YBTS", "Security", "Transceiver"),
 			"Test" => array("Test", "Tapping")
 		);
@@ -95,7 +97,16 @@ class BtsTabbedSettings extends TabbedSettings
 			"security" => "Section [security] configures security related parameters.",
 			"roaming" => "Section [roaming] controls parameters used by roaming.js when connecting YateBTS to a core network.",
 			"handover" => "Section [handover] controls handover parameters used by roaming.js.",
-			"gprs_roaming" => "Section [gprs_roaming] controls parameters used by dataroam.js when connecting YateBTS to a core data network."
+			"gprs_roaming" => "Section [gprs_roaming] controls parameters used by dataroam.js when connecting YateBTS to a core data network.",
+
+			"site_info" => "Site specific information.",
+			"site_equipment" => "This is an area for customer-specific parameters for other site equipment,
+like antennas, cables, and anything else too \"dumb\" to carry its own
+configuration and identifying information.
+No defaults are provided.",
+			"shutdown" => "Parameters for safety shutdown of SatSite components.
+Raising these parameters above their default values may result in damage to
+the eNodeB hardware or reduced equipment life."
 		);
 	}
 
@@ -108,8 +119,19 @@ class BtsTabbedSettings extends TabbedSettings
 			Debug::xdebug("tabs_bts", "Could not retrieve ybts fields in " . __METHOD__); 
 			return null;
 		}
+		$res = $response_fields["ybts"];
 
-		return $response_fields["ybts"];
+		if (isset($response_fields["satsite"])) {
+			$hardware_settings = $response_fields["satsite"];
+			if (isset($hardware_settings["basic"])) {
+				$hardware_settings["site_info"] = $hardware_settings["basic"];
+				unset($hardware_settings["basic"]);
+			}
+			foreach ($hardware_settings as $section=>$section_def)
+				$res[$section] = $section_def;
+		}
+
+		return $res;
 	}
 
 	function getDefaultFields()
@@ -170,7 +192,7 @@ class BtsTabbedSettings extends TabbedSettings
 						if (!isset($fields[$section][$subsection][$param])) 
 							continue;
 
-						if ($fields[$section][$subsection][$param]["display"] == "select") {
+						if (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"] == "select") {
 							if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
 								$data = "Factory calibrated";
 							$fields[$section][$subsection][$param][0]["selected"] = $data;
@@ -183,7 +205,7 @@ class BtsTabbedSettings extends TabbedSettings
 									$fields[$section][$subsection]["custom_".$param]["column_name"] = "";
 								}
 							}
-						} elseif ($fields[$section][$subsection][$param]["display"] == "checkbox") 
+						} elseif (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"] == "checkbox") 
 							$fields[$section][$subsection][$param]["value"] = ($data == "yes" || $data=="on" || $data=="1")  ? "on" : "off";
 						else 
 							$fields[$section][$subsection][$param]["value"] = $data; 
@@ -261,7 +283,18 @@ class BtsTabbedSettings extends TabbedSettings
 		if (getparam("my_sip")=="Custom")
 			$fields["roaming"]["my_sip"] = getparam("custom_my_sip");
 
+		$satsite = array();
+		$satsite_sections = array("site_info", "site_equipment", "shutdown");
+		foreach ($satsite_sections as $satsite_section) {
+			$section_name = ($satsite_section!="site_info") ? $satsite_section : "basic";
+			$satsite[$section_name] = $fields[$satsite_section];
+			unset($fields[$satsite_section]);
+		}
+
 		$fields = array("ybts"=>$fields);
+		if (count($satsite))
+			$fields["satsite"] = $satsite;
+
 		$res = make_request($fields, "set_bts_node");
 
 		if (!isset($res["code"]) || $res["code"]!=0) {

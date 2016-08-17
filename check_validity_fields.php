@@ -45,6 +45,13 @@ function check_valid_integer($field_name, $field_value)
 	return array(true);
 }
 
+function check_valid_float($field_name, $field_value)
+{
+	if (filter_var($field_value, FILTER_VALIDATE_FLOAT) === false)
+		return array(false, "Field '".$field_name."' is not a valid float: $field_value.");	
+	return array(true);
+}
+
 /**
  * validate a field value to be in a given array 
  * [Used for SELECT FIELDS]
@@ -123,5 +130,10 @@ function check_valid_dns($field_name, $field_value)
 	return array(true);
 }
 
-
+function check_valid_geolocation($field_name, $field_value)
+{
+	if (preg_match('/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?),[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/', $field_value)!=1)
+		return array(false, "Field $field_name is not valid. $field_value doesn't match format dd.dddddd,ddd.dddddd!");
+	return array(true);
+}
 ?>
