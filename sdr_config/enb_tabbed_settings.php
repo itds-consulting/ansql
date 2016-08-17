@@ -182,6 +182,7 @@ the eNodeB hardware or reduced equipment life."
 
 		$trigger_names = array("mme"=>"add_mme_");
 
+		$custom_site_equipment = "";
 		foreach ($structure as $section=>$data) {
 			foreach ($data as $key=>$subsection) {
 				if (isset($request_fields[$subsection])) {
@@ -189,8 +190,14 @@ the eNodeB hardware or reduced equipment life."
 						if (!isset($fields[$section][$subsection]))
 							continue;
 
-						if (!isset($fields[$section][$subsection][$param])) 
+						if (!isset($fields[$section][$subsection][$param])) {
+							if ($subsection!="site_equipment")
+								continue;
+							if (strlen($custom_site_equipment))
+								$custom_site_equipment .= "\n";
+							$custom_site_equipment .= "$param=$data";
 							continue;
+						}
 
 						if (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"]=="select") {
 
@@ -234,6 +241,8 @@ the eNodeB hardware or reduced equipment life."
 				}
 			}
 		}
+		if (strlen($custom_site_equipment))
+			$fields["hardware"]["site_equipment"]["custom_parameters"]["value"] = $custom_site_equipment;
 
 		return $fields;
 	}
@@ -314,6 +323,20 @@ the eNodeB hardware or reduced equipment life."
 			}
 		}
 		unset($fields["mme"]);
+
+		if (isset($request_fields["satsite"]["site_equipment"]["custom_parameters"])) {
+			if (strlen($request_fields["satsite"]["site_equipment"]["custom_parameters"])) {
+				$custom = explode("\r\n",$request_fields["satsite"]["site_equipment"]["custom_parameters"]);
+				foreach ($custom as $custom_param) {
+					$custom_param = explode("=",$custom_param);
+					if (count($custom_param)!=2)
+						continue;
+					$request_fields["satsite"]["site_equipment"][trim($custom_param[0])] = trim($custom_param[1]);
+				}
+
+			}
+			unset($request_fields["satsite"]["site_equipment"]["custom_parameters"]);
+		}
 
 		$request_fields["openenb"]    = array_merge($request_fields["openenb"],$fields);
 		$request_fields["gtp"]["sgw"] = $gtp;

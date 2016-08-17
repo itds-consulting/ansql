@@ -174,6 +174,7 @@ the eNodeB hardware or reduced equipment life."
 			}
 		}
 
+		$custom_site_equipment = "";
 		$network_map = "";
 		foreach ($structure as $section=>$data) {
 			foreach ($data as $key=>$subsection) {
@@ -189,8 +190,14 @@ the eNodeB hardware or reduced equipment life."
 						}
 						if ($subsection=="gprs_roaming" && $param=="nnsf_bits")
 							$param = "gprs_nnsf_bits";
-						if (!isset($fields[$section][$subsection][$param])) 
+						if (!isset($fields[$section][$subsection][$param])) {
+							if ($subsection!="site_equipment")
+								continue;
+							if (strlen($custom_site_equipment))
+								$custom_site_equipment .= "\n";
+							$custom_site_equipment .= "$param=$data";
 							continue;
+						}
 
 						if (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"] == "select") {
 							if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
@@ -215,6 +222,8 @@ the eNodeB hardware or reduced equipment life."
 		}
 		if (strlen($network_map)) 
 			$fields["core"]["gprs_roaming"]["network_map"]["value"] = $network_map;
+		if (strlen($custom_site_equipment))
+			$fields["hardware"]["site_equipment"]["custom_parameters"]["value"] = $custom_site_equipment;
 
 		if (isset($fields['radio']['gsm']['Radio.Band'][0]["selected"])) {
 			$particle = $fields['radio']['gsm']['Radio.Band'][0]["selected"];
@@ -294,6 +303,20 @@ the eNodeB hardware or reduced equipment life."
 		$fields = array("ybts"=>$fields);
 		if (count($satsite))
 			$fields["satsite"] = $satsite;
+
+		if (isset($fields["satsite"]["site_equipment"]["custom_parameters"])) {
+			if (strlen($fields["satsite"]["site_equipment"]["custom_parameters"])) {
+				$custom = explode("\r\n",$fields["satsite"]["site_equipment"]["custom_parameters"]);
+				foreach ($custom as $custom_param) {
+					$custom_param = explode("=",$custom_param);
+					if (count($custom_param)!=2)
+						continue;
+					$fields["satsite"]["site_equipment"][trim($custom_param[0])] = trim($custom_param[1]);
+				}
+
+			}
+			unset($fields["satsite"]["site_equipment"]["custom_parameters"]);
+		}
 
 		$res = make_request($fields, "set_bts_node");
 

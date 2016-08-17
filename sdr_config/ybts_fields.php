@@ -1306,6 +1306,16 @@ Defaults to 720000",
 		    "power_suply_serial_number"=> array(
 			"comment" => "String"
 		    ),
+		    "custom_parameters" => array(
+			"display" => "textarea",
+			"comment" => "Custom parameters that will be stored on the equipment. <br/>
+		They are not used in configuration but are kept for informative purpose.<br/>
+		They are stored in key=value form. The keys should not match any of the above keys.<br/>
+		Ex:<br/>
+		antenna_serial_number2=342134<br/>
+		antenna_cable_length2=0.5<br/>
+		"
+		    )
 		),
 		"shutdown" => array(
 		    "maxVswr" => array(
