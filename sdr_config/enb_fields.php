@@ -189,7 +189,7 @@ but limits resource allocations to 16 RBs (2.88 MHz).",
 "bearers" => array(
 
     "__" => array(
-	"value" => "SRB default configuration",
+	"value" => "SRB configuration. Don't change mode from 'default' unless you are really sure.",
 	"display" => "objtitle",
     ),
 
@@ -198,6 +198,8 @@ but limits resource allocations to 16 RBs (2.88 MHz).",
     "Srb1.mode" => array(
 	array("default", "unacknowledged", "acknowledged", "selected"=>"default"),
 	"display" => "select",
+	"required" => true,
+	"javascript" => "onchange='srb_mode(1);'",
 	"comment" => 'Default: default.
 Alternately, specify "unacknowledged" mode configuration for SRB1:
 Srb1.mode = unacknowledged
@@ -213,10 +215,55 @@ Srb1.rlcMaxRetxThreshold = 4
 Srb1.rlcPollPdu = 0
 Srb1.rlcPollByte = 0
 '
-),
+    ),
+    "Srb1.rlcSnFieldLength" => array(
+	    array(5,10,"selected"=>10),
+	    "display" => "select",
+	    "comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
+	    "triggered_by" => "srb1.mode",
+    ),
+    "Srb1.rlcTReordering" => array(
+	    array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "35"),
+	    "display" => "select",
+	    "comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 35.",
+	    "triggered_by" => "srb1.mode"
+    ),
+    "Srb1.rlcTPollRetransmit" => array(
+	    array(5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected"=>"45"),
+	    "display" => "select",
+	    "comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 45.",
+	    "triggered_by" => "srb1.mode"
+    ),
+    "Srb1.rlcTStatusProhibit" => array(
+	    array("0", 5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected" => "0"),
+	    "display" => "select",
+	    "comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 0.",
+	    "triggered_by" => "srb1.mode"
+    ),
+    "Srb1.rlcMaxRetxThreshold" => array(
+	    array(1,2,3,4,6,8,16,32, "selected" => "4"),
+	    "display" => "select",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
+	    "triggered_by" => "srb1.mode"
+    ),
+    "Srb1.rlcPollPdu" => array(
+	    array("0", 4,8,16,32,64,128,256,"selected"=>"0"),
+	    "display" => "select",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 0. Value 0 matches infinity from TS.",
+	    "triggered_by" => "srb1.mode"
+    ),
+    "Srb1.rlcPollByte" => array(
+	    array("0", 25, 50, 75, 100, 125, 250, 375, 500, 750, 1000, 1250, 1500, 2000, 3000, "selected" => "0"),
+	    "display" => "select",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 0. Value 0 matches infinity value from TS",
+	    "triggered_by" => "srb1.mode"
+    ),
+
     "Srb2.mode" => array(
 	array("default", "unacknowledged", "acknowledged", "selected"=>"default"),
 	"display" => "select",
+	"required" => true,
+	"javascript" => "onchange='srb_mode(2);'",
 	"comment" => 'Default: default.
 Alternately, specify "unacknowledged" mode configuration for SRB2:
 Srb2.mode = unacknowledged
@@ -233,33 +280,141 @@ Srb2.rlcPollPdu = 0
 Srb2.rlcPollByte = 0
 '
     ),
+    "Srb2.rlcSnFieldLength" => array(
+	    array(5,10,"selected"=>10),
+	    "display" => "select",
+	    "comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
+	    "triggered_by" => "srb2.mode"
+    ),
+    "Srb2.rlcTReordering" => array(
+	    array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "35"),
+	    "display" => "select",
+	    "comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 35.",
+	    "triggered_by" => "srb2.mode"
+    ),
+    "Srb2.rlcTPollRetransmit" => array(
+	    array(5,10,15,20,25, 30,35,40,45,50, 55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected"=>"45"),
+	    "display" => "select",
+	    "comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 45.",
+	    "triggered_by" => "srb2.mode"
+    ),
+    "Srb2.rlcTStatusProhibit" => array(
+	    array("0", 5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected" => "0"),
+	    "display" => "select",
+	    "comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 0.",
+	    "triggered_by" => "srb2.mode"
+    ),
+    "Srb2.rlcMaxRetxThreshold" => array(
+	    array(1,2,3,4,6,8,16,32, "selected" => "4"),
+	    "display" => "select",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
+	    "triggered_by" => "srb2.mode"
+    ),
+    "Srb2.rlcPollPdu" => array(
+	    array("0", 4,8,16,32,64,128,256,"selected"=>"0"),
+	    "display" => "select",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 0. Value 0 matches infinity from TS.",
+	    "triggered_by" => "srb2.mode"
+    ),
+    "Srb2.rlcPollByte" => array(
+	    array("0", 25, 50, 75, 100, 125, 250, 375, 500, 750, 1000, 1250, 1500, 2000, 3000, "selected" => "0"),
+	    "display" => "select",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 0. Value 0 matches infinity value from TS",
+	    "triggered_by" => "srb2.mode"
+    ),
 
     "drb" => array(
-	"value" => "DRB default configuration: TBI",
+	"value" => "DRB default configuration - for QCI 9",
 	"display" => "objtitle"
     ),
 
-    // TBI how is this shown?
-/*
-; DRB "unacknowledged" mode. See 3GPP 36.508 - 4.8.2.1.2.1, 4.8.2.1.3.1.
-;DrbUm.rlcSnFieldLength = 10
-;DrbUm.rlcTReordering = 50
-;DrbUm.pdcpSnFieldLength = 12
-;DrbUm.pdcpDiscardTimer = 100
+    "drb_um" => array(
+	"value" => 'DRB "unacknowledged" mode - See 3GPP 36.508 - 4.8.2.1.2.1, 4.8.2.1.3.1',
+	"display" => "objtitle"
+    ),
+    "DrbUm.rlcSnFieldLength" => array(
+	array(5, 10, "selected" => "10"),
+	"display" => "select",
+	"comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
+	"required"=> true
+    ),
+    "DrbUm.rlcTReordering" => array(
+	array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "50"),
+	"display" => "select",
+	"comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 50.",
+	"required"=> true
+    ),
+    "DrbUm.pdcpSnFieldLength" => array(
+	array(7, 12, "selected"=>"12"),
+	"display" => "select",
+	"comment" => "Indicates the PDCP Sequence Number length in bits. Default 12.",
+	"required"=> true
+    ),
+    "DrbUm.pdcpDiscardTimer" => array(
+	array("0",50,100,150,300,500,750,1500, "selected"=>"100"),
+	"display" => "select",
+	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds. Default 100. Value 0 matches infinity from TS.",
+	"required"=> true
+    ),
 
-; DRB "acknowledged" mode. See 3GPP 36.508 - 4.8.2.1.2.2, 4.8.2.1.3.2.
-;DrbAm.rlcTPollRetransmit = 80
-;DrbAm.rlcTReordering = 80
-;DrbAm.rlcTStatusProhibit = 60
-;DrbAm.rlcMaxRetxThreshold = 4
-;DrbAm.rlcPollPdu = 128
-;DrbAm.rlcPollByte = 125
-;DrbAm.pdcpSnFieldLength = 12
-;DrbAm.pdcpDiscardTimer = 0
-;DrbAm.pdcpStatusRequired = true
-*/
-
-),
+    "drb_am" => array(
+	"value" => 'DRB "acknowledged" mode - See 3GPP 36.508 - 4.8.2.1.2.2, 4.8.2.1.3.2',
+	"display" => "objtitle"
+    ),
+    "DrbAm.rlcTPollRetransmit" => array(
+	array(5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected"=>"80"),
+	"display" => "select",
+	"comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 80.",
+	"required"=> true
+    ),
+    "DrbAm.rlcTReordering" => array(
+	array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "80"),
+	"display" => "select",
+	"comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 80.",
+	"required"=> true
+    ),
+    "DrbAm.rlcTStatusProhibit" => array(
+	array("0", 5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected" => "60"),
+	"display" => "select",
+	"comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 60.",
+	"required"=> true
+    ),
+    "DrbAm.rlcMaxRetxThreshold" => array(
+	array(1,2,3,4,6,8,16,32, "selected" => "4"),
+	"display" => "select",
+	"comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
+	"required"=> true
+    ),
+    "DrbAm.rlcPollPdu" => array(
+	array("0", 4,8,16,32,64,128,256,"selected"=>"128"),
+	"display" => "select",
+	"comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 128. Value 0 matches infinity value from TS.",
+	"required"=> true
+    ),
+    "DrbAm.rlcPollByte" => array(
+	array("0", 25, 50, 75, 100, 125, 250, 375, 500, 750, 1000, 1250, 1500, 2000, 3000, "selected" => "125"),
+	"display" => "select",
+	"comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 125. Value 0 matches infinity value from TS",
+	"required"=> true
+    ),
+    "DrbAm.pdcpSnFieldLength" => array(
+	array(7, 12, "selected"=>"12"),
+	"display" => "select",
+	"comment" => "Indicates the PDCP Sequence Number length in bits. Default 12.",
+	"required"=> true
+    ),
+    "DrbAm.pdcpDiscardTimer" => array(
+	array("0",50,100,150,300,500,750,1500, "selected"=>"0"),
+	"display" => "select",
+	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds. Default 0. Value 0 matches infinity from TS.",
+	"required"=> true
+    ),
+    "DrbAm.pdcpStatusRequired" => array(
+	"value" => true,
+	"display" => "checkbox",
+	"comment" => "Indicates whether or not the UE shall send a PDCP Status Report upon re-establishment of the PDCP entity and upon PDCP data recovery as specified in TS 36.323 [8]. Default true."
+    )
+)
 ),
 
 "core" => array(

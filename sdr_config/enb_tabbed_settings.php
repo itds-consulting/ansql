@@ -236,11 +236,34 @@ the eNodeB hardware or reduced equipment life."
 								unset($fields[$section][$subsection][$param]["triggered_by"]);
 							}
 						}
-
 					}
 				}
 			}
 		}
+
+		// SRB fields
+		$ack_fields = array("rlcTPollRetransmit", "rlcTReordering", "rlcTStatusProhibit", "rlcMaxRetxThreshold", "rlcPollPdu", "rlcPollByte");
+		$unack_fields = array("rlcSnFieldLength" ,"rlcTReordering");
+
+		// unset triggered_by for SRB depending on selected mode
+		for ($i=1; $i<3; $i++) {
+			if (strlen(getparam("Srb$i.mode")))
+				$srb_mode = getparam("Srb$i.mode");
+			elseif (isset($fields["radio"]["bearers"]["Srb$i.mode"][0]["selected"]))
+				$srb_mode = $fields["radio"]["bearers"]["Srb$i.mode"][0]["selected"];
+			else 
+				$srb_mode = '';
+
+			$trigger = array();
+			if ($srb_mode=="acknowledged") 
+				$trigger = $ack_fields;
+			elseif ($srb_mode=="unacknowledged")
+				$trigger = $unack_fields;
+			for ($j=0; $j<count($trigger); $j++) {
+				unset($fields["radio"]["bearers"]["Srb$i.".$trigger[$j]]["triggered_by"]);
+			}
+		}
+
 		if (strlen($custom_site_equipment))
 			$fields["hardware"]["site_equipment"]["custom_parameters"]["value"] = $custom_site_equipment;
 
@@ -338,6 +361,9 @@ the eNodeB hardware or reduced equipment life."
 			unset($request_fields["satsite"]["site_equipment"]["custom_parameters"]);
 		}
 
+		if (isset($fields["bearers"]))
+			$fields["bearers"] = $this->setBearers($fields["bearers"]);
+
 		$request_fields["openenb"]    = array_merge($request_fields["openenb"],$fields);
 		$request_fields["gtp"]["sgw"] = $gtp;
 
@@ -369,6 +395,40 @@ the eNodeB hardware or reduced equipment life."
 			unset($_SESSION[$this->title]["section"], $_SESSION[$this->title]["subsection"]);
 			return array(true);
 		}
+	}
+
+	function setBearers($form_data)
+	{
+		$bearers = array();
+
+		// SRB 
+		$ack_fields   = array("rlcTPollRetransmit", "rlcTReordering", "rlcTStatusProhibit", "rlcMaxRetxThreshold", "rlcPollPdu", "rlcPollByte");
+		$unack_fields = array("rlcSnFieldLength" ,"rlcTReordering");
+
+		for ($i=1 ; $i<3 ; $i++) {
+			$mode = $form_data["Srb$i.mode"];
+			if ($mode=="acknowledged") 
+				$set = $ack_fields;
+			elseif ($mode=="unacknowledged") 
+				$set = $unack_fields;
+			else
+				$set = array();
+
+			$bearers["Srb$i.mode"] = $mode;
+			foreach ($set as $key) {
+				$value = (isset($form_data["Srb$i.$key"])) ? $form_data["Srb$i.$key"] : "";
+				$bearers["Srb$i.$key"] = $value;
+			}
+		}
+
+		// DBR
+		// set all drb params
+		foreach ($form_data as $key=>$value) {
+			if (substr($key,0,3)=="Drb")
+				$bearers[$key] = $value;
+		}
+
+		return $bearers;
 	}
 }
 
