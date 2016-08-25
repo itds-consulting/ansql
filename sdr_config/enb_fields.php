@@ -996,11 +996,10 @@ at the expense of PDCCH capacity."
 "general" => array(
 
     "mode" => array(
-	array("ENB", "selected"=>"ENB"),
-	"display" => "select",
+	"value" => "ENB",
 	"comment" => "Operation mode
 This setting determines which control Javascript file to load.
-Optional Javascript files are used for special test modes."
+Optional Javascript files are used for special test modes. Default ENB."
     ),
 
     "autostart" => array(
