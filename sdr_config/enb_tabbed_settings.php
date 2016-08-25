@@ -23,7 +23,7 @@ require_once("ansql/sdr_config/check_validity_fields_enb.php");
 
 class EnbTabbedSettings extends TabbedSettings
 {
-	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Band", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex",  "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection");
+	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Band", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex", "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection", "mode", "custom_parameters");
 
 	protected $default_section    = "radio";
 	protected $default_subsection = "enodeb";
@@ -39,7 +39,12 @@ class EnbTabbedSettings extends TabbedSettings
 
 	function getMenuStructure()
 	{
+		global $developers_tab;
+
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
+
+		if (!$developers_tab)
+			$developers_tab = false;
 
 		//The key is the MENU alias the sections from $fields 
 		//and for each menu is an array that has the submenu data with subsections 
@@ -50,19 +55,23 @@ class EnbTabbedSettings extends TabbedSettings
 
 			"Hardware" => array("Site info", "Site equipment", "Shutdown"),
 			"System" => array("System information", "Advanced", "Scheduler", "RadioHardware", "Measurements"),
-
-			// TBI! Define how sections under developers can be set
-			//"Developers" => array("Radio", "General", "Uu-simulator", "Uu-loopback", "Test-Enb", "Test-scheduler")
 		);
+
+		if ($developers_tab)
+			$structure["Developers"] = array("Radio", "General", "Uu-simulator", "Uu-loopback", "Test-Enb", "Test-scheduler");
 
 		return $structure;
 	}
 
 	function getSectionsDescription()
 	{
+		global $developers_tab;
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
-		return array(
+		if (!$developers_tab)
+	        $developers_tab = false;
+
+		$desc = array(
 			"enodeb" => "These are the most basic configuration parameters and the ones most likely to be changed. They are gathered in this section to make them easy to find.", //basic section from file
 			"bearers" => "Bearer parameters (RLC and PDCP layers)",
 
@@ -93,13 +102,18 @@ No defaults are provided.",
 			"shutdown" => "Parameters for safety shutdown of SatSite components.
 Raising these parameters above their default values may result in damage to
 the eNodeB hardware or reduced equipment life."
-
-		/*	"radio" => "These are parameters for configuring the radio device",
-			"general" => "Global configuration for the ENB Yate Module",
-			"uu-simulator" => "Configuration parameters for the Uu interface simulator",
-			"uu-loopback" => "Configuration parameters for the UeConnection test fixture",
-			"test-enb" => "This section controls special test modes of the eNodeB."*/
 		);
+
+		if ($developers_tab) {
+			$desc["radio"] = "These are parameters for configuring the radio device";
+			$desc["general"] = "Global configuration for the ENB Yate Module";
+			$desc["uu-simulator"] = "Configuration parameters for the Uu interface simulator";
+			$desc["uu-loopback"] = "Configuration parameters for the UeConnection test fixture";
+			$desc["test-enb"] = "This section controls special test modes of the eNodeB.";
+			$desc["test-scheduler"] = "This section controls special test modes of the eNodeB.";
+		}
+
+		return $desc;
 	}
 
 	// Retrieve settings using get_enb_node and build array with renamed sections to match interface fields
@@ -172,6 +186,7 @@ the eNodeB hardware or reduced equipment life."
 	 */
 	function applyRequestFields($request_fields=null,$exists_in_response=null)
 	{
+		global $developers_tab;
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
 		$structure = $this->buildConfSections();
@@ -179,6 +194,8 @@ the eNodeB hardware or reduced equipment life."
 
 		if (!$request_fields)
 			return $fields;
+		if (!$developers_tab)
+			$developers_tab = false;
 
 		$trigger_names = array("mme"=>"add_mme_");
 
@@ -206,7 +223,7 @@ the eNodeB hardware or reduced equipment life."
 							$fields[$section][$subsection][$param][0]["selected"] = $data;
 
 						} elseif (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"] == "checkbox")
- 
+
 							$fields[$section][$subsection][$param]["value"] = ($data=="yes" || $data=="on" || $data=="1")  ? "on" : "off";
 
 						else 
@@ -272,6 +289,7 @@ the eNodeB hardware or reduced equipment life."
 
 	function validateFields($section, $subsection)
 	{
+		global $developers_tab;
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
 		$parent_res = parent::validateFields($section, $subsection);
@@ -302,6 +320,7 @@ the eNodeB hardware or reduced equipment life."
 	// Break error message in case of error and mark section/subsection to be opened
 	function storeFormResult(array $fields)
 	{
+		global $developers_tab;
 		//if no errors encountered on validate data fields then send API request
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
@@ -311,6 +330,14 @@ the eNodeB hardware or reduced equipment life."
 		foreach ($basic_sections as $basic_section) {
 			$request_fields["openenb"]["basic"] = array_merge($request_fields["openenb"]["basic"], $fields[$basic_section]);
 			unset($fields[$basic_section]);
+		}
+
+		if (!$developers_tab)
+			$developers_tab = false;
+
+		if ($developers_tab) {
+			foreach ($fields["test-scheduler"] as $p_name=>$p_value)
+				$request_fields["openenb"]["developers"]["test-enb"][$p_name] = $p_value;
 		}
 
 		$gtp = $fields["gtp"];
@@ -431,6 +458,4 @@ the eNodeB hardware or reduced equipment life."
 		return $bearers;
 	}
 }
-
-
 ?>
