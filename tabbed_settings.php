@@ -102,7 +102,7 @@ abstract class TabbedSettings
 			$res = array(true);
 			if (isset($data["display"]) && $data["display"]=="select" && !isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
 				$res = $this->validSelectField($param_name, $field_param, $data[0]);
-			elseif (isset($data["validity"])) 
+			elseif (isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
 				$res = $this->cbValidityField($data["validity"], $param_name, $field_param);
 
 			if (!$res[0])
