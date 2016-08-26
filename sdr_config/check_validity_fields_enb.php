@@ -187,7 +187,7 @@ function validate_mme_params()
 			if (isset($param_validation["type"]) && !valid_param($field_value))
 				return array(false, "The '".$name."' can't be empty in 'mme".$index."'.", array($name));
 
-			if (isset($param_validation["callback"])) {
+			if (isset($param_validation["callback"]) && $field_value) {
 				$res = call_user_func($param_validation["callback"], $field_name, $field_value);
 			} elseif (isset($param_validation["valid_values"]) && $field_value) {
 				$args = array($field_name, $field_value, $param_validation["valid_values"]);
@@ -195,7 +195,7 @@ function validate_mme_params()
 			}
 
 			if (!$res[0]) {
-				$res[2] = array($field_name);
+				$res[2] = array($name);
 				return $res;
 			}
 		}
