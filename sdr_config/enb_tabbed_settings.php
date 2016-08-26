@@ -119,6 +119,7 @@ the eNodeB hardware or reduced equipment life."
 	// Retrieve settings using get_enb_node and build array with renamed sections to match interface fields
 	function getApiFields()
 	{
+		global $developers_tab;
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
 		$response_fields = request_api(array(), "get_enb_node", "node");
@@ -167,6 +168,15 @@ the eNodeB hardware or reduced equipment life."
 		$aggregated_subsections = array("enodeb","system_information","pdsch","pusch","pucch","prach","pdcch");
 		foreach ($aggregated_subsections as $subsection)
 			$res[$subsection] = $res["basic"];
+
+		if (!$developers_tab)
+			$developers_tab = false;
+
+		if ($developers_tab) {
+			$res["test-scheduler"] = $res["test-enb"];
+			if (!isset($res["general"]["mode"]))
+				$res["general"]["mode"] = "";
+		}
 
 		return $res;
 	}
@@ -284,6 +294,7 @@ the eNodeB hardware or reduced equipment life."
 		if (strlen($custom_site_equipment))
 			$fields["hardware"]["site_equipment"]["custom_parameters"]["value"] = $custom_site_equipment;
 
+
 		return $fields;
 	}
 
@@ -323,6 +334,9 @@ the eNodeB hardware or reduced equipment life."
 		global $developers_tab;
 		//if no errors encountered on validate data fields then send API request
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
+		
+		if (!$developers_tab)
+			$developers_tab = false;
 
 		$request_fields = array("openenb"=>array("basic"=>array()));//, "gtp"=>array());
 
@@ -331,15 +345,7 @@ the eNodeB hardware or reduced equipment life."
 			$request_fields["openenb"]["basic"] = array_merge($request_fields["openenb"]["basic"], $fields[$basic_section]);
 			unset($fields[$basic_section]);
 		}
-
-		if (!$developers_tab)
-			$developers_tab = false;
-
-		if ($developers_tab) {
-			foreach ($fields["test-scheduler"] as $p_name=>$p_value)
-				$request_fields["openenb"]["developers"]["test-enb"][$p_name] = $p_value;
-		}
-
+		
 		$gtp = $fields["gtp"];
 		unset($fields["gtp"]);
 
@@ -391,7 +397,15 @@ the eNodeB hardware or reduced equipment life."
 		if (isset($fields["bearers"]))
 			$fields["bearers"] = $this->setBearers($fields["bearers"]);
 
-		$request_fields["openenb"]    = array_merge($request_fields["openenb"],$fields);
+		$request_fields["openenb"] = array_merge($request_fields["openenb"],$fields);
+	
+		if ($developers_tab) {
+			foreach ($fields["test-scheduler"] as $p_name=>$p_value)
+				$request_fields["openenb"]["test-enb"][$p_name] = $p_value;
+
+			unset($request_fields["openenb"]["test-scheduler"]);
+		}
+
 		$request_fields["gtp"]["sgw"] = $gtp;
 
 		$res = make_request($request_fields, "set_enb_node");
