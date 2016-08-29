@@ -2546,9 +2546,10 @@ class Model
 
 	/**
 	 * Update the database to match all the models
+	 * @param $skip_default_objects Bool. Default false. If true, just tables will be updated, without calling defaultObject
 	 * @return True if the database was synchronized with all the models
 	 */
-	static function updateAll()
+	static function updateAll($skip_default_objects = false)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
 
@@ -2601,7 +2602,7 @@ class Model
 			return false;
 		}
 
-		if(self::$_modified)
+		if(self::$_modified && !$skip_default_objects)
 			foreach(self::$_models as $class => $vars) {
 				$object = new $class;
 
