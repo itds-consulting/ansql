@@ -418,7 +418,7 @@ class Debug
 	public static function format_args($args)
 	{
 		$res = str_replace("\n","",var_export($args,true));
-		$res = str_replace("  ","",$res);
+		$res = str_replace("  "," ",$res);
 		$res = str_replace(",)",")",$res);
 		// exclude 'array ('
 		$res = substr($res,7);
