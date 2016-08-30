@@ -25,10 +25,11 @@ class EnbTabbedSettings extends TabbedSettings
 {
 	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Band", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex", "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection", "mode", "custom_parameters");
 
+	protected $trigger_names      = array("mme"=>"add_mme_");
 	protected $default_section    = "radio";
 	protected $default_subsection = "enodeb";
-	protected $title = "ENB";
-	protected $menu_css = "menu menu_enb";
+	protected $title              = "ENB";
+	protected $menu_css           = "menu menu_enb";
 
 	function __construct()
 	{
@@ -173,7 +174,8 @@ the eNodeB hardware or reduced equipment life."
 			$developers_tab = false;
 
 		if ($developers_tab) {
-			$res["test-scheduler"] = $res["test-enb"];
+			if (isset($res["test-enb"]))
+				$res["test-scheduler"] = $res["test-enb"];
 			if (!isset($res["general"]["mode"]))
 				$res["general"]["mode"] = "";
 		}
@@ -207,8 +209,6 @@ the eNodeB hardware or reduced equipment life."
 		if (!$developers_tab)
 			$developers_tab = false;
 
-		$trigger_names = array("mme"=>"add_mme_");
-
 		$custom_site_equipment = "";
 		foreach ($structure as $section=>$data) {
 			foreach ($data as $key=>$subsection) {
@@ -239,13 +239,10 @@ the eNodeB hardware or reduced equipment life."
 						else 
 							$fields[$section][$subsection][$param]["value"] = $data; 
 
-
 						// unmark triggered fields if they are set
-						if ((strlen($data) || getparam($param)) && isset($trigger_names[$subsection])) {
-							$trigger_name = $trigger_names[$subsection];
-
+						if ((strlen($data) || getparam($param)) && isset($this->trigger_names[$subsection])) {
+							$trigger_name = $this->trigger_names[$subsection];
 							if (isset($fields[$section][$subsection][$param]["triggered_by"]) && ctype_digit($fields[$section][$subsection][$param]["triggered_by"])) {
-
 								$triggered_by   = $fields[$section][$subsection][$param]["triggered_by"];
 								$former_trigger = $triggered_by - 1;
 

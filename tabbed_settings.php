@@ -26,14 +26,15 @@ require_once("check_validity_fields.php");
  */
 abstract class TabbedSettings 
 {
-	protected $error               = "";
-	protected $warnings            = "";
-	protected $current_section     = "";
-	protected $current_subsection  = "";
-	protected $open_tabs           = 1;
+	protected $error                = "";
+	protected $warnings             = "";
+	protected $current_section      = "";
+	protected $current_subsection   = "";
+	protected $open_tabs            = 1;
 	protected $subsections_advanced = array();
+	protected $menu_css             = "menu";
+
 	protected $title;
-	protected $menu_css            = "menu";
 
 	function __construct()
 	{
@@ -314,6 +315,38 @@ abstract class TabbedSettings
 
 						else
 							$fields[$m_section][$m_subsection][$param_name]["value"] = getparam($paramname);
+
+						// unmark triggered fields if they are set
+						if (getparam($param_name) && isset($data["triggered_by"])) {
+
+							$trigger_names = $this->trigger_names;
+							if (!isset($trigger_names) && !is_array($trigger_names)) {
+								Debug::trigger_report("critical", "Class variable trigger_names is not array.");
+								return array(false);
+							}
+						
+							$trigger_name = $trigger_names[$m_subsection];
+
+							if (isset($fields[$m_section][$m_subsection][$param_name]["triggered_by"]) && ctype_digit($fields[$m_section][$m_subsection][$param_name]["triggered_by"])) {
+
+								$triggered_by   = $fields[$m_section][$m_subsection][$param_name]["triggered_by"];
+								$former_trigger = $triggered_by - 1;
+								
+								if (isset($fields[$section][$subsection][$trigger_name.$former_trigger]))
+									unset($fields[$section][$subsection][$trigger_name.$former_trigger]);
+
+								$fld = $fields[$m_section][$m_subsection];
+
+								foreach ($fld as $fldn=>$fldd) {
+									if (isset($fldd["triggered_by"]) && $fldd["triggered_by"]==$triggered_by) {
+										unset($fields[$m_section][$m_subsection][$fldn]["triggered_by"]);
+									}
+								}
+
+								unset($fields[$m_section][$m_subsection][$param_name]["triggered_by"]);
+							}
+						}
+
 					}
 				}
 			}
