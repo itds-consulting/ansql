@@ -428,7 +428,11 @@ the eNodeB hardware or reduced equipment life."
 			$_SESSION[$this->title]["subsection"]   = $subsection;
 			$_SESSION[$this->title]["section"]      = $section;
 
-			return array(false, $res["message"]);
+			$code = "";
+			if (isset($res["code"]))
+				$code = "[".$res["code"]."] ";
+
+			return array(false, $code.$res["message"]);
 		} else {
 			unset($_SESSION[$this->title]["section"], $_SESSION[$this->title]["subsection"]);
 			return array(true);
