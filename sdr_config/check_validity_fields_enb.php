@@ -125,8 +125,9 @@ function check_uplink_rbs($field_name, $field_value, $ulrbsstartind, $rbs)
 
 function check_valid_enodebid($field_name, $field_value)
 {
-	if (!is_valid_number($field_value))
-		return array(false, "The '".$field_name."' is not a valid number: ".$field_value);
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
 
 	return array(true);
 }

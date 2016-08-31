@@ -29,15 +29,23 @@ function is_valid_number($field_value)
 	//the allowed values are ^-?[1-9][0-9]*|0$
 	if (!is_numeric($field_value))
 		return false;
-	if (strcmp($field_value,(string)(int)$field_value)!== 0 )
+	if (strcmp($field_value,(string)(int)$field_value)!== 0)
 		return false;
 	return true;
 }
 
-function check_valid_integer($field_name, $field_value)
+function check_valid_number($field_name, $field_value)
 {
 	if (!is_valid_number($field_value))
 		return array(false, "Field '".$field_name."' is not a valid number: $field_value.");
+	return array(true);
+}
+
+function check_valid_integer($field_name, $field_value)
+{
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
 
 	$field_value = (int) $field_value;
 	if (filter_var($field_value, FILTER_VALIDATE_INT) === false)
@@ -81,8 +89,9 @@ function check_valid_values_for_select_field($field_name, $field_value, $select_
 function check_field_validity($field_name, $field_value, $min=false, $max=false, $regex=false, $fixed=false)
 {
 	if ($min !== false && $max !== false)  {
-		if (!is_valid_number($field_value))		
-			return array(false, "Field '".$field_name."' is not a valid number: $field_value.");
+		$valid = check_valid_number($field_name, $field_value);
+		if (!$valid[0])
+		    return $valid;
 		if ((int)$field_value<$min || (int)$field_value>$max) 
 			return array(false, "Field '".$field_name."' is not valid. It has to be smaller then $max and greater then $min.");
 	} 

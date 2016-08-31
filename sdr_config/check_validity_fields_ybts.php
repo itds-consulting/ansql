@@ -69,8 +69,9 @@ function check_radio_band($field_name, $field_value, $restricted_value)
  */
 function check_radio_powermanager($field_name, $field_value, $restricted_value)
 {
-	if (!is_valid_number($field_value))
-		return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+	    return $valid;
 
 	if ((int)$field_value > $restricted_value)
 		return array(false, "Radio.PowerManager.MinAttenDB, must be less or equal to Radio.PowerManager.MaxAttenDB");
@@ -112,8 +113,10 @@ function validate_neci_vea($field_name, $field_value)
  */
 function check_timer_implicitdetach($field_name, $field_value, $restricted_value)
 {
-	if (!is_valid_number($field_value))
-                return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0]) {
+		return $valid;
+	}
 
 	//first test if $field_value is in the allowed interval
 	if ($field_value<2000 || $field_value>4000 || $field_value%10!=0)
@@ -133,11 +136,12 @@ function check_timer_implicitdetach($field_name, $field_value, $restricted_value
  */
 function check_timer_raupdate($field_name, $field_value)
 {
-	if (!is_valid_number($field_value))
-                return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
 
 	if (($field_value<0 || $field_value>11160 || $field_value%2!=0) && $field_value<12000)
-	        return array(false, "Field $field_name is not valid. The value must be in interval [0,11160] and should be a factor of 2 or greater than 12000.");
+		return array(false, "Field $field_name is not valid. The value must be in interval [0,11160] and should be a factor of 2 or greater than 12000.");
 
 	$timerT3212 = getparam("Timer_T3212");
 	if ($field_value!=0 && $timerT3212=="0") {
@@ -155,18 +159,19 @@ function check_timer_raupdate($field_name, $field_value)
  */
 function check_uplink_persistent($field_name, $field_value, $restricted_value)
 {
-	if (!is_valid_number($field_value))
-                return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
 
 	$field_value = (int)$field_value;
 	if ($field_value<0 || $field_value>6000 || $field_value%100!=0)
-		 return array(false, "Field $field_name is not valid. The value must be in interval [0,6000] and should be a factor of 100.");
+		return array(false, "Field $field_name is not valid. The value must be in interval [0,6000] and should be a factor of 100.");
 
 	if ($field_value != 0 || $field_value != "0") {
 		if ($field_value < (int)$restricted_value)
 			return array(true, "Field $field_name doesn't have a recommended value. This value must be greater then Uplink.KeepAlive value.");
 	}
-	
+
 	return array(true);
 }
 
@@ -176,16 +181,17 @@ function check_uplink_persistent($field_name, $field_value, $restricted_value)
  */
 function check_downlink_persistent($field_name, $field_value, $restricted_value)
 {
-	if (!is_valid_number($field_value))
-                return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
 
 	$field_value = (int) $field_value;
 	$restricted_value = (int)$restricted_value;
-	
+
 	if ($field_value < 0 || $field_value > 10000)
 		return array(false, "Field $field_name is not valid. It has to be smaller than 10000.");
 	if ($field_value != 0) {
-                if ($field_value < $restricted_value)
+		if ($field_value < $restricted_value)
 			return array(true, "Field $field_name doesn't have a recommended value. This value must be greater then Downlink.KeepAlive value.");
 	}
 
@@ -199,8 +205,10 @@ function check_downlink_persistent($field_name, $field_value, $restricted_value)
  */
 function check_channelcodingcontrol_rssi($field_name, $field_value)
 {
-	if (!is_valid_number($field_value))
-                return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
+
 	$field_value = (int) $field_value;
 
 	if ($field_value<-65 || $field_value>-15)
@@ -210,7 +218,7 @@ function check_channelcodingcontrol_rssi($field_name, $field_value)
 
 	if ($radio_RSSITarget+10 != $field_value)
 		return array(true, "Field $field_name doesn't have a recommended value. This value should normally be Radio.RSSITarget + 10 dB, value added from tab Radio, from GSM Advanced that has the value: $radio_RSSITarget.");
-	
+
 	return array(true);
 }
 
@@ -219,8 +227,10 @@ function check_channelcodingcontrol_rssi($field_name, $field_value)
  */ 
 function check_radio_rssitarget($field_name, $field_value)
 {
-	if (!is_valid_number($field_value))
-                return array(false, "Field $field_name is not a valid number: $field_value.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
+
 	$field_value = (int) $field_value;
 
 	if ($field_value<-75 || $field_value>-25)
@@ -238,8 +248,10 @@ function check_radio_rssitarget($field_name, $field_value)
  */
 function check_t3260($field_name, $field_value)
 {
-	if (!is_valid_number($field_value))
-		return array(false, "Field $field_name is not valid. Interval allowed: 5000..3600000.");
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
+
 	$field_value = (int) $field_value;
 
 	if ($field_value<5000 || $field_value>3600000)
