@@ -933,7 +933,15 @@ function cancel_params()
  */ 
 function display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width)
 {
+	global $allow_code_comment, $use_comments_docs, $method;
+
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
+
+	if (!isset($allow_code_comment))
+		$allow_code_comment = true;
+	if (!isset($use_comments_docs))
+		$use_comments_docs = false;
+
 	$q_mark = false;
 	if (isset($field_format["advanced"]))
 		$have_advanced = true;
@@ -1206,17 +1214,28 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print " readonly=''";
 			if (isset($field_format["autocomplete"]))
 				print " autocomplete=\"".$field_format["autocomplete"]."\"";
-			if ($display != "hidden" && isset($field_format["comment"])) {
+			if ( $allow_code_comment && $display != "hidden" && isset($field_format["comment"])) {
 				$q_mark = true;
 				if (is_file("images/question.jpg"))
 					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
 				else
 					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
-			} else
-				print '>';
-			if($display == 'file' && isset($field_format["file_example"]) && $field_format["file_example"] != "__no_example")
+		   
+			} elseif ($use_comments_docs && $display != "hidden") {
+				$q_mark = true;
+				$category_id = str_replace(array("new_","add_", "edit_"), "", $method);
+				$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
+
+				if (is_file("images/question.jpg"))
+					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
+				else
+					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
+			 } else
+				 print '>';
+
+			if ($display == 'file' && isset($field_format["file_example"]) && $field_format["file_example"] != "__no_example")
 				print '<br/><br/>Example: <a class="'.$css.'" href="download.php?file='.$field_format["file_example"].'">'.$field_format["file_example"].'</a><br/><br/>';
-			if($display == 'file' && !isset($field_format["file_example"])) 
+			if ($display == 'file' && !isset($field_format["file_example"])) 
 				Debug::trigger_report('critical', "For input type file a file example must be given as parameter.");
 			break;
 		case "fixed":
@@ -1240,20 +1259,52 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	}
 	if ($display != "hidden") {
 		if (isset($field_format["comment"])) {
-			$comment = $field_format["comment"];
+			if ($allow_code_comment) {
 
-			if (!$q_mark) {
-				if (is_file("images/question.jpg"))
-					print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
-				else
-					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
+				$comment = $field_format["comment"];
+
+				if (!$q_mark) {
+					if (is_file("images/question.jpg"))
+						print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+					else
+						print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
+				}
+
+				print '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
 			}
+		}
 
-			print '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
+		if ($use_comments_docs) {
+				$category_id = str_replace(array("add_", "edit_"), "", $method);
+				$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
+
+				if (!$q_mark) {
+					if (is_file("images/question.jpg"))
+						print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
+					else
+						print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
+				}
 		}
 		print '</td>';
 	}
 	print '</tr>';
+}
+
+
+function build_comment_id($field_format, $form_identifier, $field_name, $category_id)
+{
+	if (isset($field_format["comment_id"]))
+		return $field_format["comment_id"];
+
+	$last = substr($field_name, -1);
+	$penultimate = substr($field_name, -2, 1);
+	$fld = $field_name;
+	if ($penultimate=="_" && ctype_digit($last))
+		$fld = substr($field_name,0,strlen($field_name)-2);
+	elseif (ctype_digit($penultimate) && ctype_digit($last))
+		$fld = substr($field_name,0,strlen($field_name)-1);	
+
+	return $category_id."_".$form_identifier.$fld;
 }
 
 /**
