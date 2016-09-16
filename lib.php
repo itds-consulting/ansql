@@ -931,7 +931,7 @@ function cancel_params()
 /**
  * Builds the HTML data for FORM
  */ 
-function display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width)
+function display_pair($field_name, $field_format, $object, $form_identifier, $css, $show_advanced, $td_width, $category_id=null)
 {
 	global $allow_code_comment, $use_comments_docs, $method;
 
@@ -1223,7 +1223,8 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		   
 			} elseif ($use_comments_docs && $display != "hidden") {
 				$q_mark = true;
-				$category_id = str_replace(array("new_","add_", "edit_"), "", $method);
+				if (!$category_id)
+					$category_id = str_replace(array("new_","add_", "edit_"), "", $method);
 				$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
 
 				if (is_file("images/question.jpg"))
@@ -1275,15 +1276,16 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		}
 
 		if ($use_comments_docs) {
+			if (!$category_id)
 				$category_id = str_replace(array("add_", "edit_"), "", $method);
-				$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
+			$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
 
-				if (!$q_mark) {
-					if (is_file("images/question.jpg"))
-						print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
-					else
-						print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
-				}
+			if (!$q_mark) {
+				if (is_file("images/question.jpg"))
+					print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
+				else
+					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
+			}
 		}
 		print '</td>';
 	}
@@ -1296,12 +1298,23 @@ function build_comment_id($field_format, $form_identifier, $field_name, $categor
 	if (isset($field_format["comment_id"]))
 		return $field_format["comment_id"];
 
+	$pieces = explode("_", $field_name);
+
+	if (ctype_digit($pieces[count($pieces)-1])) {
+		$sign = $fld = "";
+		for ($i = 0; $i<count($pieces)-1; $i++) {
+			$fld .= $sign.$pieces[$i];
+			$sign = "_";
+		}
+		return $category_id."_".$form_identifier.$fld;
+	}
 	$last = substr($field_name, -1);
 	$penultimate = substr($field_name, -2, 1);
 	$fld = $field_name;
 	if ($penultimate=="_" && ctype_digit($last))
 		$fld = substr($field_name,0,strlen($field_name)-2);
-	elseif (ctype_digit($penultimate) && ctype_digit($last))
+	elseif ((ctype_digit($penultimate) && ctype_digit($last)) ||
+			$last == "_")
 		$fld = substr($field_name,0,strlen($field_name)-1);	
 
 	return $category_id."_".$form_identifier.$fld;
