@@ -281,13 +281,13 @@ function show_hide_docs(category_id, comment_id)
 		reference_id = comment_id+"_id";
 
 	/* show or hide the element depending on the last_reference_id value*/
-	if (reference_id == document.last_reference_id) {
+	if (comment_id == document.last_comment_id) {
 		show_hide("iframe_param");
 		return;
 	}
 
 	/* set the new last_reference_id */
-	document.last_reference_id = reference_id;
+	document.last_comment_id = comment_id;
 
 	show("iframe_param");
 	/* find if the element exist in the iframe and scroll the contents
