@@ -13,6 +13,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */ 
 
+//keep the docs always visible on page
+docs_always_visible = 'none';
 /** 
  * Get Internet Explorer Version
  * @return the version of Internet Explorer or a -1 (indicating the use of another browser)
@@ -273,6 +275,9 @@ function show_hide_comment(id)
  */
 function show_hide_docs(category_id, comment_id)
 {
+	if (docs_always_visible === 'none') 
+		docs_always_visible = true;
+
 	/* set reference_id with the id found in iframe html*/
 	var iframe = document.getElementById('iframe_param');
 	var reference_id = category_id+"_id";
@@ -280,16 +285,32 @@ function show_hide_docs(category_id, comment_id)
 	if (iframe_doc.getElementById(comment_id+"_id"))
 		reference_id = comment_id+"_id";
 
+	document.getElementById("page_id").style.width="78%";
+
 	/* show or hide the element depending on the last_reference_id value*/
 	if (comment_id == document.last_comment_id) {
 		show_hide("iframe_param");
+		show_hide("docs_x");
+
+		if (document.getElementById("iframe_param").style.display == "none")
+			document.getElementById("page_id").style.width="100%";
+	
 		return;
 	}
-
 	/* set the new last_reference_id */
 	document.last_comment_id = comment_id;
 
 	show("iframe_param");
+	show("docs_iframe");
+	show("docs_x");
+	if (document.getElementById("iframe_param").style.display == "none") {
+		document.getElementById("iframe_param").style.className = "iframe_explanation_hidden";
+		document.getElementById("docs_x").style.className = "docs_close_hidden";
+	} else {
+		document.getElementById("iframe_param").style.className = "iframe_explanation";
+		document.getElementById("docs_x").style.className = "docs_close";
+	}
+
 	/* find if the element exist in the iframe and scroll the contents
 	 * of the document window to the specified horizontal and vertical position*/
 	var iframe_win = get_iframe_win(iframe);
@@ -299,6 +320,12 @@ function show_hide_docs(category_id, comment_id)
 
 	/*position the scroll on top of the page*/
 	window.scroll(0,0);
+}
+
+function closeFrame() {
+	document.getElementById("docs_iframe").style.display="none";
+	document.getElementById("page_id").style.width="100%";
+	docs_always_visible = false;
 }
 
 /**
@@ -866,3 +893,4 @@ function clean_cols_search()
 		total.value = null;
 	return true;
 }
+
