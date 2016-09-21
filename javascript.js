@@ -14,7 +14,8 @@
  */ 
 
 //keep the docs always visible on page
-docs_always_visible = 'none';
+docs_always_visible = get_cookie('docs_always_visible');
+
 /** 
  * Get Internet Explorer Version
  * @return the version of Internet Explorer or a -1 (indicating the use of another browser)
@@ -275,8 +276,10 @@ function show_hide_comment(id)
  */
 function show_hide_docs(category_id, comment_id)
 {
-	if (docs_always_visible === 'none') 
+	if (docs_always_visible) {
 		docs_always_visible = true;
+		set_cookie('docs_always_visible', docs_always_visible);
+	}
 
 	/* set reference_id with the id found in iframe html*/
 	var iframe = document.getElementById('iframe_param');
@@ -292,8 +295,9 @@ function show_hide_docs(category_id, comment_id)
 		show_hide("iframe_param");
 		show_hide("docs_x");
 
-		if (document.getElementById("iframe_param").style.display == "none")
+		if (document.getElementById("iframe_param").style.display == "none"){
 			document.getElementById("page_id").style.width="100%";
+		}
 	
 		return;
 	}
@@ -326,6 +330,27 @@ function closeFrame() {
 	document.getElementById("docs_iframe").style.display="none";
 	document.getElementById("page_id").style.width="100%";
 	docs_always_visible = false;
+	set_cookie('docs_always_visible', docs_always_visible);
+}
+
+function set_cookie(cname, cvalue)
+{
+	cvalue = encodeURIComponent(cvalue);
+	document.cookie = cname + "=" + cvalue + "; path=/";
+}
+
+function get_cookie(cname)
+{
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for (var i=0; i<ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ')
+			c = c.substring(1);
+		if (c.indexOf(name) == 0)
+			return decodeURIComponent(c.substring(name.length,c.length));
+	}
+	return "";
 }
 
 /**
