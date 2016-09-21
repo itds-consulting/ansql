@@ -179,7 +179,7 @@ Interval allowed: 3..8.
 Defaults to 5",
 				"validity" => array("check_field_validity",3,8)
 			),	
-			 "CCCH.CCCH-CONF" => array( 
+			"CCCH.CCCH-CONF" => array( 
 				 array("selected"=> "1",array("CCCH.CCCH-CONF_id"=> "1", "CCCH.CCCH-CONF"=> "C-V beacon"), array("CCCH.CCCH-CONF_id"=> "2", "CCCH.CCCH-CONF"=> "C-IV beacon")),
 				"display" => "select",
 				"value" => "1",
@@ -447,12 +447,12 @@ Defaults to -50",
 				"validity" => array("check_radio_rssitarget")
 			),	
 			"Radio.RxGain" => array( 
-				array("selected"=>"Factory calibrated", "Factory calibrated",0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75),
+				array("selected"=>"0", 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75),
 				"display" => "select",
 				"comment" => "Receiver gain setting in dB
-Ideal value is dictated by the hardware; 47 dB for RAD1, less for USRPs
+Ideal value is dictated by the hardware
 Interval allowed: 0..75
-Defaults to empty value. Radios provide their own calibrated default. To see current value run 'mbts trxfactory' after connecting to rmanager interface." 
+Defaults to empty value. Radios provide their own calibrated default." 
 			),
 			"ShowCountry" => array( 
 				"display" => "checkbox",
@@ -1006,19 +1006,6 @@ To disable again, execute 'unconfig GGSN.ShellScript'"
 
 	$fields["system"] = array(
 		"transceiver" => array(
-			"Path" => array(
-				array("selected"=>"./transceiver", "./transceiver", "./transceiver-bladerf", "./transceiver-rad1", "./transceiver-usrp1", "./transceiver-uhd"),
-				"display" => "select",
-				"comment" => "Path to the transceiver relative to where MBTS is started.
-Should be one of: ./transceiver-bladerf ./transceiver-rad1 ./transceiver-usrp1 ./transceiver-uhd.
-Defaults to ./transceiver"
-			),
-			"Args" => array(
-				"display" => "text",
-				"value" => "",
-				"comment"=> "Extra arguments to be passed by MBTS to the transceiver executable.
-Defaults to no arguments."
-			),
 			"MinimumRxRSSI" => array(
 				"display" => "text",
 				"value" => "-63",
@@ -1030,22 +1017,40 @@ Defaults to -63",
 				"validity" => array("check_field_validity", -90, 90)
 			),
 			"RadioFrequencyOffset" => array(
-				array("selected"=>"Factory calibrated", "Factory calibrated",64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192),
+				array("selected"=>"128", 64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192),
 				"display" => "select",
-				"comment" => "Master clock frequency adjustment. Fine-tuning adjustment for the transceiver master clock, roughly 170 Hz/step.
+				"comment" => "Master radio interface clock frequency adjustment. Fine-tuning adjustment for the transceiver master clock. 
 Set at the factory, do not adjust without proper calibration.
 Interval allowed: 64..192
-Defaults to empty value. Radios provide their own calibrated default. To see current value run 'mbts trxfactory' after connecting to rmanager interface."
+Defaults to 128  (but some radios provide their own calibrated default)."
 			),
+
+			"TX.OffsetI" => array(
+				array("selected"=>"0",-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31,-32,-33,-34,-35,-36,-37,-38,-39,-40,-41,-42,-43,-44,-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,-57,-58,-59,-60,-61,-62,-63, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63),
+				"display" => "select",
+				"comment" => "Radio interface transmitter DC offset correction for I. 
+Set at the factory, do not adjust without proper calibration.
+Defaults to 0."
+			),
+
+			"TX.OffsetQ" => array(
+				array("selected"=>"0",-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31,-32,-33,-34,-35,-36,-37,-38,-39,-40,-41,-42,-43,-44,-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,-57,-58,-59,-60,-61,-62,-63, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63),
+				"display" => "select",
+				"comment" => "Radio interface transmitter DC offset correction for Q. 
+Set at the factory, do not adjust without proper calibration.
+Defaults to 0."
+			),
+
 			"TxAttenOffset" => array(
-				array("selected"=>"Factory calibrated", "Factory calibrated",0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
+				array("selected"=>"0", 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
 				"display" => "select",
 				"comment" => "Transmitter attenuation in dB.
 Hardware-specific gain adjustment for transmitter, matched to the amplifier.
 Do not adjust without proper calibration
 Interval allowed: 0..100
-Defaults to empty value. Radios provide their own calibrated default. To see current value run 'mbts trxfactory' after connecting to rmanager interface."
+Defaults to empty value. Radios provide their own calibrated default."
 			),
+
 			"Timeout.Clock" => array(
 				array("selected"=>10, 5,6,7,8,9,10,11,12,13,14,15),
 				"display" => "select",
@@ -1053,8 +1058,88 @@ Defaults to empty value. Radios provide their own calibrated default. To see cur
 How long to wait during a read operation from the transceiver before giving up
 Interval allowed: 5..15
 Defaults to 10"
+			),
+
+			"clock_update_offset" => array(
+				"value" => 16,
+				"comment" => "Integer. Offset (in GSM timeslots) for radio clock advertised to upper layer.
+This value is added to current radio clock when synchronizing with upper layer
+This parameter is applied on reload
+Defaults to 16. Allowed interval [0..256]",
+				"validity" => array("check_field_validity",0,256)
+			),
+
+			"tx_slots" => array(
+				"value" => 16,
+				"comment" => "Integer. The number of timeslots to send in one loop.
+This parameter is applied on reload
+Defaults to 16 if no radio capabilities are available
+Otherwise: the default value will be taken from radio capabilities
+I.e. this parameter may be used to override radio capabilities
+Allowed interval [1..1024]",
+				"validity" => array("check_field_validity",0,1024)
+			),
+
+			"radio_latency_slots" => array(
+				"value" => 5,
+				"comment" => "Integer. Estimated radio latency in timeslots
+This value is used to drop old bursts from send queue (avoid sending old data to radio)
+This parameter is applied on reload
+Defaults to 5 if no radio capabilities are available
+Otherwise: the default value will be taken from radio capabilities
+I.e. this parameter may be used to override radio capabilities
+Allowed interval [0..256]",
+				"validity" => array("check_field_validity",0,256)
+			),
+
+			"radio_read_priority" => array(
+				array("lowest", "low", "normal", "high", "highest", "selected"=>"highest"),
+				"display" => "select",
+				"comment" => "Radio read thread priority.
+Defaults to 'highest' if missing or invalid"
+			),
+
+			"radio_send_priority" => array(
+				array("lowest", "low", "normal", "high", "highest", "selected"=>"high"),
+				"display" => "select",
+				"comment" => "Radio send thread priority.
+Defaults to 'high' if missing or invalid"
+			),
+
+			"tx_silence_debug_interval" => array(
+				"value" => "5000",
+				"comment" => "Interval, in milliseconds, to silence tx bursts
+time related debug messages (avoid delayed/missing/expired bursts debug messages on startup).
+Defaults to 5000. Allowed interval [0..20000]",
+				"validity" => array("check_field_validity",0,20000)
+			),
+			"gsm_time_sync_check" => array(
+				"comment" => "integer: Interval, in milliseconds, to check GSM time sync with upper layer.
+This parameter should be used when debugging: when sync times out a debug FAIL message will be printed.
+Set to 0 to disable it.
+A non 0 value will be clamped in interval [2000 .. 10000]
+This parameter is applied on transceiver start",
+				"validity" => array("validate_gsm_time_sync_check")
+			),
+			"print_status" => array(
+				"value" => "0",
+				"comment" => "integer: Print transceiver status on output.
+This parameter is applied on reload.
+New value will override old value even if not changed
+Values:
+* 0: disable (default)
+* negative: forever, until changed
+* positive: the number of times to print it"
+			),
+
+			"print_status_bursts" => array(
+				"value" => 1,
+				"display" => "checkbox",
+				"comment" => "Print burst counters when printing transceiver status.
+This parameter is applied on reload and is ignored if print_status is 0"
 			)
 		),
+
 		"ybts" => array(
 			"mode" => array(
 				array("selected"=> "nib", "nib","roaming", "dataroam"),

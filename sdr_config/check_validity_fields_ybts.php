@@ -79,6 +79,18 @@ function check_radio_powermanager($field_name, $field_value, $restricted_value)
 	return array(true);
 }
 
+function validate_gsm_time_sync_check($field_name, $field_value)
+{
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;
+
+	if ($field_value!=0 && $field_value<2000 && $field_value>10000)
+		return array(false, "Field $field_name is not valid. The value must be 0 or in interval [2000,10000].");
+
+	return array(true);
+}
+
 /**
  * VEA ([control]) field value depends on CellSelection.NECI ([gsm_advanced]) 
  * this fields are in different section 
@@ -169,7 +181,7 @@ function check_uplink_persistent($field_name, $field_value, $restricted_value)
 
 	if ($field_value != 0 || $field_value != "0") {
 		if ($field_value < (int)$restricted_value)
-			return array(true, "Field $field_name doesn't have a recommended value. This value must be greater then Uplink.KeepAlive value.");
+			return array(true, "Field $field_name doesn't have a recommended value. This value must be greater than Uplink.KeepAlive value.");
 	}
 
 	return array(true);
@@ -192,7 +204,7 @@ function check_downlink_persistent($field_name, $field_value, $restricted_value)
 		return array(false, "Field $field_name is not valid. It has to be smaller than 10000.");
 	if ($field_value != 0) {
 		if ($field_value < $restricted_value)
-			return array(true, "Field $field_name doesn't have a recommended value. This value must be greater then Downlink.KeepAlive value.");
+			return array(true, "Field $field_name doesn't have a recommended value. This value must be greater than Downlink.KeepAlive value.");
 	}
 
 	return array(true);

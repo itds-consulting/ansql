@@ -93,7 +93,7 @@ function check_field_validity($field_name, $field_value, $min=false, $max=false,
 		if (!$valid[0])
 		    return $valid;
 		if ((int)$field_value<$min || (int)$field_value>$max) 
-			return array(false, "Field '".$field_name."' is not valid. It has to be smaller then $max and greater then $min.");
+			return array(false, "Field '".$field_name."' is not valid. It has to be greater than $min and smaller than $max.");
 	} 
 
 	if ($regex) {
