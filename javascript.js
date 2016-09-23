@@ -276,7 +276,7 @@ function show_hide_comment(id)
  */
 function show_hide_docs(category_id, comment_id)
 {
-	if (docs_always_visible) {
+	if (docs_always_visible == "" || docs_always_visible == "false") {
 		docs_always_visible = true;
 		set_cookie('docs_always_visible', docs_always_visible);
 	}
@@ -289,6 +289,10 @@ function show_hide_docs(category_id, comment_id)
 		reference_id = comment_id+"_id";
 
 	document.getElementById("page_id").style.width="78%";
+	if (iframe_doc.getElementById(reference_id))
+		iframe_doc.getElementById(reference_id).style.color = "red";
+	if (document.last_comment_id && iframe_doc.getElementById(document.last_comment_id+"_id"))
+		iframe_doc.getElementById(document.last_comment_id+"_id").style.color = "black";
 
 	/* show or hide the element depending on the last_reference_id value*/
 	if (comment_id == document.last_comment_id) {
@@ -324,6 +328,11 @@ function show_hide_docs(category_id, comment_id)
 
 	/*position the scroll on top of the page*/
 	window.scroll(0,0);
+}
+
+function resize_iframe(obj) 
+{
+    obj.style.height = document.getElementById("page_id").scrollHeight-47 + 'px';
 }
 
 function closeFrame() {
