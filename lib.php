@@ -1063,7 +1063,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			if ($display == "mul_select")
 				print ' multiple="multiple" size="5" name="'.$form_identifier.$field_name.'[]"';
 			else
-				print 'name="'.$form_identifier.$field_name.'"';
+				print ' name="'.$form_identifier.$field_name.'"';
 			print '>';
 			if ($display != "mul_select" && $display != "select_without_non_selected")
 				print '<option value="">Not selected</option>';
