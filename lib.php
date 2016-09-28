@@ -4417,5 +4417,19 @@ function change_keys_dropdown($array, $old_key, $new_key)
 	return $array;
 }
 
+/**
+ * Allow flushing buffers on request
+ */
+function flush_buffers()
+{
+    @ob_end_flush();
+    @ob_flush();
+    
+    // after testing this seemed enough
+    flush();
+
+    ob_start(); 
+}
+
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
