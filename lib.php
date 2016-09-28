@@ -1228,9 +1228,9 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
 
 				if (is_file("images/question.jpg"))
-					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
+					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
 				else
-					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
+					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
 			 } else
 				 print '>';
 
@@ -1282,9 +1282,9 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 
 			if (!$q_mark) {
 				if (is_file("images/question.jpg"))
-					print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
+					print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
 				else
-					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
+					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
 			}
 		}
 		print '</td>';

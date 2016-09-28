@@ -270,6 +270,57 @@ function show_hide_comment(id)
 }
 
 /**
+ * Show element in iframe.
+ * @param category_id String. Category Id of the element to be shown
+ * @param comment_id String. Comment Id of the element to be shown
+ */
+function show_docs(category_id, comment_id)
+{
+	if (docs_always_visible == "" || docs_always_visible == "false") {
+		docs_always_visible = true;
+		set_cookie('docs_always_visible', docs_always_visible);
+	}
+
+	/* set reference_id with the id found in iframe html*/
+	var iframe = document.getElementById('iframe_param');
+	var reference_id = category_id+"_id";
+	var iframe_doc = get_iframe_doc(iframe);
+	if (iframe_doc.getElementById(comment_id+"_id"))
+		reference_id = comment_id+"_id";
+
+	document.getElementById("page_id").style.width="78%";
+	if (iframe_doc.getElementById(reference_id))
+		iframe_doc.getElementById(reference_id).style.color = "red";
+	if (document.last_comment_id && iframe_doc.getElementById(document.last_comment_id+"_id") &&
+			document.last_comment_id+"_id" != reference_id)
+		iframe_doc.getElementById(document.last_comment_id+"_id").style.color = "black";
+
+	/* set the new last_reference_id */
+	document.last_comment_id = comment_id;
+
+	show("iframe_param");
+	show("docs_iframe");
+	show("docs_x");
+	if (document.getElementById("iframe_param").style.display == "none") {
+		document.getElementById("iframe_param").style.className = "iframe_explanation_hidden";
+		document.getElementById("docs_x").style.className = "docs_close_hidden";
+	} else {
+		document.getElementById("iframe_param").style.className = "iframe_explanation";
+		document.getElementById("docs_x").style.className = "docs_close";
+	}
+
+	/* find if the element exist in the iframe and scroll the contents
+	 * of the document window to the specified horizontal and vertical position*/
+	var iframe_win = get_iframe_win(iframe);
+	var element = iframe_doc.getElementById(reference_id);
+	if (element) 
+		iframe_win.scroll(0, get_offset_top(element));
+
+	/*position the scroll on top of the page*/
+	window.scroll(0,0);
+}
+
+/**
  * Show/hide element in iframe.
  * @param category_id String. Category Id of the element to be shown/hidden
  * @param comment_id String. Comment Id of the element to be shown/hidden
