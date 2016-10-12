@@ -300,7 +300,8 @@ function check_errors(&$res)
 	global $error_codes;
 
 	if ($res!=null && (!isset($res["message"]) || (!strlen($res["message"]))) && @array_key_exists('code',$res)) {
-		$res["message"] = $error_codes[$res["code"]];
+		if (isset($error_codes[$res["code"]]))
+			$res["message"] = $error_codes[$res["code"]];
 		foreach ($res as $name => $val) {
 			if (is_array($val)) {
 				if (!isset($val["message"]) && isset($val['error_code']))
