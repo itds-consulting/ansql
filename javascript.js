@@ -383,7 +383,17 @@ function show_hide_docs(category_id, comment_id)
 
 function resize_iframe(obj) 
 {
-    obj.style.height = document.getElementById("page_id").scrollHeight-47 + 'px';
+   	obj.style.height = document.getElementById("page_id").scrollHeight-47 + 'px';
+}
+
+function resize_left_iframe(obj, elem)
+{
+	var iframe = document.getElementById('left_iframe');
+	var iframe_doc = get_iframe_doc(iframe);
+	if (iframe_doc.getElementById(elem))
+		obj.style.height = iframe_doc.getElementById(elem).scrollHeight + 'px';
+	else
+		obj.style.height = "110px";
 }
 
 function closeFrame() {
