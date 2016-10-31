@@ -431,7 +431,7 @@ class Database
 				case "postgresql":
 					$oid = pg_last_oid($res);
 					$query2 = "SELECT ".$retrieve_last_id[0]." FROM ".$retrieve_last_id[1]." WHERE oid=$oid";
-					$res2 = self::db_query($query2);
+					$res2 = self::queryRaw($query2);
 					if (!$res2)
 						return false;
 					$last_id = pg_fetch_result($res2,0,0);
@@ -596,7 +596,7 @@ class Database
 				$query.= "ENGINE $engine";
 		}
 
-		$res = self::db_query($query) !== false;
+		$res = self::queryRaw($query) !== false;
 		if (!$res)
 			Debug::Output(_("Could not create table")." '$table'. "._("Query failed").": $query". " .Error: ".Database::get_last_db_error());
 
@@ -809,7 +809,7 @@ class Database
 					$query = "CREATE INDEX ".esc($index_name)." ON ".esc($table)." USING btree ($index_columns)";
 					break;
 			}
-			$res = self::db_query($query);
+			$res = self::queryRaw($query);
 			if (!$res)
 			{
 				$no_error = false;
