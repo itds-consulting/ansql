@@ -562,6 +562,10 @@ class Database
 				if ($type == "bigint(20) unsigned not null auto_increment")
 					$query.= ", primary key ($name)";
 			} else {
+				if (substr($table,0,6)=="_temp_" && ($name == 'inserted' || $name == 'deleted')) {
+					$old_enforce_basic_constrains = $enforce_basic_constrains;
+					$enforce_basic_constrains = true;
+				}
 				$query.= esc($name)." $type";
 				if (!$enforce_basic_constrains)
 					continue;
@@ -571,6 +575,9 @@ class Database
 					$value = $var->escape($var->_value);
 					$query.= " DEFAULT ".$value;
 				}
+				if (substr($table,0,6)=="_temp_" && ($name == 'inserted' || $name == 'deleted'))
+					$enforce_basic_constrains = $old_enforce_basic_constrains;
+
 			}
 		}
 
