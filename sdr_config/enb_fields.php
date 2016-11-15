@@ -1250,7 +1250,7 @@ Default is yes for all.
 
 			// keep the error message in session if request 'get_net_address' failed
 		} else {
-			$_SESSION["enb_fields"]["error_get_net_interfaces"] = "[".$res["code"]."] ".$res["message"];
+			$_SESSION["enb_fields"]["error_get_net_interfaces"] = "[API: ".$res["code"]."] ".$res["message"];
 		}
 	}						
 

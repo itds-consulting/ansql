@@ -430,7 +430,7 @@ the eNodeB hardware or reduced equipment life."
 
 			$code = "";
 			if (isset($res["code"]))
-				$code = "[".$res["code"]."] ";
+				$code = "[API: ".$res["code"]."] ";
 
 			return array(false, $code.$res["message"]);
 		} else {

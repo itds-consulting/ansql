@@ -1684,7 +1684,7 @@ If a string is provided it will replace default domain mnc<NNN>.mcc<NNN>.gprs"
 
 			// keep the error message in session if request 'get_net_address' failed
 		} else {
-			$_SESSION["ybts_fields"]["error_get_net_interfaces"] = "[".$res["code"]."] ".$res["message"];
+			$_SESSION["ybts_fields"]["error_get_net_interfaces"] = "[API: ".$res["code"]."] ".$res["message"];
 		}
 	}						
 
