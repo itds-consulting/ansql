@@ -438,41 +438,48 @@ function dateCheck($year,$month,$day,$hour,$end)
 /**
  * Builds link from the parameters from the current REQUEST
  * @param $exclude_params Array. Parameters to be excluded from built link
+ * @param $limit_url_elements Array. Parameters required into the built link
  * @return String. The link from the current $_REQUEST
  */
-function build_link_request($exclude_params=array())
+function build_link_request($exclude_params=array(), $limit_url_elements=array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method, $action;
 
 	$link = (isset($_SESSION["main"]) && strlen($_SESSION["main"])) ? $_SESSION["main"] : "main.php";
 	$link .= "?";
-	foreach($_REQUEST as $param=>$value) {
-		if (	$param == "page" || 
+	foreach ($_REQUEST as $param=>$value) {
+
+		if ($param == "page" || 
 			$param == "PHPSESSID" ||
 			($param == "action" && $action) ||
 			($param == "method" && $method) || 
 			($param == "module" && $module) ||
-		       	in_array($param,$exclude_params) || 
+			in_array($param,$exclude_params) || 
 			(!is_array($value) && !strlen($value))
 		)
-			continue;
+		continue;
 
-		
-		if (!is_array($value)) {
-			if (substr($link,-1) != "?")
-				$link .= "&";
-			$link .= "$param=".urlencode($value);
+		if (substr($link,-1) != "?")
+			$link .= "&";
+
+		if (count($limit_url_elements)) {
+			foreach ($limit_url_elements as $k=>$element_name)
+				if ($element_name == $param)
+					$link .= "$param=".urlencode($value);
 		} else {
-			foreach($value as $arr_val) {
-				if (substr($link,-1) != "?")
-					$link .= "&";
-				$link .= "$param"."[]=".$arr_val;
-			}
+			if (!is_array($value)) 
+				$link .= "$param=".urlencode($value);
+			else 
+				foreach ($value as $arr_val) 
+					$link .= "$param"."[]=".$arr_val;
 		}
 	}
+
+	if (substr($link,-1) != "?")
+		$link .= "&";
 	if ($module)
-		$link .= "&module=$module";
+		$link .= "module=$module";
 	if ($method)
 		$link .= "&method=$method";
 	if ($action) {
@@ -493,7 +500,7 @@ function items_on_page($nrs = array(20,50,100))
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $limit;
 
-	$link = build_link_request(array("limit"));
+	$link = build_link_request(array("limit"), array("total"));
 
 	print "<div class=\"items_on_page\">";
 	for($i=0; $i<count($nrs); $i++)
@@ -512,56 +519,29 @@ function items_on_page($nrs = array(20,50,100))
 /**
  * Build the links for the number of pages for a total divided by the limit
  */ 
-function pages($total = NULL, $params = array())
+function pages($total = NULL, $limit_url_elements=array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $limit, $page, $module, $method, $action;
 	
-	if(!$limit)
+	if (!$limit)
 		$limit = 20;
 
 	$link = $_SESSION["main"] ? $_SESSION["main"] : "main.php";
 	$link .= "?";
 	$slink = $link;
-	$found_total = false;
 	$page = 0;
-	foreach($_REQUEST as $param=>$value)
-	{
-		if (($param == "action" && $action) ||
-	            ($param == "module" && $module) ||
-		    ($param == "method" && $method) ||
-		     $param == "PHPSESSID" || !strlen($value))
-			continue;
-		if ($param == "page") {
-			$page = $value;
-			continue;
-		}
-		if ($link != $slink)
-			$link .= "&";
-		$link .= "$param=".urlencode($value);
-		if ($param == "total") {
-			$total = $value;
-			$found_total = true;
-		}
-	}
+	if (isset($_REQUEST["page"]))
+		$page = $_REQUEST["page"];
+	if (isset($_REQUEST["total"]))
+		$total = $_REQUEST["total"];
+
+	$link = build_link_request(array("limit"), array("total"));
 
 	if (!$total)
 		$total = 0;
 	if ($total < $limit)
 		return;
-
-	if (!$found_total)
-		$link .= "&total=$total";
-	if ($module)
-		$link .= "&module=$module";
-	if ($method)
-		$link .= "&method=$method";
-	if ($action) {
-		/* if action param is set, check that $method_$action function exists before adding it to link */
-		$function_to_call = get_default_function();
-		if (function_exists($function_to_call))
-			$link .= "&action=$action";
-	}
 
 	$pages = floor($total/$limit);
 	print '<center>';
@@ -1899,10 +1879,10 @@ function trim_value(&$value)
   * @param $object_actions_names Array containg the action names for the $element_actions that are displayed in the table header
   * @param $table_id Text the id of table
   * @param $select_all Bool. If true select all checkboxes made when $insert_checkboxes=true. Defaults to false.
-  * @param $order_by_columns Bool/Array Adds buttons to adds links on the fields from the table header. 
-  * Defaults to false
+  * @param $order_by_columns Bool/Array Adds buttons to add links on the fields from the table header. Defaults to false.
+  * @param $build_link_elements Array Contains the name of the elements used to build each row $element_actions.
   */
-function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false, $order_by_columns=false)
+function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false, $order_by_columns = false, $build_link_elements = array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
@@ -2050,8 +2030,14 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 		foreach ($array[$i] as $col_name => $col_value) {
 			if (is_array($col_value))
 				continue;
-			if (strlen($col_value)<55)
-				$link .= "&$col_name=".urlencode($col_value);
+			if (count($build_link_elements)) {
+				foreach ($build_link_elements as $k=>$link_element_name)
+					if ($col_name == $link_element_name)
+						$link .= "&$link_element_name=".urlencode($col_value);
+			} else {
+				if (strlen($col_value)<55)
+					$link .= "&$col_name=".urlencode($col_value);
+			}
 		}
 		$link_no = 0;
 		foreach ($element_actions as $methd => $methd_name) {
