@@ -1481,7 +1481,7 @@ function tableOfObjects_ord($objects, $formats, $object_name, $object_actions=ar
  * @param $order_by_columns Bool/Array Adds buttons to adds links on the fields from the table header. 
  * Defaults to false
  */
-function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $select_all = false, $order_by_columns=false)
+function tableOfObjects($objects, $formats, $object_name, $object_actions=array(), $general_actions=array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names=array(), $select_all = false, $order_by_columns=false, $add_empty_row=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"paranoid");
 
@@ -1509,7 +1509,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 	}
 
 	$ths = "";
-	print '<table class="'.$css.'" cellspacing="0" cellpadding="0">';
+	print '<table class="'.$css.'" id="'.$css.'_id" cellspacing="0" cellpadding="0">';
 
 	$order_dir = (!getparam("order_dir") || getparam("order_dir")=="asc") ? "desc" : "asc";
 	if(count($objects)) {
@@ -1577,7 +1577,6 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		links_general_actions($general_actions, $no_columns, $css, $base, true);
 
 	print $ths;
-
 	for($i=0; $i<count($objects); $i++) {
 		$cond_css = '';
 		foreach($conditional_css as $css_name=>$conditions) {
@@ -1602,10 +1601,13 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 			print '<input type="checkbox" name="check_'.$objects[$i]->{$id_name}.'"/>';
 			print '</td>';
 		}
+		$j=0;
 		foreach($formats as $column_name => $var_name) {
 			print '<td class="'.$css.$cond_css;
 			if($i%2 == 0)
 				print " evenrow";
+			if($j == count($formats)-1 && !count($object_actions))
+				print " end_cell";
 			print '">';
 			$use_vars = explode(",", $var_name);
 			array_walk($use_vars, 'trim_value');
@@ -1638,6 +1640,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 			else
 				print "&nbsp;";
 			print '</td>';
+			$j++;
 		}
 		$link = '';
 		foreach($vars as $var_name => $var)
@@ -1650,6 +1653,8 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 				print ' evenrow object_action';
 			else
 				print ' object_action';
+			if ($link_no == count($object_actions)-1)
+				print ' end_cell';
 			print '">';
 		//	if($link_no)
 		//		print '&nbsp;&nbsp;';
@@ -1658,6 +1663,12 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 			$link_no++;
 		}
 		print '</tr>';
+	}
+	if ($add_empty_row) {
+		$colspan = count($formats) + count($object_actions);
+		if ($insert_checkboxes)
+			$colspan += 1;
+		print '<tr><td class="last_row" colspan="'.$colspan.'"></td></tr>';
 	}
 	if(count($general_actions) && !in_array("__top",$general_actions))
 		links_general_actions($general_actions, $no_columns, $css, $base);
@@ -1882,7 +1893,7 @@ function trim_value(&$value)
   * @param $order_by_columns Bool/Array Adds buttons to add links on the fields from the table header. Defaults to false.
   * @param $build_link_elements Array Contains the name of the elements used to build each row $element_actions.
   */
-function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false, $order_by_columns = false, $build_link_elements = array())
+function table($array, $formats, $element_name, $id_name, $element_actions = array(), $general_actions = array(), $base = NULL, $insert_checkboxes = false, $css = "content", $conditional_css = array(), $object_actions_names = array(), $table_id = null, $select_all = false, $order_by_columns = false, $build_link_elements = array(), $add_empty_row=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
@@ -1944,7 +1955,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 				if (is_numeric($column_name))
 					$name = $var_name;
 			}
-			print '<th class="'.$css.'">';
+			$ucss = ($no_columns == 0) ? "$css first_th" : $css;
+			print '<th class="'.$ucss.'">';
 			$column_link = false;
 			if ($order_by_columns) {
 				if ((is_numeric($column_name) || count(explode(",",$var_name))==1) && ($order_by_columns===true || !isset($order_by_columns[$name]) || $order_by_columns[$name]==true)) {
@@ -1996,11 +2008,14 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 			print '<input type="checkbox" name="check_'.$array[$i][$id_name].'"/>';
 			print '</td>';
 		}
+		$j=0;
 		foreach ($formats as $column_name => $names_in_array) {
 			print '<td class="'.$css. "$cond_css";
 			if ($i%2 == 0)
 				print " evenrow";
 
+			if ($j == count($formats)-1 && !count($array))
+				print " end_cell";
 			print '">';
 			$use_vars = explode(",", $names_in_array);
 			$exploded_col = explode(":", $column_name);
@@ -2044,6 +2059,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 			print '<td class="'.$css. "$cond_css";
 			if ($i%2 == 0)
 				print ' evenrow object_action';
+			if ($link_no == count($element_actions)-1)
+				print ' end_cell';
 			print '">';
 			if ($link_no)
 				print '&nbsp;&nbsp;';
@@ -2068,6 +2085,12 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 		print '</tr>';
 	}
 
+	if ($add_empty_row) {
+		$colspan = count($formats) + count($element_actions);
+		if ($insert_checkboxes)
+			$colspan += 1; 
+		print '<tr><td class="last_row" colspan="'.$colspan.'"></td></tr>';
+	}
 	if (count($general_actions)) {
 		print '<tr>';
 		if (isset($general_actions["left"])) {
