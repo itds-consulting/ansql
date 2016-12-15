@@ -672,8 +672,6 @@ function navbuttons($params=array(),$class = "llink")
 function check_valid_mail($mail)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
-	if (!$mail)
-		return true;
 
 	$pattern = '/^([_a-z0-9-]+)(\.[_a-z0-9-]+)*@([a-z0-9-]+)(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i';
 	return preg_match($pattern,$mail);
