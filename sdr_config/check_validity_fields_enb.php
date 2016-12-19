@@ -102,11 +102,11 @@ function check_auxrouting_table($field_name, $field_value)
 {
 	if (!ctype_digit($field_value)) { 
 		$valid = check_field_validity($field_name, $field_value, null, null, "^[a-zA-Z0-9_-]+)$");
-		if (!$valid)
+		if (!$valid[0])
 			return $valid;
 	} else {
-		$valid = check_field_validity($section_name, $field_name, $field_value, 0, 255);
-		if (!$valid)
+		$valid = check_field_validity($field_name, $field_value, 0, 255);
+		if (!$valid[0])
 			return $valid;
 	}
 	return array(true);
@@ -201,6 +201,18 @@ function validate_mme_params()
 			}
 		}
 	}
+	return array(true);
+}
+
+function check_output_level_validity($field_name, $field_value, $restricted_value)
+{
+	$valid = check_field_validity($field_name, $field_value, 0, 43);
+	if (!$valid[0])
+		return $valid;
+
+	if ($field_value > $restricted_value)
+		return array(false, "The '".$field_name. "' should not exceed the 'MaximumOutput' parameter from 'RadioHardware' section.");
+
 	return array(true);
 }
 ?>

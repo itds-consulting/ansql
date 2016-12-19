@@ -52,7 +52,7 @@ class EnbTabbedSettings extends TabbedSettings
 		$structure = array(
 			"Radio" => array("EnodeB", "Bearers"),
 			"Core" => array("GTP", "MME"/*, "S1AP"*/),
-			"Access channels" => array("PRACH", "PDSCH", "PUSCH", "PUCCH", "PDCCH"),
+			"Access channels" => array("PRACH",/* "PDSCH",*/ "PUSCH", "PUCCH", "PDCCH"),
 
 			"Hardware" => array("Site info", "Site equipment", "Shutdown"),
 			"System" => array("System information", "Advanced", "Scheduler", "RadioHardware", "Measurements"),
@@ -166,7 +166,7 @@ the eNodeB hardware or reduced equipment life."
 		}
 
 		// rename some of the sections the parameters appear under: basic->enodeb, basic-> all subsections under access channels, basic-> system_information
-		$aggregated_subsections = array("enodeb","system_information","pdsch","pusch","pucch","prach","pdcch");
+		$aggregated_subsections = array("enodeb","system_information",/*"pdsch",*/"pusch","pucch","prach","pdcch");
 		foreach ($aggregated_subsections as $subsection)
 			$res[$subsection] = $res["basic"];
 
@@ -337,7 +337,7 @@ the eNodeB hardware or reduced equipment life."
 
 		$request_fields = array("openenb"=>array("basic"=>array()));//, "gtp"=>array());
 
-		$basic_sections = array("enodeb","system_information","pdsch","pusch","pucch","prach","pdcch");
+		$basic_sections = array("enodeb","system_information"/*,"pdsch"*/,"pusch","pucch","prach","pdcch");
 		foreach ($basic_sections as $basic_section) {
 			$request_fields["openenb"]["basic"] = array_merge($request_fields["openenb"]["basic"], $fields[$basic_section]);
 			unset($fields[$basic_section]);

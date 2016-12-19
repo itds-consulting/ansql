@@ -115,25 +115,32 @@ Special ISM EARFCN extension: 2400 MHz @ EARFCN 50000 offset; valid range: 50000
 
     "__" => array(
 	"display" => "objtitle",
-	"value" => "Physical Layer Cell ID 
+	"value" => format_comment("Physical Layer Cell ID 
 Phy Cell ID = 3*NID1 + NID2,
 NID1 is 0..167
 NID2 is 0..2
 This gives a phy cell id range of 0..503
-The combination 3*NID1+NID2 should never be the same for cells with overlapping coverage."
+The combination 3*NID1+NID2 should never be the same for cells with overlapping coverage.
+Some parameters are to have default values derived from physical layer cell id.
+These are: 
+On Radio in EnodeB screen: Prach.RootSequence, Prach.FreqOffset, Pusch.RefSignalGroup
+On Access Channels in PUSCH screen: Pusch.CyclicShift
+On Access Channels in PUCCH screen: Pucch.CsAn, Resource allocation offset
+")
     ),
 
     "NID1" => array(
 	"required" => true,
 	"comment"  => "NID1 is between 0 and 167",
 	"required" => true,
-	"validity" => array("check_field_validity", 0, 167)
-
+	"validity" => array("check_field_validity", 0, 167),
+	"javascript" => "onchange='set_cellid_dependencies();'" 
     ),
     "NID2" => array(
-	array(1, 2, 3),
+	array(0, 1, 2),
 	"display" => "select",
 	"required" => true,
+	"javascript" => "onchange='set_cellid_dependencies();'"
     ),
 
     "Prach.RootSequence" => array(
@@ -163,7 +170,7 @@ Cells with overlapping coverage should have different values. Default 2.'
 	"value" => "40",
 	"comment" => "Settable output level, dBm
 Valid range for a SatSite 142 is 0..43",
-	"validity" => array("check_field_validity",0,43)
+	"validity" => array("check_output_level_validity", "MaximumOutput")
     ),
 
     "CrestFactor" => array(
@@ -751,24 +758,32 @@ Default value: 14",
 	"comment" => "Sib modulation rate"
     ),
 
-    "SibDci" => array(
-	// commented ones are not supported
-	array(/*"dci0", "dci1", */ "dci1a", /*"dci1a_pdcch", "dci1b",*/ "dci1c", /*"dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci1a"),
-	"display" => "select",
-	"comment" => "DCI for SIB"
-    ),
+	"SpecialDCI" => array(
+		// commented ones are not supported
+		array("dci1a"/*,"dci1c"*/,"selected"=>"dci1a"),
+		"display" => "select",
+		"comment" => "The DCI format for special RNTI's RA-RNTI, P-RNTI, SI-RNTI",
+		"column_name" => "DCI for S-RNTI"
+	),
 
+   // "SibDci" => array(
+	// commented ones are not supported
+//	array(/*"dci0", "dci1", */ "dci1a", /*"dci1a_pdcch", "dci1b",*/ "dci1c", /*"dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci1a"),
+//	"display" => "select",
+//	"comment" => "DCI for SIB"
+//    ),
+	
     "PcchMcs" => array(
 	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
 	"display" => "select",
 	"comment" => "PCCH MCS"
     ),
 
-    "PcchDci" => array(
+/*    "PcchDci" => array(
 	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a", "selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for PCCH"
-    ),
+),*/
 
     "RarMcs" => array(
 	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
@@ -776,34 +791,34 @@ Default value: 14",
 	"comment" => "RAR MCS"
     ), 
 
-    "RarDci" => array(
+/*    "RarDci" => array(
 	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a","selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for RAR"
-    ),
+),*/
 
-    "downlinkDci" => array(
+/*    "downlinkDci" => array(
 	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a","selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for downlink"
-    ), 
+),*/ 
 
-    "uplinkDci" => array(
+    //"uplinkDci" => array(
 	// commented ones are not supported
-	array("dci0", /*"dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci0"),
-	"display" => "select",
-	"comment" => "DCI for uplink"
-    ),
+	//array("dci0", /*"dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci0"),
+	//"display" => "select",
+	//"comment" => "DCI for uplink"
+    //),
 
     "DistributedVrbs" => array(
 	"display" => "checkbox",
 	"comment" => "Checked if the resource blocks are distributed"
     ),
 
-    "PrachResponseDelay" => array(
+   /* "PrachResponseDelay" => array(
 	"comment" => "Integer. Response delay for PRACH events in subrames.",
 	"validity" => array("check_valid_integer")
-    ),
+),*/
 ),
 
 "measurements" => array(
@@ -843,7 +858,7 @@ Default value for SatSite 142 is -20 dBm.",
 
 
 "access_channels" => array(
-"pdsch" => array(
+/*"pdsch" => array(
      // This params will be sent in "basic" section when sending request to API
 
     'Pdsch.RefPower' => array(
@@ -852,7 +867,7 @@ Default value for SatSite 142 is -20 dBm.",
 Allowed values -60 .. 50. Default -20.',
 	"validity" => array("check_field_validity",-60,50)
     ),
-),
+),*/
 
 "pusch" => array(
     // This params will be sent in "basic" section when sending request to API
