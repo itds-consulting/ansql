@@ -219,7 +219,7 @@ function errormess($text, $path=NULL, $return_text="Go back to application")
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module;
 
-	print '<div class="notice">'."\n";
+	print '<div class="notice error">'."\n";
 	print "<font class=\"error\"> Error!!</font>"."\n";
 	print "<font style=\"font-weight:bold;\">$text</font>"."\n";
 
@@ -270,7 +270,7 @@ function notice($message, $next_cb=NULL, $no_error = true)
 	if ($no_error)
 		print '<div class="notice">'.$message.'</div>';
 	else
-		print '<div class="notice"><font class="error">Error!! </font>'.$message.'</div>';
+		print '<div class="notice error"><font class="error">Error!! </font>'.$message.'</div>';
 
 	if ($next_cb != "no")
 		call_user_func($next_cb);
