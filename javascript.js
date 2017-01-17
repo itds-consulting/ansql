@@ -288,9 +288,12 @@ function show_docs(category_id, comment_id)
 	if (iframe_doc.getElementById(comment_id+"_id"))
 		reference_id = comment_id+"_id";
 
+	console.log("Reference_id comment: " + reference_id + ", comment_id: " + comment_id);
+
 	document.getElementById("page_id").style.width="78%";
 	if (iframe_doc.getElementById(reference_id))
 		iframe_doc.getElementById(reference_id).style.color = "red";
+
 	if (document.last_comment_id && iframe_doc.getElementById(document.last_comment_id+"_id") &&
 			document.last_comment_id+"_id" != reference_id)
 		iframe_doc.getElementById(document.last_comment_id+"_id").style.color = "black";

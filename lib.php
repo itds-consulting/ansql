@@ -998,38 +998,49 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		return;
 	}
 
-	if ($display != "hidden") {
-		print '<td class="'.$css.' left_td ';
-		if (isset($field_format["custom_css_left"]))
-			print $field_format["custom_css_left"];
-		print '"';
-		if (isset($td_width["left"]))
-			print ' style="width:'.$td_width["left"].'"';
-		print '>';
-		if (!isset($field_format["column_name"]))
-			print ucfirst(str_replace("_","&nbsp;",$field_name));
+	if ($display=="hidden") {
+		print '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
+
+		if ($value && strpos('"',$value)!==false)
+			print ' value="'.$value.'"';
 		else
-			print ucfirst($field_format["column_name"]);
-		if (isset($field_format["required"]))
-			$field_format["compulsory"] = $field_format["required"];
-		if (isset($field_format["compulsory"]))
-			if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || $field_format["compulsory"] == "t" || $field_format["compulsory"] == "true")
-				print '<font class="compulsory">*</font>';
-		print '&nbsp;</td>';
-		print '<td class="'.$css.' right_td ';
-		if (isset($field_format["custom_css_right"]))
-			print $field_format["custom_css_right"];
-		print '"';
-		if (isset($td_width["right"]))
-			print ' style="width:'.$td_width["right"].'"';
-		print '>';
+			print " value='".$value."'";
+		print " />";
+		return;
 	}
+
+	print '<td class="'.$css.' left_td ';
+	if (isset($field_format["custom_css_left"]))
+		print $field_format["custom_css_left"];
+	print '"';
+	if (isset($td_width["left"]))
+		print ' style="width:'.$td_width["left"].'"';
+	print '>';
+	if (!isset($field_format["column_name"]))
+		print ucfirst(str_replace("_","&nbsp;",$field_name));
+	else
+		print ucfirst($field_format["column_name"]);
+	if (isset($field_format["required"]))
+		$field_format["compulsory"] = $field_format["required"];
+	if (isset($field_format["compulsory"]))
+		if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || $field_format["compulsory"] == "t" || $field_format["compulsory"] == "true")
+			print '<font class="compulsory">*</font>';
+	print '&nbsp;</td>';
+	print '<td class="'.$css.' right_td ';
+	if (isset($field_format["custom_css_right"]))
+		print $field_format["custom_css_right"];
+	print '"';
+	if (isset($td_width["right"]))
+		print ' style="width:'.$td_width["right"].'"';
+	print '>';
+
+	$field_comment = comment_field($field_format, $form_identifier, $field_name, $category_id, $display);
 
 	switch($display) {
 		case "textarea":
 			print '<textarea class="'.$css.'" name="'.$form_identifier.$field_name.'" cols="20" rows="5">';
 			print $value;
-			print '</textarea>';
+			print '</textarea>'.$field_comment;
 			break;
 		case "select":
 		case "mul_select":
@@ -1115,7 +1126,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 						print '<option '.$css.'>' . $opt . '</option>';
 				}
 			}
-			print '</select>';
+			print '</select>'.$field_comment;
 
 			if(isset($field_format["add_custom"]))
 				print $field_format["add_custom"];
@@ -1149,6 +1160,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 					print $field_format["javascript"];
 				print '>' . $name . '&nbsp;&nbsp;';
 			}
+			print $field_comment;
 			break;
 		case "checkbox":
 		case "checkbox-readonly":
@@ -1159,12 +1171,11 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print $field_format["javascript"];
 			if ($display=="checkbox-readonly")
 				print " disabled=''";
-			print '/>';
+			print '/>'.$field_comment;
 			break;
 		case "text":
 		case "password":
 		case "file":
-		case "hidden":
 		case "text-nonedit":
 			print '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if ($display != "file" && $display != "password") {
@@ -1192,25 +1203,8 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print " readonly=''";
 			if (isset($field_format["autocomplete"]))
 				print " autocomplete=\"".$field_format["autocomplete"]."\"";
-			if ( $allow_code_comment && $display != "hidden" && isset($field_format["comment"])) {
-				$q_mark = true;
-				if (is_file("images/question.jpg"))
-					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
-				else
-					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
-		   
-			} elseif ($use_comments_docs && $display != "hidden") {
-				$q_mark = true;
-				if (!$category_id)
-					$category_id = str_replace(array("new_","add_", "edit_"), "", $method);
-				$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
 
-				if (is_file("images/question.jpg"))
-					print '>&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
-				else
-					print '>&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
-			 } else
-				 print '>';
+			print '>'.$field_comment;
 
 			if ($display == 'file' && isset($field_format["file_example"]) && $field_format["file_example"] != "__no_example")
 				print '<br/><br/>Example: <a class="'.$css.'" href="download.php?file='.$field_format["file_example"].'">'.$field_format["file_example"].'</a><br/><br/>';
@@ -1222,6 +1216,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 				print $value;
 			else
 				print "&nbsp;";
+			print $field_comment;
 			break;
 		default:
 			// make sure the function that displays the advanced field is included
@@ -1235,46 +1230,55 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 			$value = call_user_func_array($display, array($value,$form_identifier.$field_name)); 
 			if ($value)
 				print $value;
+			print $field_comment;
 	}
+
+	print '</td>';
+	print '</tr>';
+}
+
+function comment_field($field_format, $form_identifier, $field_name, $category_id, $display)
+{
+	global $use_comments_docs, $allow_code_comment;
+
+	$res = "";
 	if ($display != "hidden") {
 		if (isset($field_format["comment"])) {
 			if ($allow_code_comment) {
 
 				$comment = $field_format["comment"];
 
-				if (!$q_mark) {
-					if (is_file("images/question.jpg"))
-						print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
-					else
-						print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
-				}
+				if (is_file("images/question.jpg"))
+					$res .= '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"/>';
+				else
+					$res .= '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_hide_comment(\''.$form_identifier.$field_name.'\');"> ? </font>';
 
-				print '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
+				$res .= '<font class="comment" style="display:none;" id="comment_'.$form_identifier.$field_name.'">'.$comment.'</font>';
 			}
 		}
 
 		if ($use_comments_docs) {
 			if (!$category_id)
 				$category_id = str_replace(array("add_", "edit_"), "", $method);
+
 			$comment_id = build_comment_id($field_format, $form_identifier, $field_name, $category_id);
 
-			if (!$q_mark) {
-				if (is_file("images/question.jpg"))
-					print '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
-				else
-					print '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
-			}
+			if (is_file("images/question.jpg"))
+				$res .= '&nbsp;&nbsp;<img class="pointer" src="images/question.jpg" onClick="show_docs(\''.$category_id.'\', \''.$comment_id.'\');"/>';
+			else
+				$res .= '&nbsp;&nbsp;<font style="cursor:pointer;" onClick="show_docs(\''.$category_id.'\',\''.$comment_id.'\');"> ? </font>';
 		}
-		print '</td>';
 	}
-	print '</tr>';
+	return $res;
 }
-
 
 function build_comment_id($field_format, $form_identifier, $field_name, $category_id)
 {
 	if (isset($field_format["comment_id"]))
 		return $field_format["comment_id"];
+
+	if (isset($field_format["ref_comment_id"]))
+		$field_name = $field_format["ref_comment_id"];
 
 	$pieces = explode("_", $field_name);
 
