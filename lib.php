@@ -887,8 +887,11 @@ function cancel_button($css="", $name="Cancel")
 	$res = null;
 	if (isset($_SESSION["previous_page"])) {
 		$link = $_SESSION["main"]."?";
-		foreach ($_SESSION["previous_page"] as $param=>$value)
+		foreach ($_SESSION["previous_page"] as $param=>$value) {
+			if (is_array($value) || is_object ($value))
+				continue;
 			$link.= "$param=".urlencode($value)."&";
+		}
 		$res = '<input class="'.$css.'" type="button" value="'.$name.'" onClick="location.href=\''.$link.'\'"/>';
 	}
 	return $res;
