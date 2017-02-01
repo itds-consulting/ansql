@@ -1242,7 +1242,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 
 function comment_field($field_format, $form_identifier, $field_name, $category_id, $display)
 {
-	global $use_comments_docs, $allow_code_comment;
+	global $use_comments_docs, $allow_code_comment, $method;
 
 	$res = "";
 	if ($display != "hidden") {
