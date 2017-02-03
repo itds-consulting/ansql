@@ -510,6 +510,8 @@ function make_api_request(url, cb, async)
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp.readyState == 4) {
 			var response = xmlhttp.responseText;
+			if (response)
+				remove_spinner();
 			if (typeof cb != 'undefined' && cb !== null) 
 				call_function(cb,response);
 		}
@@ -556,6 +558,18 @@ function GetXmlHttpObject()
         }
         return null;
 }
+
+function insert_spinner()
+{
+	if (document.getElementById("spinner_id") != null)
+		show("spinner_id");
+}
+
+function remove_spinner()
+{
+	hide("spinner_id");
+}
+
 
 /**
  * Check if required fields were set.
