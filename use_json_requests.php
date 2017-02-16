@@ -33,6 +33,9 @@ function make_request($out, $request=null, $response_is_array=true, $recursive=t
 	else
 		$func = "make_curl_request";
 
+	if (isset($out["params"]) && is_callable("transform_request_params"))
+		transform_request_params($out["params"]);
+
 	return $func($out,$request,$response_is_array,$recursive);
 }
 
@@ -348,6 +351,5 @@ function logout_from_api()
 
 	make_curl_request(array(),"logout");
 }
-
 
 ?>
