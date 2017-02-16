@@ -3262,6 +3262,7 @@ class Model
 	protected function populateObject($result)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+		global $db_type;
 
 		if(count($result) != 1)
 		{
@@ -3273,7 +3274,7 @@ class Model
 		$allow_html  = $this->allowHTML();
 		foreach($result[0] as $var_name=>$value) {
 			$var = $this->getVariable(get_class($this),$var_name);
-			if ($var && $var->_type == "bool") {
+			if ($db_type == "postgresql" && $var && $var->_type == "bool") {
 				if ($value == "1")
 				    $value = "t";
 				elseif ($value == "0")
@@ -3293,6 +3294,7 @@ class Model
 	protected function buildArrayOfObjects($result)
 	{
 		Debug::func_start(__METHOD__,func_get_args(),"framework");
+		global $db_type;
 
 		if(!count($result))
 			return array();
@@ -3309,7 +3311,7 @@ class Model
 			$clone->_model = $this->_model;
 			foreach ($row as $var_name=>$value) {
 				$var = $clone->getVariable($class_name,$var_name);
-				if ($var && $var->_type == "bool") {
+				if ($db_type == "postgresql" && $var && $var->_type == "bool") {
 					if ($value == "1")
 					    $value = "t";
 					elseif ($value == "0")
