@@ -3139,7 +3139,7 @@ function set_default_object($fields, $selected, $method, $message)
 /**
  * Sets the fields value by using getparam() to take the data set in FORM
  */ 
-function set_form_fields(&$fields, $error_fields, $field_prefix='')
+function set_form_fields(&$fields, $error_fields, $field_prefix='', $use_urldecode=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (!$error_fields)
@@ -3148,7 +3148,7 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 	foreach ($fields as $name=>$def) {
 		if (!isset($def["display"]))
 			$def["display"] = "text";
-		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed" || $def["display"]=="objtitle" || $def["display"]=="custom_field")
+		if ($def["display"] == "hidden" || $def["display"]=="message" || $def["display"]=="fixed" || $def["display"]=="objtitle" || $def["display"]=="custom_field" || $def["display"]=="custom_submit")
 			continue;
 		if (in_array(strtolower($name), $error_fields))
 			$fields[$name]["error"] = true;
@@ -3157,12 +3157,15 @@ function set_form_fields(&$fields, $error_fields, $field_prefix='')
 		else
 			$val = (isset($_REQUEST[$field_prefix.$name])) ? $_REQUEST[$field_prefix.$name] : null;
 
+		if ($use_urldecode)
+			$val = urldecode($val);
+
 		if ($val!==NULL) {
 			if (isset($fields[$name][0]) && is_array($fields[$name][0]))
 				$fields[$name][0]["selected"] = $val;
 			elseif ($def["display"] == "checkbox")
 				$fields[$name]["value"] = ($val == "on") ? "t" : "f";
-			else
+			else 
 				$fields[$name]["value"] = $val;
 		}
 	}
@@ -3201,17 +3204,17 @@ function set_error_fields($error, &$error_fields)
  * Handle the errors by displaing the error using errormess();
  * sets the errors in array fields and then sets the data in form fields
  */ 
-function error_handle($error, &$fields, &$error_fields, $field_prefix='')
+function error_handle($error, &$fields, &$error_fields, $field_prefix='', $use_urldecode=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if ($error) {
 		errormess($error,"no");
 		set_error_fields($error, $error_fields);
-		set_form_fields($fields, $error_fields, $field_prefix);
+		set_form_fields($fields, $error_fields, $field_prefix, $use_urldecode);
 	}
 	if ($error===false) {
 		set_error_fields($error, $error_fields);
-		set_form_fields($fields, $error_fields, $field_prefix);
+		set_form_fields($fields, $error_fields, $field_prefix, $use_urldecode);
 	}
 }
 
