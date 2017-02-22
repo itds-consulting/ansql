@@ -3232,8 +3232,11 @@ function return_button($method=null, $_module=null, $align="right", $name="Retur
 		$link = $_SESSION["main"].'?module='.$_module.'&method='.$method;
 	} elseif (isset($_SESSION["previous_page"])) {
 		$link = $_SESSION["main"]."?";
-		foreach ($_SESSION["previous_page"] as $param=>$value)
+		foreach ($_SESSION["previous_page"] as $param=>$value) {
+			if (is_array($value) || is_object ($value))
+				continue;
 			$link.= "$param=".urlencode($value)."&";
+		}
 	} else
 		$link = $_SESSION["main"]. "?"."module=".$module;
 	print '<div style="float:'.$align.'"><a class="llink" href="'.$link.'">'.$name.'</a></div>';
