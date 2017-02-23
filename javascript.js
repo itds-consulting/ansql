@@ -1009,16 +1009,20 @@ function clean_cols_search()
 /**
 Calculate the following parameters:
 On Radio in EnodeB screen:
-	* Prach.RootSequence: cellID + random() % (837-503)
-	* Prach.FreqOffset: cellID % 95
 	* Pusch.RefSignalGroup: cellID % 30
+	
+On Access Channels :: PRACH screen:
+	* Prach.RootSequence: cellID + (random value in range 0..334)
+	* Prach.FrequencyOffset: 0
 	
 On Access Channels :: PUSCH screen:
 	* Pusch.CyclicShift: cellID % 8
 	
 On Access Channels :: PUCCH screen:
+Old implementation:
 	* Pucch.CsAn: dependency on Pucch.Delta if 1 => cellID % 8
 	* if 2=> 2*(cellID%8); if 3 => 3*(cellID%3)
+Now the default value is 7.
 	* ResourceAllocationOffset: cellID + random() % (2047-503)
 */
 function set_cellid_dependencies()
@@ -1032,24 +1036,24 @@ function set_cellid_dependencies()
 	var pucchDelta = document.getElementById("Pucch.Delta").value;
 	var cellid = 3*parseInt(nid1) + parseInt(nid2);
 	var prachRootSequence = cellid + get_rand_int(0, 334); 
-	var prachFreqOffset = cellid % 95;
+//	var prachFreqOffset = cellid % 95;
 	var puschRefSignalGroup = cellid % 30;
 	var puschCyclicShift = cellid % 8;
 
-	var resourceAllocationOffset = cellid + get_rand_int(0,1544);
-	if (pucchDelta == 1)
+	var resourceAllocationOffset = cellid;
+/*	if (pucchDelta == 1)
 		var pucchCsAn = cellid%8;
 	else if (pucchDelta == 2)
 		var pucchCsAn = 2*(cellid%4);
 	else if (pucchDelta == 3)
 		var pucchCsAn = 3*(cellid%3);
-
+*/
 	document.getElementById("Prach.RootSequence").value = prachRootSequence;
-	document.getElementById("Prach.FreqOffset").value = prachFreqOffset;
+//	document.getElementById("Prach.FreqOffset").value = prachFreqOffset;
 	document.getElementById("Pusch.RefSigGroup").value = puschRefSignalGroup;
 	document.getElementById("Pusch.CyclicShift").value = puschCyclicShift;
 	document.getElementById("Pucch.An").value = resourceAllocationOffset;
-	document.getElementById("Pucch.CsAn").value = pucchCsAn;
+//	document.getElementById("Pucch.CsAn").value = pucchCsAn;
 }
 
 /**

@@ -123,9 +123,10 @@ This gives a phy cell id range of 0..503
 The combination 3*NID1+NID2 should never be the same for cells with overlapping coverage.
 Some parameters are to have default values derived from physical layer cell id.
 These are: 
-On Radio in EnodeB screen: Prach.RootSequence, Prach.FreqOffset, Pusch.RefSignalGroup
+On Radio in EnodeB screen: Pusch.RefSignalGroup
+On Access Channe in PRACH screen: Prach.RootSequence
 On Access Channels in PUSCH screen: Pusch.CyclicShift
-On Access Channels in PUCCH screen: Pucch.CsAn, Resource allocation offset
+On Access Channels in PUCCH screen: Resource allocation offset
 ")
     ),
 
@@ -143,22 +144,7 @@ On Access Channels in PUCCH screen: Pucch.CsAn, Resource allocation offset
 	"javascript" => "onchange='set_cellid_dependencies();'"
     ),
 
-    "Prach.RootSequence" => array(
-	"value" => "0",
-	"comment" => 'Root Sequence Index ("rootSequenceIndex" in SIB2)
-Cells with overlapping coverage should have different values.
-Allowed values 0..837',
-	"validaty" => array("check_field_validity", 0, 837)
-    ),
-
-    "Prach.FreqOffset" => array(
-	"value" => 9,
-	"comment" => 'Frequency Offset ("prach_ConfigIndex" in SIB2)
-Cells with overlapping coverage should have different values.
-Allowed values 0..94',
-	"validity" => array("check_field_validity", 0, 94)
-    ),
-
+    
     "Pusch.RefSigGroup" => array(
 	array(0,1,2,3,4,5,6,7,8,9,10, 11,12,13,14,15,16,17,18,19,20, 21,22,23,24,25,26,27,28,29, "selected" => 2),
 	"display" => "select",
@@ -752,12 +738,17 @@ Default value: 14",
 
 "scheduler" => array(
 
-    "SibModulationRate" => array(
+   /* "SibModulationRate" => array(
 	array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,"selected"=>2),
 	"display" => "select",
 	"comment" => "Sib modulation rate"
-    ),
+),*/
 
+	"SpecialRntiCodingEfficiency" => array(
+		 "value" => "0.0625",
+		 "comment" => "A float value in the range 0.0625 - 4.0, default to 0.0625.",
+	 	 "validity" => array("check_SpecialRntiCodingEfficiency")
+	 ),
 	"SpecialDCI" => array(
 		// commented ones are not supported
 		array("dci1a"/*,"dci1c"*/,"selected"=>"dci1a"),
@@ -773,17 +764,17 @@ Default value: 14",
 //	"comment" => "DCI for SIB"
 //    ),
 	
-    "PcchMcs" => array(
+   /* "PcchMcs" => array(
 	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
 	"display" => "select",
 	"comment" => "PCCH MCS"
     ),
-
-/*    "PcchDci" => array(
+	
+    "PcchDci" => array(
 	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a", "selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for PCCH"
-),*/
+),
 
     "RarMcs" => array(
 	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
@@ -791,13 +782,13 @@ Default value: 14",
 	"comment" => "RAR MCS"
     ), 
 
-/*    "RarDci" => array(
+    "RarDci" => array(
 	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a","selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for RAR"
-),*/
+),
 
-/*    "downlinkDci" => array(
+    "downlinkDci" => array(
 	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a","selected"=>"dci1a"),
 	"display" => "select",
 	"comment" => "DCI for downlink"
@@ -904,7 +895,7 @@ Default 3.',
     ),
 
     "Pucch.CsAn" => array(
-	array(0,1,2,3,4,5,6,7,"selected"=>3),
+	array(0,1,2,3,4,5,6,7,"selected"=>7),
 	"display" => "select",
 	"comment" => 'Number of cyclic shifts used for PUCCH formats 1/1a/1b in a resource block with a mix of
 formats 1/1a/1b and 2/2a/2b ("nCS_AN" in SIB2)
@@ -921,6 +912,22 @@ Allowed values 0..2047. Default 45',
 ),
 "prach" => array(
     // This params will be sent in "basic" section when sending request to API
+
+	"Prach.RootSequence" => array(
+	"value" => "0",
+	"comment" => 'Root Sequence Index ("rootSequenceIndex" in SIB2)
+Cells with overlapping coverage should have different values.
+Allowed values 0..837',
+	"validaty" => array("check_field_validity", 0, 837)
+    ),
+
+    "Prach.FreqOffset" => array(
+	"value" => 0,
+	"comment" => 'Frequency Offset ("prach_ConfigIndex" in SIB2)
+Cells with overlapping coverage should have different values.
+Allowed values 0..94',
+	"validity" => array("check_field_validity", 0, 94)
+    ),
 
     "Prach.Preambles" => array(
 	array(4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,"selected"=>4),
@@ -965,14 +972,14 @@ but we only support value 10.'
     ),
 
     "Prach.ConfigIndex" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, "selected"=>14),
+	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, "selected"=>0),
 	"display" => "select",
 	"comment" => 'Configuration Index ("prach_ConfigIndex" in SIB2)',
 	//"validity" => array("check_field_validity",0,63)  // prev validation and valid range
     ),
 
     "Prach.ZeroCorr" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>1),
+	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>7),
 	"display" => "select",
 	"comment" => 'Zero Correlation Zone ("zeroCorrelationZoneConfig" in SIB2)'
     ),
@@ -987,7 +994,7 @@ Determines available bandwidth for the PDCCH."
     ),
 
     "Ng" => array(
-	array("oneSixth", "half", "one", "two", "selected"=>"one"),
+	array("oneSixth", "half", "one", "two", "selected"=>"oneSixth"),
 	"display" => "select",
 	"column_name" => "PHICH Ng factor",
 	"comment" => "PHICH Ng factor (from MIB in PBCH)

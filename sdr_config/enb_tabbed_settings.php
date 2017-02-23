@@ -168,7 +168,8 @@ the eNodeB hardware or reduced equipment life."
 		// rename some of the sections the parameters appear under: basic->enodeb, basic-> all subsections under access channels, basic-> system_information
 		$aggregated_subsections = array("enodeb","system_information",/*"pdsch",*/"pusch","pucch","prach","pdcch");
 		foreach ($aggregated_subsections as $subsection)
-			$res[$subsection] = $res["basic"];
+			if (isset($res["basic"]))
+				$res[$subsection] = $res["basic"];
 
 		if (!$developers_tab)
 			$developers_tab = false;

@@ -215,4 +215,12 @@ function check_output_level_validity($field_name, $field_value, $restricted_valu
 
 	return array(true);
 }
+
+function check_SpecialRntiCodingEfficiency($field_name, $field_value)
+{
+	if ($field_value < 0.0625 || $field_value > 4)
+		return array(false, "The '".$field_name. "' should be in the range 0.0625 - 4.0");
+
+	return array(true);
+}
 ?>
