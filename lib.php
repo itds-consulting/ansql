@@ -2624,7 +2624,7 @@ function get_date($key='',$_hour='00',$min='00',$sec='00')
  * @param $force_method String the new method to be added in link, default NULL
  * @return $letter the selected letter 
  */   
-function insert_letters($link = "main.php", $force_method = NULL)
+function insert_letters($link = "main.php", $force_method = NULL, $letter = NULL)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module,$method;
@@ -2634,11 +2634,9 @@ function insert_letters($link = "main.php", $force_method = NULL)
 	if ($force_method)
 		$method = $force_method;
 
-	$letter = getparam("letter");
-	
 	if (!$letter)
-		$letter = 'A';
-	
+		$letter = getparam("letter") ? getparam("letter") : 'A';
+
 	$letters = array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "W", "Z");
 
 	for ($i=0; $i<count($letters); $i++) {
