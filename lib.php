@@ -536,7 +536,10 @@ function pages($total = NULL, $limit_url_elements=array())
 	if (isset($_REQUEST["total"]))
 		$total = $_REQUEST["total"];
 
-	$link = build_link_request(array("limit"), array("total"));
+	if (!count($limit_url_elements))
+		$limit_url_elements = array("total");
+
+	$link = build_link_request(array("limit"), $limit_url_elements);
 
 	if (!$total)
 		$total = 0;
@@ -2154,7 +2157,7 @@ function ack_delete($object, $value = NULL, $message = NULL, $object_id = NULL, 
 	if (!$value_id)
 		$value_id = getparam($object_id);
 
-	print "<br/><br/>Are you sure you want to $action_obj ".str_replace("_","&nbsp;",$object)." $value?";
+	print "<div class=\"ack_delete notice\">Are you sure you want to $action_obj ".str_replace("_","&nbsp;",$object)." $value?";
 	if ($message) {
 		if (substr($message,0,2) != "__") {
 			if(substr($message,0,1) == ",")
