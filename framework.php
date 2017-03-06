@@ -1513,6 +1513,16 @@ class Model
 				// gather other errors as well
 				continue;
 			}
+			if (substr($var->_type,0,7) == "varchar")
+			{
+				$res = $this->isValidVarchar($var->_type, $value);
+				if (!$res[0])
+				{
+					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long").".";
+					$error_fields[] = $var_name;
+					continue;
+				}
+			}                 	
 			if ($columns != "")
 			{
 				$columns .= ",";
@@ -1530,6 +1540,21 @@ class Model
 		}
 
 		return array("columns"=>$columns, "values"=>$values, "error"=>$error, "error_fields"=>$error_fields, "serials"=>$serials, "insert_log"=>$insert_log, "update_fields"=>$update_fields);
+	}
+
+	/**
+	 * Verify the allowed length set on varchar type variable
+	 */  
+	private function isValidVarchar($type, $value)
+	{
+		Debug::func_start(__METHOD__,func_get_args(),"framework");
+
+		$var_length = strlen($value);
+		$allowed_length = explode("(", $type);
+		$allowed_length = substr($allowed_length[1],0,-1);
+		if ($var_length > (int)$allowed_length)
+			return array(false,$allowed_length);
+		return array(true);
 	}
 
 	/**
@@ -1610,8 +1635,16 @@ class Model
 				$error_fields[] = $var_name;
 				continue;
 			}
-
 			$value = $var->escape($this->{$var_name});
+			if (substr($var->_type,0,7) == "varchar") {
+				$res = $this->isValidVarchar($var->_type,$value);
+			   	if (!$res[0]) {
+					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long").".";
+					$error_fields[] = $var_name;
+					continue;
+				}
+			}                 	
+
 			$variables .= esc($var_name)."=".$value."";
 			if ($var_name!="password")
 				$update_log .= "$var_name=".$this->{$var_name}.""; 
@@ -1619,10 +1652,12 @@ class Model
 				$update_log .= "$var_name=***";
 		}
 		$obj_name = $this->getObjectName();
+		
+		if ($error != "")
+			return array(false,_("Failed to update").' '._($obj_name).".".$error, $error_fields,0);
 		if ($variables == "")
 			return array(true, _('Nothing to update in ')._($obj_name).".",array());
-		if($error != "")
-			return array(false,_("Failed to update").' '._($obj_name).".".$error, $error_fields,0);
+
 		$table = $this->getTableName();
 		$query = "UPDATE ".esc($table)." SET $variables $where";
 		//print "query-update:$query";
@@ -1655,6 +1690,8 @@ class Model
 		$where = "";
 		$variables = "";
 		$update_log = "";
+		$error = "";
+		$error_fields = array();
 
 		if(!count($conditions)) {
 			if($this->isInvalid())
@@ -1695,6 +1732,15 @@ class Model
 			}else{
 				$variables .= esc($var_name)."=".$var->escape($value)."";
 			}
+			if (substr($var->_type,0,7) == "varchar") {
+				$res = $this->isValidVarchar($var->_type,$value);
+			   	if (!$res[0]) {
+					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long").".";
+					$error_fields[] = $var_name;
+					continue;
+				}
+			}                 	
+
 			if ($var_name!="password")
 				$update_log .= "$var_name=$value";
 			else
@@ -1702,6 +1748,9 @@ class Model
 		}
 
 		$obj_name = $this->getObjectName();
+		if ($error != "")
+			return array(false,_("Failed to update").' '._($obj_name).".".$error, $error_fields,0);
+
 		$query = "UPDATE ".esc($this->getTableName())." SET $variables $where";
 		$res = Database::query($query);
 		if($res===false || $res[0]===false) 
