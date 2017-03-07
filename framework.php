@@ -937,6 +937,7 @@ class Model
 	//whether a select or extendedSelect was performed on the object 
 	protected $_retrieved;
 
+	//whether to check or not which fields have been modified before making the update
 	protected $_check_col_diff;
 	protected $_modified_col = array();
 
@@ -1380,6 +1381,7 @@ class Model
 	 * @param $params Array of param_name=>param_value used for setting the variables of this object
 	 * @param $conditons Array of conditions after which to do the update. Default is NULL(update after object id)
 	 * @param $verifications Array with conditions trying to specify if this object can be modified or not
+	 * @param $check_col_diff Bool whether to check or not which fields have been modified before making the update 
 	 * @return Array, array[0] is true/false, true when inserting was succesfull, array[1] default message to could be printed to the user, array[2] is array with fields there was an error with
 	 */
 	public function edit($params, $conditions = NULL, $verifications = array(), $check_col_diff = true)
@@ -1590,6 +1592,7 @@ class Model
 	
 	/**
 	 * Update object (!! Use this after you selected the object or else the majority of the fields will be set to null)
+	 * If you want to use it directly: set global $check_col_diff = false
 	 * @param $conditions Array of conditions for making an update
 	 * if no parameter is sent when method is called it will try to update based on the numeric id od the object, unless is was invalidated
 	 * @param $verifications Array with conditions trying to specify if this object can be modified or not
