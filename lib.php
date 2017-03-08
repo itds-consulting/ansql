@@ -1652,7 +1652,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 		}
 		$link = '';
 		foreach($vars as $var_name => $var)
-			if (strlen($objects[$i]->{$var_name}) < 50)
+			if ($var_name!="password" && strlen($objects[$i]->{$var_name}) < 50)
 				$link .= "&$var_name=".htmlentities(urlencode($objects[$i]->{$var_name}));
 		$link_no = 0;
 		foreach($object_actions as $methd => $methd_name) {
@@ -2051,6 +2051,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 		}
 		$link = '';
 		foreach ($array[$i] as $col_name => $col_value) {
+                        if ($col_name=="password")
+                                continue;
 			if (is_array($col_value))
 				continue;
 			if (count($build_link_elements)) {
