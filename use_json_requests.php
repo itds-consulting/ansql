@@ -306,9 +306,8 @@ function check_errors(&$res)
 		if (isset($error_codes[$res["code"]]))
 			$res["message"] = $error_codes[$res["code"]];
 		foreach ($res as $name => $val) {
-			if (is_array($val)) {
-				if (!isset($val["message"]) && isset($val['error_code']))
-					$res[$name]["message"] = $error_codes[$val["error_code"]];
+			if (is_array($val) && !isset($val["message"]) && isset($val['error_code'])) {
+				$res[$name]["message"] = $error_codes[$val["error_code"]];
 			}
 		}
 	}
@@ -352,4 +351,38 @@ function logout_from_api()
 	make_curl_request(array(),"logout");
 }
 
+// REQUEST working mode from equipment with SDR: bts/enb 
+// Additionally it initializes available nodes in $_SESSION["node_types"]
+function get_working_mode()
+{
+	if (!isset($_SESSION["sdr_mode"])) {
+		$installed_nodes = request_api(array(), "get_node_type", "node_type");
+                $node_types = clean_node_types($installed_nodes);
+                
+		if (count($node_types) && isset($node_types[0]["sdr_mode"])) {
+			$_SESSION["node_types"] = $node_types;
+			$sdr_mode = $node_types[0]["sdr_mode"];
+			$_SESSION["sdr_mode"] = $sdr_mode;
+
+			return $sdr_mode;
+		}
+		return "";
+	} 
+	return $_SESSION["sdr_mode"];
+}
+
+function clean_node_types($installed_nodes)
+{
+    // Ex: [{"type":"smsc","version":"unknown"},{"type":"eir","version":"unknown"},{"type":"ucn","version":"unknown"},{"type":"bts","version":"0.1-1_r74_r289.mga5","sdr_mode":"enb"},
+    // {"type":"enb","version":"0.1-1_r74_r289.mga5","sdr_mode":"enb"},{"type":"stp","version":"unknown"},{"type":"dra","version":"unknown"},{"type":"pcrf","version":"unknown"},{"type":"hss","version":"unknown"}]
+    
+    $nodes = array();
+    $accepted_nodes = array("enb","bts");
+    foreach($installed_nodes as $node) {
+        if (!isset($node["type"]) || !in_array($node["type"], $accepted_nodes))
+                continue;
+        $nodes[] = $node;
+    }
+    return $nodes;
+}
 ?>
