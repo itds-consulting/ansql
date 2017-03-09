@@ -501,11 +501,15 @@ class Debug
 			foreach ($debug_buttons as $method=>$button) {
 				switch ($method) {
 					case "dump_session":
-						print "<a class='llink' href='pages.php?method=$method' target='_blank'>$button</a>";
+                                                if (is_file("pages.php"))
+                                                    $page = "pages.php";
+                                                else
+                                                    $page = (isset($_SESSION["main"])) ? $_SESSION["main"] : "main.php";
+						print "&nbsp;<a class='llink' href='$page?method=$method' target='_blank'>$button</a>";
 						break;
 					case "dump_request":
 						$dump_request_params = true;
-						print "<a class='llink' onclick='show_hide(\"dumped_request\");'>$button</a>";
+						print "&nbsp;<a class='llink' onclick='show_hide(\"dumped_request\");'>$button</a>";
 						break;
 					default:
 						call_user_func($button);
