@@ -1114,6 +1114,7 @@ Defaults to 5000. Allowed interval [0..20000]",
 				"validity" => array("check_field_validity",0,20000)
 			),
 			"gsm_time_sync_check" => array(
+                                "value" => "0",
 				"comment" => "integer: Interval, in milliseconds, to check GSM time sync with upper layer.
 This parameter should be used when debugging: when sync times out a debug FAIL message will be printed.
 Set to 0 to disable it.
