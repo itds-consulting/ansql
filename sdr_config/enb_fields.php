@@ -945,6 +945,7 @@ Larger values reduce PRACH contention at the expense of computational load.'
 
     "Prach.InitialTarget" => array(
 	array("-90","-92", "-94", "-96", "-98", "-100", "-102", "-104", "-106", "-108", "-110", "-112", "-114", "-116", "-118", "-120", "selected" => "-90"),
+        "display" => "select",
 	"column_name" => 'Initial RSSI Target',
 	"comment" => 'Initial RSSI Target, dBm ("preambleInitialReceivedTargetPower" in SIB2)
 Allows values multiples of 2, -90 .. -120. Default -90.',
