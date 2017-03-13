@@ -112,15 +112,6 @@ Defaults to 2 (arbitrary).",
 Assigned by your national regulator, must be distinct from NCCs of other GSM operators in your area.
 Interval allowed: 0..7. Defaults to 0."
 		 	 ),
-		        "Identity.ShortName" =>	array( 
-				"display" => "text",
-				"value" => "YateBTS",
-				"regex" => "^[a-zA-Z0-9]+$",
-				"comment" => "Network short name, displayed on some phones.
-Optional but must be defined if you also want the network to send time-of-day.
-Defaults to YateBTS.",
-				"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9]+$")
-			),
 			"Radio.PowerManager.MaxAttenDB" => array( 
 				array("selected" => 10, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80),
 				"display" => "select",
@@ -1394,12 +1385,12 @@ Defaults to 720000",
 		    ),
 		    "custom_parameters" => array(
 			"display" => "textarea",
-			"comment" => "Custom parameters that will be stored on the equipment. <br/>
-		They are not used in configuration but are kept for informative purpose.<br/>
-		They are stored in key=value form. The keys should not match any of the above keys.<br/>
-		Ex:<br/>
-		antenna_serial_number2=342134<br/>
-		antenna_cable_length2=0.5<br/>
+			"comment" => "Custom parameters that will be stored on the equipment. 
+		They are not used in configuration but are kept for informative purpose.
+		They are stored in key=value form. The keys should not match any of the above keys.
+		Ex:
+		antenna_serial_number2=342134
+		antenna_cable_length2=0.5
 		"
 		    )
 		),
