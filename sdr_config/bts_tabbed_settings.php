@@ -106,7 +106,7 @@ configuration and identifying information.
 No defaults are provided.",
 			"shutdown" => "Parameters for safety shutdown of SatSite components.
 Raising these parameters above their default values may result in damage to
-the eNodeB hardware or reduced equipment life."
+the eNodeB hardware or reduced equipment life. This parameters are ignored in Labkit units."
 		);
 	}
 
@@ -121,8 +121,8 @@ the eNodeB hardware or reduced equipment life."
 		}
 		$res = $response_fields["ybts"];
 
-		if (isset($response_fields["satsite"])) {
-			$hardware_settings = $response_fields["satsite"];
+		if (isset($response_fields["sdr"])) {
+			$hardware_settings = $response_fields["sdr"];
 			if (isset($hardware_settings["basic"])) {
 				$hardware_settings["site_info"] = $hardware_settings["basic"];
 				unset($hardware_settings["basic"]);
@@ -302,20 +302,20 @@ the eNodeB hardware or reduced equipment life."
 
 		$fields = array("ybts"=>$fields);
 		if (count($satsite))
-			$fields["satsite"] = $satsite;
+			$fields["sdr"] = $satsite;
 
-		if (isset($fields["satsite"]["site_equipment"]["custom_parameters"])) {
-			if (strlen($fields["satsite"]["site_equipment"]["custom_parameters"])) {
-				$custom = explode("\r\n",$fields["satsite"]["site_equipment"]["custom_parameters"]);
+		if (isset($fields["sdr"]["site_equipment"]["custom_parameters"])) {
+			if (strlen($fields["sdr"]["site_equipment"]["custom_parameters"])) {
+				$custom = explode("\r\n",$fields["sdr"]["site_equipment"]["custom_parameters"]);
 				foreach ($custom as $custom_param) {
 					$custom_param = explode("=",$custom_param);
 					if (count($custom_param)!=2)
 						continue;
-					$fields["satsite"]["site_equipment"][trim($custom_param[0])] = trim($custom_param[1]);
+					$fields["sdr"]["site_equipment"][trim($custom_param[0])] = trim($custom_param[1]);
 				}
 
 			}
-			unset($fields["satsite"]["site_equipment"]["custom_parameters"]);
+			unset($fields["sdr"]["site_equipment"]["custom_parameters"]);
 		}
 
 		$res = make_request($fields, "set_bts_node");

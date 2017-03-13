@@ -1,6 +1,6 @@
 <?php 
 /**
- * check_validity_fields_openenb.php
+ * check_validity_fields_enb.php
  *
  * This file is part of the Yate-LMI Project http://www.yatebts.com
  *

@@ -102,7 +102,7 @@ configuration and identifying information.
 No defaults are provided.",
 			"shutdown" => "Parameters for safety shutdown of SatSite components.
 Raising these parameters above their default values may result in damage to
-the eNodeB hardware or reduced equipment life."
+the eNodeB hardware or reduced equipment life. This parameters are ignored in Labkit units."
 		);
 
 		if ($developers_tab) {
@@ -124,22 +124,22 @@ the eNodeB hardware or reduced equipment life."
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_enb");
 
 		$response_fields = request_api(array(), "get_enb_node", "node");
-		if (!isset($response_fields["openenb"])) {
-			Debug::xdebug("tabs_enb", "Could not retrieve openenb fields in " . __METHOD__);
+		if (!isset($response_fields["yateenb"])) {
+			Debug::xdebug("tabs_enb", "Could not retrieve yateenb fields in " . __METHOD__);
 			return null;
 		}
 
-		$res = $response_fields["openenb"];
-		if (isset($response_fields["gtp"]["sgw"])) {
-			$gtp_settings = $response_fields["gtp"]["sgw"];
+		$res = $response_fields["yateenb"];
+		if (isset($response_fields["gtp"]["ran_u"])) {
+			$gtp_settings = $response_fields["gtp"]["ran_u"];
 		} else {
 			$gtp_settings = array();
 			Debug::xdebug("tabs_enb", "Could not retrieve gtp fields in " . __METHOD__);
 		}
 		$res["gtp"] = $gtp_settings;
 
-		if (isset($response_fields["satsite"])) {
-			$hardware_settings = $response_fields["satsite"];
+		if (isset($response_fields["sdr"])) {
+			$hardware_settings = $response_fields["sdr"];
 			if (isset($hardware_settings["basic"])) {
 				$hardware_settings["site_info"] = $hardware_settings["basic"];
 				unset($hardware_settings["basic"]);
@@ -149,7 +149,7 @@ the eNodeB hardware or reduced equipment life."
 		}
 
 		// set mme fields
-		foreach ($response_fields["openenb"] as $section_name=>$section_def) {
+		foreach ($response_fields["yateenb"] as $section_name=>$section_def) {
 			if (substr($section_name,0,3)!="mme")
 				continue;
 			$index = substr($section_name, 3);
@@ -336,11 +336,11 @@ the eNodeB hardware or reduced equipment life."
 		if (!$developers_tab)
 			$developers_tab = false;
 
-		$request_fields = array("openenb"=>array("basic"=>array()));//, "gtp"=>array());
+		$request_fields = array("yateenb"=>array("basic"=>array()));//, "gtp"=>array());
 
 		$basic_sections = array("enodeb","system_information"/*,"pdsch"*/,"pusch","pucch","prach","pdcch");
 		foreach ($basic_sections as $basic_section) {
-			$request_fields["openenb"]["basic"] = array_merge($request_fields["openenb"]["basic"], $fields[$basic_section]);
+			$request_fields["yateenb"]["basic"] = array_merge($request_fields["yateenb"]["basic"], $fields[$basic_section]);
 			unset($fields[$basic_section]);
 		}
 		
@@ -355,7 +355,7 @@ the eNodeB hardware or reduced equipment life."
 			unset($fields[$satsite_section]);
 		}
 		if (count($satsite))
-			$request_fields["satsite"] = $satsite;
+			$request_fields["sdr"] = $satsite;
 
 		if (strlen($fields["mme"]["mme_address"])) {
 
@@ -378,33 +378,33 @@ the eNodeB hardware or reduced equipment life."
 		}
 		unset($fields["mme"]);
 
-		if (isset($request_fields["satsite"]["site_equipment"]["custom_parameters"])) {
-			if (strlen($request_fields["satsite"]["site_equipment"]["custom_parameters"])) {
-				$custom = explode("\r\n",$request_fields["satsite"]["site_equipment"]["custom_parameters"]);
+		if (isset($request_fields["sdr"]["site_equipment"]["custom_parameters"])) {
+			if (strlen($request_fields["sdr"]["site_equipment"]["custom_parameters"])) {
+				$custom = explode("\r\n",$request_fields["sdr"]["site_equipment"]["custom_parameters"]);
 				foreach ($custom as $custom_param) {
 					$custom_param = explode("=",$custom_param);
 					if (count($custom_param)!=2)
 						continue;
-					$request_fields["satsite"]["site_equipment"][trim($custom_param[0])] = trim($custom_param[1]);
+					$request_fields["sdr"]["site_equipment"][trim($custom_param[0])] = trim($custom_param[1]);
 				}
 
 			}
-			unset($request_fields["satsite"]["site_equipment"]["custom_parameters"]);
+			unset($request_fields["sdr"]["site_equipment"]["custom_parameters"]);
 		}
 
 		if (isset($fields["bearers"]))
 			$fields["bearers"] = $this->setBearers($fields["bearers"]);
 
-		$request_fields["openenb"] = array_merge($request_fields["openenb"],$fields);
+		$request_fields["yateenb"] = array_merge($request_fields["yateenb"],$fields);
 	
 		if ($developers_tab) {
 			foreach ($fields["test-scheduler"] as $p_name=>$p_value)
-				$request_fields["openenb"]["test-enb"][$p_name] = $p_value;
+				$request_fields["yateenb"]["test-enb"][$p_name] = $p_value;
 
-			unset($request_fields["openenb"]["test-scheduler"]);
+			unset($request_fields["yateenb"]["test-scheduler"]);
 		}
 
-		$request_fields["gtp"]["sgw"] = $gtp;
+		$request_fields["gtp"]["ran_u"] = $gtp;
 
 		$res = make_request($request_fields, "set_enb_node");
 
