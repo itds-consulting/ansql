@@ -787,7 +787,7 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 		}
 		if(!$variable)
 			continue;
-		if (($value && $variable->_type != "bool" && !$hide_advanced) || ($variable->_type == "bool" && $value == "t" && !$hide_advanced))
+		if (($value && $variable->_type != "bool" && !$hide_advanced) || ($variable->_type == "bool" && ($value=="t" || $value=="1") && !$hide_advanced))
 		{
 			$show_advanced = true;
 			break;
