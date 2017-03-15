@@ -1029,7 +1029,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if (isset($field_format["required"]))
 		$field_format["compulsory"] = $field_format["required"];
 	if (isset($field_format["compulsory"]))
-		if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || $field_format["compulsory"] == "t" || $field_format["compulsory"] == "true")
+		if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || ($field_format["compulsory"] == "t" || $field_format["compulsory"] == "1") || $field_format["compulsory"] == "true")
 			print '<font class="compulsory">*</font>';
 	print '&nbsp;</td>';
 	print '<td class="'.$css.' right_td ';
@@ -1637,7 +1637,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 				$column_value = $objects[$i]->{$var_name};
 				$var = $objects[$i]->variable($use_vars[0]);
 				if($var->_type == "bool") {
-					if($column_value == "t")
+					if($column_value == "t" || $column_value == "1")
 						$column_value = $db_true;
 					else
 						$column_value = $db_false;
@@ -3637,7 +3637,7 @@ function arr_to_csv($file_name, $arr, $formats=null, $func="write_in_file", $tit
 	if (is_file($file)) {
 		unlink($file);
 	}
-	$fh = fopen($file, "w") or die("Can't open file for writting.");
+	$fh = fopen($file, "w") or die("Can't open file for writting: ".$file);
 
 	if ($title_text)
 		fwrite($fh,$title_text."\r\n");
