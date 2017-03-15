@@ -1520,11 +1520,11 @@ class Model
 				$res = $this->isValidVarchar($var->_type, $value);
 				if (!$res[0])
 				{
-					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long").".";
+					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long but has '").$res[2]."'.";
 					$error_fields[] = $var_name;
 					continue;
 				}
-			}                 	
+			}
 			if ($columns != "")
 			{
 				$columns .= ",";
@@ -1554,8 +1554,9 @@ class Model
 		$var_length = strlen($value);
 		$allowed_length = explode("(", $type);
 		$allowed_length = substr($allowed_length[1],0,-1);
-		if ($var_length > (int)$allowed_length)
-			return array(false,$allowed_length);
+		$allowed_length = (int)$allowed_length;
+		if ($var_length > $allowed_length)
+			return array(false,$allowed_length,$var_length);
 		return array(true);
 	}
 
@@ -1638,15 +1639,16 @@ class Model
 				$error_fields[] = $var_name;
 				continue;
 			}
-			$value = $var->escape($this->{$var_name});
+			$value = $this->{$var_name};
 			if (substr($var->_type,0,7) == "varchar") {
 				$res = $this->isValidVarchar($var->_type,$value);
 			   	if (!$res[0]) {
-					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long").".";
+					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long but has '").$res[2]."'.";
 					$error_fields[] = $var_name;
 					continue;
 				}
-			}                 	
+			}
+			$value = $var->escape($value);
 
 			$variables .= esc($var_name)."=".$value."";
 			if ($var_name!="password")
@@ -1738,7 +1740,7 @@ class Model
 			if (substr($var->_type,0,7) == "varchar") {
 				$res = $this->isValidVarchar($var->_type,$value);
 			   	if (!$res[0]) {
-					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long").".";
+					$error .= " "._("Field ")." '"._($var_name)."' "._("must be at most ".$res[1]." characters long but has '").$res[2]."'.";
 					$error_fields[] = $var_name;
 					continue;
 				}
