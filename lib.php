@@ -438,10 +438,10 @@ function dateCheck($year,$month,$day,$hour,$end)
 /**
  * Builds link from the parameters from the current REQUEST
  * @param $exclude_params Array. Parameters to be excluded from built link
- * @param $limit_url_elements Array. Parameters required into the built link
+ * @param $additional_url_elements Array. Parameters required into the built link
  * @return String. The link from the current $_REQUEST
  */
-function build_link_request($exclude_params=array(), $limit_url_elements=array())
+function build_link_request($exclude_params=array(), $additional_url_elements=array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $module, $method, $action;
@@ -463,8 +463,8 @@ function build_link_request($exclude_params=array(), $limit_url_elements=array()
 		if (substr($link,-1) != "?")
 			$link .= "&";
 
-		if (count($limit_url_elements)) {
-			foreach ($limit_url_elements as $k=>$element_name)
+		if (count($additional_url_elements)) {
+			foreach ($additional_url_elements as $k=>$element_name)
 				if ($element_name == $param)
 					$link .= "$param=".urlencode($value);
 		} else {
@@ -495,12 +495,17 @@ function build_link_request($exclude_params=array(), $limit_url_elements=array()
  * make a reload of page with a new limit request
  * @param $nrs Array contains the number of items to be displayed
  */ 
-function items_on_page($nrs = array(20,50,100))
+function items_on_page($nrs = array(20,50,100), $additional_url_elements=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $limit;
 
-	$link = build_link_request(array("limit"), array("total"));
+        if (!$nrs)
+                $nrs = array(20,50,100);
+        
+        if ($additional_url_elements)
+                $additional_url_elements = array_merge($additional_url_elements, array("total"));
+	$link = build_link_request(array("limit"), $additional_url_elements);
 
 	print "<div class=\"items_on_page\">";
 	for($i=0; $i<count($nrs); $i++)
@@ -517,9 +522,12 @@ function items_on_page($nrs = array(20,50,100))
 }
 
 /**
- * Build the links for the number of pages for a total divided by the limit
+ * Builds and prints pagination links. Ex: 1 2 3 >| or |< 1 2 3 4 5. Takes into account the total number of objects and limit of items to display on page
+ * @param $total Integer. Total number of entities
+ * @param $additional_url_elements Array. Additional elements to add in links beside default ones(module, method, page, total)
+ * Ex: array("status")
  */ 
-function pages($total = NULL, $limit_url_elements=array())
+function pages($total = NULL, $additional_url_elements=array())
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $limit, $page, $module, $method, $action;
@@ -536,10 +544,12 @@ function pages($total = NULL, $limit_url_elements=array())
 	if (isset($_REQUEST["total"]))
 		$total = $_REQUEST["total"];
 
-	if (!count($limit_url_elements))
-		$limit_url_elements = array("total");
+	if (!count($additional_url_elements))
+		$additional_url_elements = array("total");
+        elseif (!in_array("total", $additional_url_elements))
+                $additional_url_elements[] = "total";
 
-	$link = build_link_request(array("limit"), $limit_url_elements);
+	$link = build_link_request(array("limit"), $additional_url_elements);
 
 	if (!$total)
 		$total = 0;
@@ -1183,7 +1193,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "password":
 		case "file":
 		case "text-nonedit":
-			print '<input class="'.$css.'" type="'.$display.'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
+                        print '<input  class="'.$css.'" type="'.($display=="text-nonedit"?"text":$display).'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if ($display != "file" && $display != "password") {
 				if (!is_array($value)) {
 					if ($value && strpos('"',$value)!==false)
