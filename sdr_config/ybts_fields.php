@@ -1666,7 +1666,7 @@ If a string is provided it will replace default domain mnc<NNN>.mcc<NNN>.gprs"
             $request_protocol = "http";
 
 		$url = "$request_protocol://$server_name/api.php";
-		$out = array("request"=>"get_net_address","node"=>"satsite","params"=>"net_address");
+		$out = array("request"=>"get_net_address","node"=>"sdr","params"=>"net_address");
 		$res = make_request($out, $url);
 
 		if ($res["code"]=="0") {
