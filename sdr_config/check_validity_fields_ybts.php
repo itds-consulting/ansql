@@ -374,6 +374,10 @@ function validate_piece_roaming()
 	if (valid_param($nnsf_bits) && (!is_valid_number($nnsf_bits) || $nnsf_bits<0))
 		return array(false, "Field 'NNSF bits' should be a positive int.", array("nnsf_bits"));
 
+	$reg_sip = getparam("reg_sip");
+	$nodes_sip = getparam("nodes_sip");
+	if (!$reg_sip && !$nodes_sip)
+		return array(false, "You need to set 'Reg sip' or 'Nodes sip' in dataroam mode.", array("reg_sip", "nodes_sip"));
 
 	return array(true);
 }
@@ -386,7 +390,8 @@ function validate_dataroam_params()
 
 	$map = getparam("network_map");
 	if (!strlen($map))
-		return array(true);
+		return array(false, "You need to set at least one 'Explicitly map network nodes to IP addresses' in dataroam mode.", array("network_map"));
+
 	$map = explode("\n", $map);
 	foreach ($map as $map_entry) {
 		$entry = explode("=",$map_entry);
