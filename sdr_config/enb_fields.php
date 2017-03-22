@@ -66,14 +66,14 @@ the MME may use it as a human readable name of the eNB. See paragraphs
     ),
 
 	"Band" => array(
-	 array("selected"=> 1, 1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44),
+	 array("selected"=> "1", "1","2","3","4","5","6","7","8","9","10","11","12","13","14","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44"),
 	"display" => "select",	
 	"comment" => 'Band selection ("freqBandIndicator" in SIB1)
 In most systems, this is set by the hardware type and should not be changed.'
     ),
 
     "Bandwidth" => array(
-	array("selected"=>25, 6,15,25,50,75,100),
+	array("selected"=>"25", "6","15","25","50","75","100"),
 	"display" => "select",
 	"comment" => format_comment("
 Bandwidth is the LTE radio channel BW, in number of resource blocks
@@ -138,7 +138,7 @@ On Access Channels in PUCCH screen: Resource allocation offset
 	"javascript" => "onchange='set_cellid_dependencies();'" 
     ),
     "NID2" => array(
-	array(0, 1, 2),
+	array("0", "1", "2"),
 	"display" => "select",
 	"required" => true,
 	"javascript" => "onchange='set_cellid_dependencies();'"
@@ -146,7 +146,7 @@ On Access Channels in PUCCH screen: Resource allocation offset
 
     
     "Pusch.RefSigGroup" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10, 11,12,13,14,15,16,17,18,19,20, 21,22,23,24,25,26,27,28,29, "selected" => 2),
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29", "selected" => "2"),
 	"display" => "select",
 	"comment" => 'Reference Signal Group Assignment ("groupAssignmentPUSCH" in SIB2)
 Cells with overlapping coverage should have different values. Default 2.'
@@ -160,7 +160,7 @@ Valid range for a SatSite 142 is 0..43",
     ),
 
     "CrestFactor" => array(
-	array(5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20, "selected"=>13),
+	array("5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20", "selected"=>"13"),
 	"display" => "select",
 	"comment" => "OFDM crest factor allowance in dB
 allowed range 5 .. 20, default 13
@@ -210,43 +210,43 @@ Srb1.rlcPollByte = 0
 '
     ),
     "Srb1.rlcSnFieldLength" => array(
-	    array(5,10,"selected"=>10),
+	    array("5","10","selected"=>"10"),
 	    "display" => "select",
 	    "comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
 	    "triggered_by" => "srb1.mode",
     ),
     "Srb1.rlcTReordering" => array(
-	    array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "35"),
+	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "35"),
 	    "display" => "select",
 	    "comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 35.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcTPollRetransmit" => array(
-	    array(5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected"=>"45"),
+	    array("5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225"," 230","235","240","245","250","300","350","400","450","500", "selected"=>"45"),
 	    "display" => "select",
 	    "comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 45.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcTStatusProhibit" => array(
-	    array("0", 5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected" => "0"),
+	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected" => "0"),
 	    "display" => "select",
 	    "comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 0.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcMaxRetxThreshold" => array(
-	    array(1,2,3,4,6,8,16,32, "selected" => "4"),
+	    array("1","2","3","4","6","8","16","32", "selected" => "4"),
 	    "display" => "select",
 	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcPollPdu" => array(
-	    array("0", 4,8,16,32,64,128,256,"selected"=>"0"),
+	    array("0","4","8","16","32","64","128","256","selected"=>"0"),
 	    "display" => "select",
 	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 0. Value 0 matches infinity from TS.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcPollByte" => array(
-	    array("0", 25, 50, 75, 100, 125, 250, 375, 500, 750, 1000, 1250, 1500, 2000, 3000, "selected" => "0"),
+	    array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected"=>"0"),
 	    "display" => "select",
 	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 0. Value 0 matches infinity value from TS",
 	    "triggered_by" => "srb1.mode"
@@ -274,43 +274,43 @@ Srb2.rlcPollByte = 0
 '
     ),
     "Srb2.rlcSnFieldLength" => array(
-	    array(5,10,"selected"=>10),
+	    array("5","10","selected"=>"10"),
 	    "display" => "select",
 	    "comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcTReordering" => array(
-	    array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "35"),
+	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "35"),
 	    "display" => "select",
 	    "comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 35.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcTPollRetransmit" => array(
-	    array(5,10,15,20,25, 30,35,40,45,50, 55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected"=>"45"),
+	    array("5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected"=>"45"),
 	    "display" => "select",
 	    "comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 45.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcTStatusProhibit" => array(
-	    array("0", 5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected" => "0"),
+	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected" => "0"),
 	    "display" => "select",
 	    "comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 0.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcMaxRetxThreshold" => array(
-	    array(1,2,3,4,6,8,16,32, "selected" => "4"),
+	    array("1","2","3","4","6","8","16","32", "selected" => "4"),
 	    "display" => "select",
 	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcPollPdu" => array(
-	    array("0", 4,8,16,32,64,128,256,"selected"=>"0"),
+	    array("0","4","8","16","32","64","128","256","selected"=>"0"),
 	    "display" => "select",
 	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 0. Value 0 matches infinity from TS.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcPollByte" => array(
-	    array("0", 25, 50, 75, 100, 125, 250, 375, 500, 750, 1000, 1250, 1500, 2000, 3000, "selected" => "0"),
+	    array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected" => "0"),
 	    "display" => "select",
 	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 0. Value 0 matches infinity value from TS",
 	    "triggered_by" => "srb2.mode"
@@ -326,25 +326,25 @@ Srb2.rlcPollByte = 0
 	"display" => "objtitle"
     ),
     "DrbUm.rlcSnFieldLength" => array(
-	array(5, 10, "selected" => "10"),
+	array("5", "10", "selected" => "10"),
 	"display" => "select",
 	"comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
 	"required"=> true
     ),
     "DrbUm.rlcTReordering" => array(
-	array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "50"),
+	array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "50"),
 	"display" => "select",
 	"comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 50.",
 	"required"=> true
     ),
     "DrbUm.pdcpSnFieldLength" => array(
-	array(7, 12, "selected"=>"12"),
+	array("7","12", "selected"=>"12"),
 	"display" => "select",
 	"comment" => "Indicates the PDCP Sequence Number length in bits. Default 12.",
 	"required"=> true
     ),
     "DrbUm.pdcpDiscardTimer" => array(
-	array("0",50,100,150,300,500,750,1500, "selected"=>"100"),
+	array("0","50","100","150","300","500","750","1500", "selected"=>"100"),
 	"display" => "select",
 	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds. Default 100. Value 0 matches infinity from TS.",
 	"required"=> true
@@ -355,49 +355,49 @@ Srb2.rlcPollByte = 0
 	"display" => "objtitle"
     ),
     "DrbAm.rlcTPollRetransmit" => array(
-	array(5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected"=>"80"),
+	array("5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected"=>"80"),
 	"display" => "select",
 	"comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 80.",
 	"required"=> true
     ),
     "DrbAm.rlcTReordering" => array(
-	array("0", 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200, "selected" => "80"),
+	array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "80"),
 	"display" => "select",
 	"comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 80.",
 	"required"=> true
     ),
     "DrbAm.rlcTStatusProhibit" => array(
-	array("0", 5,10,15,20,25, 30,35,40,45,50 ,55,60,65,70,75, 80,85,90,95,100, 105,110,115,120,125, 130,135,140,145,150, 155,160,165,170,175, 180,185,190,195,200, 205,210,215,220,225, 230,235,240,245,250, 300,350,400,450,500, "selected" => "60"),
+	array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected" => "60"),
 	"display" => "select",
 	"comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 60.",
 	"required"=> true
     ),
     "DrbAm.rlcMaxRetxThreshold" => array(
-	array(1,2,3,4,6,8,16,32, "selected" => "4"),
+	array("1","2","3","4","6","8","16","32", "selected" => "4"),
 	"display" => "select",
 	"comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
 	"required"=> true
     ),
     "DrbAm.rlcPollPdu" => array(
-	array("0", 4,8,16,32,64,128,256,"selected"=>"128"),
+	array("0","4","8","16","32","64","128","256","selected"=>"128"),
 	"display" => "select",
 	"comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 128. Value 0 matches infinity value from TS.",
 	"required"=> true
     ),
     "DrbAm.rlcPollByte" => array(
-	array("0", 25, 50, 75, 100, 125, 250, 375, 500, 750, 1000, 1250, 1500, 2000, 3000, "selected" => "125"),
+	array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected" => "125"),
 	"display" => "select",
 	"comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 125. Value 0 matches infinity value from TS",
 	"required"=> true
     ),
     "DrbAm.pdcpSnFieldLength" => array(
-	array(7, 12, "selected"=>"12"),
+	array("7","12", "selected"=>"12"),
 	"display" => "select",
 	"comment" => "Indicates the PDCP Sequence Number length in bits. Default 12.",
 	"required"=> true
     ),
     "DrbAm.pdcpDiscardTimer" => array(
-	array("0",50,100,150,300,500,750,1500, "selected"=>"0"),
+	array("0","50","100","150","300","500","750","1500", "selected"=>"0"),
 	"display" => "select",
 	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds. Default 0. Value 0 matches infinity from TS.",
 	"required"=> true
@@ -664,25 +664,25 @@ If the temperature exceeds this level, all digital radio processing functions ar
     // This params will be sent in "basic" section when sending request to API
 
     "SiWindowLength" => array(
-	array(1, 2, 5, 10, 15, 20, 40, "selected"=>20),
+	array("1","2","5","10","15","20","40", "selected"=>"20"),
 	"display" => "select",
 	"comment" => "Scheduler SI Window Length in milliseconds (frames)"
     ),
 
     "SiPeriodicity" => array(
-	array(8, 16, 32, 64, 128, 256, 512, "selected"=>8),
+	array("8","16","32","64","128","256","512", "selected"=>"8"),
 	"display" => "select",
 	"comment" => "Allowed values: powers of two between 8 and 512"
     ),
 
     "SiRedundancy" => array(
-	array(1,2,3,4,5,6,7,8, "selected"=> 2),
+	array("1","2","3","4","5","6","7","8", "selected"=> "2"),
 	"display" => "select",
 	"comment" => "Should be larger for cell with large coverage area."
     ),
 
     "DefaultPagingCycle" => array(
-	array(32,64,126,256,"selected"=>32),
+	array("32","64","126","256","selected"=>"32"),
 	"display" => "select",
 	"comment" => "Default Paging Cycle for UE DRX",
     ),
@@ -690,7 +690,8 @@ If the temperature exceeds this level, all digital radio processing functions ar
     "RxLevelMinimum" => array(
 	"value" => "-70",
 	"comment" => 'Minimum power level for cell reselection, dBm ("q_RxLevMin" in SIB1)
-Allowed range -70 .. -22. Default -70.'
+Allowed range -70 .. -22. Default -70.',
+	 "validity" => array("check_field_validity", -70, -22)
     ),
 ),
 
@@ -712,7 +713,7 @@ Default value: 14",
     ),
 
     "LeadScheduling" => array(
-	array(1,2,3,4,5,"selected"=>2),
+	array("1","2","3","4","5","selected"=>"2"),
 	"display" => "select",
 	"comment" => "Maximum number of subframes to schedule in advance, 1 to 5, default 2."
     ),
@@ -739,7 +740,7 @@ Default value: 14",
 "scheduler" => array(
 
    /* "SibModulationRate" => array(
-	array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,"selected"=>2),
+	array("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","selected"=>"2"),
 	"display" => "select",
 	"comment" => "Sib modulation rate"
 ),*/
@@ -765,7 +766,7 @@ Default value: 14",
 //    ),
 	
    /* "PcchMcs" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"2"),
 	"display" => "select",
 	"comment" => "PCCH MCS"
     ),
@@ -777,7 +778,7 @@ Default value: 14",
 ),
 
     "RarMcs" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>2),
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"2"),
 	"display" => "select",
 	"comment" => "RAR MCS"
     ), 
@@ -870,7 +871,7 @@ Allowed values -60 .. 50. Default -20.',
     ),
 
     "Pusch.CyclicShift" => array(
-	array(0,1,2,3,4,5,6,7,"selected"=>3),
+	array("0","1","2","3","4","5","6","7","selected"=>"3"),
 	"display" => "select",
 	"comment" => 'Reference Signal Cyclic Shift ("cyclicShift" in SIB2). Default 3.'
     ),
@@ -880,7 +881,7 @@ Allowed values -60 .. 50. Default -20.',
     // This params will be sent in "basic" section when sending request to API
 
     "Pucch.Delta" => array(
-	array(1,2,3,"selected"=>1),
+	array("1","2","3","selected"=>"1"),
 	"display" => "select",
 	"comment" => 'Delta Shift ("deltaPUCCH_Shift" in SIB2). Default 1.'
     ),
@@ -895,7 +896,7 @@ Default 3.',
     ),
 
     "Pucch.CsAn" => array(
-	array(0,1,2,3,4,5,6,7,"selected"=>7),
+	array("0","1","2","3","4","5","6","7","selected"=>"7"),
 	"display" => "select",
 	"comment" => 'Number of cyclic shifts used for PUCCH formats 1/1a/1b in a resource block with a mix of
 formats 1/1a/1b and 2/2a/2b ("nCS_AN" in SIB2)
@@ -930,7 +931,7 @@ Allowed values 0..94',
     ),
 
     "Prach.Preambles" => array(
-	array(4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,"selected"=>4),
+	array("4","8","12","16","20","24","28","32","36","40","44","48","52","56","60","64","selected"=>"4"),
 	"display" => "select",
 	"comment" => 'Number of PRACH preambles ("numberOfRA_Preambles" in SIB2)
 Allowed values multiples of 4, 4..64. Default 4.
@@ -938,28 +939,28 @@ Larger values reduce PRACH contention at the expense of computational load.'
     ),
 
     "Prach.PowerStep" => array(
-	array(0,2,4,6,"selected"=>4),
+	array("0","2","4","6","selected"=>"4"),
 	"display" => "select",
 	"comment" => 'Power ramping step, dB ("powerRampingStep" in SIB2)'
     ),
 
     "Prach.InitialTarget" => array(
 	array("-90","-92", "-94", "-96", "-98", "-100", "-102", "-104", "-106", "-108", "-110", "-112", "-114", "-116", "-118", "-120", "selected" => "-90"),
-        "display" => "select",
+    "display" => "select",
 	"column_name" => 'Initial RSSI Target',
 	"comment" => 'Initial RSSI Target, dBm ("preambleInitialReceivedTargetPower" in SIB2)
 Allows values multiples of 2, -90 .. -120. Default -90.',
     ),
 
     "Prach.TransMax" => array(
-	array(3, 4, 5, 6, 7, 8, 10, 20, 50, 100, 200, "selected"=>200),
+	array("3","4","5","6","7","8","10","20","50","100","200", "selected"=>"200"),
 	"display" => "select",
 	"column_name" => "Maximum transmissions",
 	"comment" => 'Maximum transmissions ("preambleTransMax" in SIB2)'
     ),
 
     "Prach.ResponseWindow" => array(
-	array(/*2,3,4,5,6,7,8,*/10,"selected"=>"10"),
+	array(/*"2","3","4","5","6","7","8",*/"10","selected"=>"10"),
 	"display" => "select",
 	"comment" => 'Response window size in subframes ("ra_ResponseWindowSize" in SIB2)
 Allowed values 2..8, 10 (not 9) by the spec,
@@ -967,20 +968,20 @@ but we only support value 10.'
     ),
 
     "Prach.ContentionTimer" => array(
-	array(8,16,24,32,40,48,56,64,"selected"=>64),
+	array("8","16","24","32","40","48","56","64","selected"=>"64"),
 	"display" => "select",
 	"comment" => 'Contention Resolution Timer in subframes ("mac_ContentionResolutionTimer" in SIB2)'
     ),
 
     "Prach.ConfigIndex" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, "selected"=>0),
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15", "selected"=>"0"),
 	"display" => "select",
 	"comment" => 'Configuration Index ("prach_ConfigIndex" in SIB2)',
 	//"validity" => array("check_field_validity",0,63)  // prev validation and valid range
     ),
 
     "Prach.ZeroCorr" => array(
-	array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,"selected"=>7),
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"7"),
 	"display" => "select",
 	"comment" => 'Zero Correlation Zone ("zeroCorrelationZoneConfig" in SIB2)'
     ),
@@ -988,7 +989,7 @@ but we only support value 10.'
 
 "pdcch" => array(
     "CFI" => array(
-	array(1,2,3,"selected"=>2),
+	array("1","2","3","selected"=>"2"),
 	"display" => "select",
 	"comment" => "Control format indicator
 Determines available bandwidth for the PDCCH."
@@ -1003,7 +1004,7 @@ Determines bandwidth used for PHICH, affects available bandwidth for PDCCH."
     ),
 
     "PdcchFormat" => array(
-	array(0,1,2,3,"selected"=>2),
+	array("0","1","2","3","selected"=>"2"),
 	"display" => "select",
 	"comment" => "PDCCH format as specified in TS 136.211 Table 6.8.1-1
 Also called the aggregation level.

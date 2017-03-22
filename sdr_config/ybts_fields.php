@@ -97,7 +97,7 @@ Defaults to 10 (arbitrary)",
 			),
 
 			"Identity.BSIC.BCC"=> array(
-				array("selected"=>2,0,1,2,3,4,5,6,7),
+				array("selected"=>"2","0","1","2","3","4","5","6","7"),
 				"display" => "select",
 				"comment" => "GSM basestation color code; lower 3 bits of the BSIC.
 BCC values in a multi-BTS network should be assigned so that BTS units with overlapping coverage do not share a BCC.
@@ -106,14 +106,14 @@ Interval allowed: 0..7.
 Defaults to 2 (arbitrary).",
 			),
 			"Identity.BSIC.NCC" => array(
-				array("selected"=>0,0,1,2,3,4,5,6,7),
+				array("selected"=>"0","0","1","2","3","4","5","6","7"),
 				"display"=> "select",
 				"comment" => "GSM network color code; upper 3 bits of the BSIC.
 Assigned by your national regulator, must be distinct from NCCs of other GSM operators in your area.
 Interval allowed: 0..7. Defaults to 0."
 		 	 ),
 			"Radio.PowerManager.MaxAttenDB" => array( 
-				array("selected" => 10, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80),
+				array("selected" => "10","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80"),
 				"display" => "select",
 				"value" => "10",
 				"comment" => "Maximum transmitter attenuation level, in dB wrt full scale on the D/A output.
@@ -121,7 +121,7 @@ This sets the minimum power output level in the output power control loop.
 Interval allowed: 0..80. Defaults to 10 (-10dB)"
 			),
 			"Radio.PowerManager.MinAttenDB" => array( 
-				array("selected" => 0, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80),
+				array("selected" => "0","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80"),
 				"display" => "select",
 				"comment" => "Minimum transmitter attenuation level, in dB wrt full scale on the D/A output.
 This sets the maximum power output level in the output power control loop.
@@ -132,14 +132,14 @@ Defaults to  0(dB) (maximum).",
 		),
 		"gsm_advanced" => array(
 			"Channels.NumC1s" => array( 
-				array("selected"=>7, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),	
+				array("selected"=>"7","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"),	
 				"display" => "select",
 				"comment" => "Number of Combination-I timeslots to configure.
 The C-I slot carries a single full-rate TCH, used for speech calling.
 Interval allowed: 0..100. Default value: 7(all timeslots of a single ARFCN)"
 			),	
 			"Channels.NumC7s" => array(
-				array("selected"=>"0", 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
+				array("selected"=>"0","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"),
 				"display" => "select",
 				"comment" => "Number of Combination-VII timeslots to configure.
 The C-VII slot carries 8 SDCCHs, useful to handle high registration loads, SMS or USSD.
@@ -154,21 +154,19 @@ Defaults to 0(timeslots)."
 Defaults to no (allocate C-VII slots first)."
 			),
 			"Channels.SDCCHReserve" => array( 
-				array("selected"=>"0", 0,1,2,3,4,5,6,7,8,9,10),
+				array("selected"=>"0", "0","1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "Number of SDCCHs to reserve for non-LUR operations.
 This can be used to force LUR transactions into a lower priority.
 Interval allowed: 0..10.
 Defaults to 0(SDCCHs)",
-				"validity" => array("check_field_validity",0,10)
 			),	
 			"CCCH.AGCH.QMax" => array( 
-				array("selected"=>5, 3,4,5,6,7,8),
+				array("selected"=>"5", "3","4","5","6","7","8"),
 				"display" => "select",
 				"comment" => "Maximum number of access grants to be queued for transmission on AGCH before declaring congestion.
 Interval allowed: 3..8.
 Defaults to 5",
-				"validity" => array("check_field_validity",3,8)
 			),	
 			"CCCH.CCCH-CONF" => array( 
 				 array("selected"=> "1",array("CCCH.CCCH-CONF_id"=> "1", "CCCH.CCCH-CONF"=> "C-V beacon"), array("CCCH.CCCH-CONF_id"=> "2", "CCCH.CCCH-CONF"=> "C-IV beacon")),
@@ -179,12 +177,11 @@ Values allowed: 1 (C-V beacon) or 2 (C-IV beacon).
 Defaults to 1."
 			),
 			"CellOptions.RADIO-LINK-TIMEOUT" => array( 
-				array("selected"=>15, 10,11,12,13,14,15,16,17,18,19,20),
+				array("selected"=>"15", "10","11","12","13","14","15","16","17","18","19","20"),
 				"display" => "select",
 				"comment" => "Seconds before declaring a physical link dead.
 Interval allowed: 10..20.
 Defaults to 15",
-				"validity" => array("check_field_validity",10,20)
 			),	
 			"CellSelection.CELL-RESELECT-HYSTERESIS" => array( 
 				array("selected"=>"3", array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"0","CellSelection.CELL-RESELECT-HYSTERESIS"=>"0dB"),array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"1","CellSelection.CELL-RESELECT-HYSTERESIS"=> "2dB"), array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"2","CellSelection.CELL-RESELECT-HYSTERESIS"=> "4dB"),array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"3","CellSelection.CELL-RESELECT-HYSTERESIS"=> "6dB"),array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"4","CellSelection.CELL-RESELECT-HYSTERESIS"=> "8dB"),array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"5","CellSelection.CELL-RESELECT-HYSTERESIS"=> "10dB"),array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"6","CellSelection.CELL-RESELECT-HYSTERESIS"=>"12dB"),array("CellSelection.CELL-RESELECT-HYSTERESIS_id"=>"7","CellSelection.CELL-RESELECT-HYSTERESIS"=>"14dB" )),
@@ -195,7 +192,7 @@ Interval allowed: 0..7 (corresponds to 0..14 dB).
 Defaults to 3"
 			 ),	
 			"CellSelection.MS-TXPWR-MAX-CCH" => array( 
-				array("selected"=>0, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31),
+				array("selected"=>"0", "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"),
 				"display" => "select",
 				"comment" => "Cell selection parameters.
 See GSM 04.08 10.5.2.4.,Table 10.5.23 for encoding, Hysteresis is 2N dB.
@@ -223,7 +220,7 @@ Defaults to 1",
 				"validity" => array("validate_neci_vea")
 			),	
 			"CellSelection.RXLEV-ACCESS-MIN" => array( 
-				array("selected"=>0, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63),
+				array("selected"=>"0", "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63"),
 				"display" => "select",
 				"comment" => "Cell selection parameters.
 See GSM 04.08 10.5.2.4 for details.
@@ -231,7 +228,7 @@ Interval allowed: 0..63.
 Defaults to 0."
 			),
 			"Cipher.CCHBER" => array( 
-				array("selected"=>"0.0", "0.0", "0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"),
+				array("selected"=>"0.0", "0.0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"),
 				"display" => "select",
 				"comment" => "Probability of a bit getting toggled in a control channel burst for cracking protection.
 Interval allowed: 0.0 - 1.0.
@@ -244,7 +241,7 @@ Defauls to 0"
 Defaults to no."
 			),
 			"Cipher.RandomNeighbor" => array( 
-				array("selected"=>"0.0", "0.0", "0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"),
+				array("selected"=>"0.0", "0.0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"),
 				"display" => "select",
 				"comment" => "Probability of a random neighbor being added to SI5 for cracking protection.
 Interval allowed: 0.0 - 1.0.
@@ -257,7 +254,7 @@ Defauls to 0."
 Defaults to no."
 			),	
 			"Control.GPRSMaxIgnore" => array( 
-				array("selected"=>5, 3,4,5,6,7,8),
+				array("selected"=>"5", "3","4","5","6","7","8"),
 				"display" => "select",
 				"comment" => "Ignore GPRS messages on GSM control channels.
 Value is number of consecutive messages to ignore.
@@ -265,56 +262,56 @@ Interval allowed: 3..8.
 Defaults to 5"
 			),
 			"Handover.InitialHoldoff" => array(
-				array("selected"=>5000, 2000,3000,4000,5000,6000,7000),
+				array("selected"=>"5000", "2000","3000","4000","5000","6000","7000"),
 				"display" => "select",
 				"comment" => "Handover determination holdoff time after channel establishment, allows the MS RSSI value to stabilize. 2000 to 7000 ms, default 5000."
 			),
 			"Handover.RepeatHoldoff" => array(
-				array("selected"=>3000, 750,1000,2000,3000,4000,5000,6000,7000),
+				array("selected"=>"3000", "750","1000","2000","3000","4000","5000","6000","7000"),
 				"display" => "select",
 				"comment" => "Handover determination holdoff time after a previous attempt. 750 to 7000 ms, default 3000."
 			),
 			"Handover.LocalRSSIMin" => array(
-				array("selected"=>-80, -100,-99,-98,-97,-96,-95,-94,-93,-92,-91,-90,-89,-88,-87,-86,-85,-84,-83,-82,-81,-80,-79,-78,-77,-76,-75,-74,-73,-72,-71,-70,-69,-68,-67,-66,-65,-64,-63,-62,-61,-60,-59,-58,-57,-56,-55,-54,-53,-52,-51,-50),
+				array("selected"=>"-80", "-100","-99","-98","-97","-96","-95","-94","-93","-92","-91","-90","-89","-88","-87","-86","-85","-84","-83","-82","-81","-80","-79","-78","-77","-76","-75","-74","-73","-72","-71","-70","-69","-68","-67","-66","-65","-64","-63","-62","-61","-60","-59","-58","-57","-56","-55","-54","-53","-52","-51","-50"),
 				"display" => "select",
 				"comment" => "Do not handover if downlink RSSI is above this level (in dBm), regardless of power difference.
 Allowed values -100:-50."
 			),	
 			"Handover.ThresholdDelta" => array(
-			       array("selected" => 10, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20),	
+				array("selected" => "10", "5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"),	
 				"display" => "select",
 				"comment" => "A neighbor downlink signal must be this much stronger (in dB) than this downlink signal for handover to occur.
 Allowed values 5:20.",
 			),
 			"MS.Power.Damping" =>  array(
-			       array("selected" => 50, 25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75),	
+			       array("selected" => "50", "25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75"),	
 				"display" => "select",
 				"comment" => "Damping value for MS power control loop.
 Interval allowed: 25..75. Defaults to 50."
 			),
 			"MS.Power.Max" => array( 
-				array("selected" => 33, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
+				array("selected" => "33", "5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"),
 				"display" => "select",
 				"comment" => "Maximum commanded MS power level in dBm.
 Interval allowed: 5..100
 Defaults to 33"
 			),
 			"MS.Power.Min" => array( 
-				array("selected" => 5, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
+				array("selected" => "5","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"),
 				"display" => "select",
 				"comment" => "Minimum commanded MS power level in dBm.
 Interval allowed: 5..100
 Defaults to 5"
 			),
 			"MS.TA.Damping" => array( 
-				array("selected" => 50, 25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75),
+				array("selected" => "50", "25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75"),
 				"display" => "select",
 				"comment" => "Damping value for timing advance control loop. 
 Interval allowed: 25..75
 Defaults to 50"
 			),
 			"MS.TA.Max" => array( 
-				array("selected" =>62, 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62),
+				array("selected" =>"62", "1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62"),
 				"display" => "select",
 				"comment" => "Maximum allowed timing advance in symbol periods.
 One symbol period of round-trip delay is about 0.55 km of distance.
@@ -324,7 +321,7 @@ Interval allowed: 1..62.
 Defaults to 62 (maximum range)"
 			),
 			"MaxSpeechLatency" => array( 
-				array("selected" => 2, 1,2,3,4,5),
+				array("selected" => "2", "1","2","3","4","5"),
 				"display" => "select",
 				"comment" => "Maximum allowed speech buffering latency.
 It is expressed in 20ms frames.
@@ -333,14 +330,14 @@ Interval allowed: 1..5.
 Defaults to 2."
 			),
 			"Neighbors.NumToSend" => array(
-			       array("selected" => 8, 1,2,3,4,5,6,7,8,9,10),
+			    array("selected" => "8", "1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "Maximum number of neighbors to send to handset in a neighbor list in BCCH.
 Interval allowed:1..10.
 Defaults to 8."
 			),
 			"Ny1" => array( 
-				array("selected" => 5, 1,2,3,4,5,6,7,8,9,10),
+				array("selected" => "5", "1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "Maximum number of repeats of the Physical Information Message during handover procedure, GSM 04.08 11.1.3.
 Interval allowed: 1..10
@@ -373,14 +370,14 @@ Interval allowed: 0..15 (encodes to 3..50 slots)
 Defaults to 14 (32 slots)" 
 			),
 			"Radio.ARFCNs" => array( 
-				array("selected" =>1, 1,2,3,4,5,6,7,8,9,10),
+				array("selected" =>"1", "1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "The number of ARFCNs to use.
 The ARFCN set will be C0, C0+2, C0+4, ...Interval allowed: 1..10
 Defaults to 1 (single ARFCN unit)"	
 			),
 			"Radio.MaxExpectedDelaySpread" => array( 
-				array("selected" => 2, 1,2,3,4),
+				array("selected" => "2", "1","2","3","4"),
 				"display" => "select",
 				"comment" => "Expected worst-case delay spread
 Expressed in symbol periods, roughly 3.7 us or 1.1 km per unit.
@@ -397,7 +394,7 @@ Defaults to 2."
 Defaults to no."
 			),
 			"Radio.PowerManager.NumSamples" => array( 
-				array("selected"=>10, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20), 
+				array("selected"=>"10", "5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"), 
 				"display" => "select",
 				"comment" => "Number of samples averaged by the output power control loop
 Interval allowed: 5..20
@@ -428,7 +425,7 @@ Defaults to 5000",
 				"validity" => array("check_field_validity",3750,6250)
 			),
 			"Radio.RSSITarget" => array( 
-				array("selected"=>-50, -75,-74,-73,-72,-71,-70,-69,-68,-67,-66,-65,-64,-63,-62,-61,-60,-59,-58,-57,-56,-55,-54,-53,-52,-51,-50,-49,-48,-47,-46,-45,-44,-43,-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,-29,-28,-27,-26,-25),
+				array("selected"=>"-50", "-75","-74","-73","-72","-71","-70","-69","-68","-67","-66","-65","-64","-63","-62","-61","-60","-59","-58","-57","-56","-55","-54","-53","-52","-51","-50","-49","-48","-47","-46","-45","-44","-43","-42","-41","-40","-39","-38","-37","-36","-35","-34","-33","-32","-31","-30","-29","-28","-27","-26","-25"),
 				"display" => "select",
 				"comment" => "Target uplink RSSI for MS power control loop
 Expressed in dB wrt to receiver's A/D convertor full scale
@@ -438,7 +435,7 @@ Defaults to -50",
 				"validity" => array("check_radio_rssitarget")
 			),	
 			"Radio.RxGain" => array( 
-				array("selected"=>"0", 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75),
+				array("selected"=>"0", "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75"),
 				"display" => "select",
 				"comment" => "Receiver gain setting in dB
 Ideal value is dictated by the hardware
@@ -452,7 +449,7 @@ Defaults to empty value. Radios provide their own calibrated default."
 Defaults to no"
 			),
 			"Timer.T3103" => array( 
-				array("selected"=>5000, 2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500),
+				array("selected"=>"5000", "2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500"),
 				"display" => "select",
 				"comment" => "Handover timeout in milliseconds, GSM 04.08 11.1.2
 This is the timeout for a handset to sieze a channel during handover.
@@ -460,14 +457,14 @@ Allowed: 2500:7500(100)
 Defaults to 5000"
 			),	
 			"Timer.T3105" => array( 
-				array("selected"=>50, 25,30,35,40,45,50,55,60,65,70,75),
+				array("selected"=>"50","25","30","35","40","45","50","55","60","65","70","75"),
 				"display" => "select",
 				"comment" => "Milliseconds for handset to respond to physical information.GSM 04.08 11.1.2.
 Interval allowed 25:75(5).
 Defaults to 50"
 			),
 			"Timer.T3113" => array( 
-				array("selected"=>10000, 5000,5500,6000,6500,7000,7500,8000,8500,9000,9500,10000,10500,11000,11500,12000,12500,13000,13500,14000,14500,15000 ),
+				array("selected"=>"10000","5000","5500","6000","6500","7000","7500","8000","8500","9000","9500","10000","10500","11000","11500","12000","12500","13000","13500","14000","14500","15000"),
 				"display" => "select",
 				"comment" => "Paging timer T3113 in milliseconds. 
 This is the timeout for a handset to respond to a paging request.
@@ -485,14 +482,14 @@ Defaults to 255000.",
 				"validity" => array("check_field_validity",127500,382500)
 			),
 			"Timer.T3122Min" => array( 
-				array("selected"=>2000, 1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000),
+				array("selected"=>"2000", "1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100","2200","2300","2400","2500","2600","2700","2800","2900","3000"),
 				"display" => "select",
 				"comment" => "Minimum allowed value for T3122, the RACH holdoff timer, in milliseconds.
 Allowed interval 1000:3000(100).
 Defaults to 2000"
 			),
 			"Timer.T3212" => array( 
-				array("selected"=>24, 0,6,12,18,24,30,36,42,48,54,60,66,72,78,84,90,96,102,108,114,120,126,132,138,144,150,156,162,168,174,180,186,192,198,204,210,216,222,228,234,240,246,252,258,264,270,276,282,288,294,300,306,312,318,324,330,336,342,348,354,360,366,372,378,384,390,396,402,408,414,420,426,432,438,444,450,456,462,468,474,480,486,492,498,504,510,516,522,528,534,540,546,552,558,564,570,576,582,588,594,600,606,612,618,624,630,636,642,648,654,660,666,672,678,684,690,696,702,708,714,720,726,732,738,744,750,756,762,768,774,780,786,792,798,804,810,816,822,828,834,840,846,852,858,864,870,876,882,888,894,900,906,912,918,924,930,936,942,948,954,960,966,972,978,984,990,996,1002,1008,1014,1020,1026,1032,1038,1044,1050,1056,1062,1068,1074,1080,1086,1092,1098,1104,1110,1116,1122,1128,1134,1140,1146,1152,1158,1164,1170,1176,1182,1188,1194,1200,1206,1212,1218,1224,1230,1236,1242,1248,1254,1260,1266,1272,1278,1284,1290,1296,1302,1308,1314,1320,1326,1332,1338,1344,1350,1356,1362,1368,1374,1380,1386,1392,1398,1404,1410,1416,1422,1428,1434,1440,1446,1452,1458,1464,1470,1476,1482,1488,1494,1500,1506,1512,1518,1524,1530),
+				array("selected"=>"24", "0","6","12","18","24","30","36","42","48","54","60","66","72","78","84","90","96","102","108","114","120","126","132","138","144","150","156","162","168","174","180","186","192","198","204","210","216","222","228","234","240","246","252","258","264","270","276","282","288","294","300","306","312","318","324","330","336","342","348","354","360","366","372","378","384","390","396","402","408","414","420","426","432","438","444","450","456","462","468","474","480","486","492","498","504","510","516","522","528","534","540","546","552","558","564","570","576","582","588","594","600","606","612","618","624","630","636","642","648","654","660","666","672","678","684","690","696","702","708","714","720","726","732","738","744","750","756","762","768","774","780","786","792","798","804","810","816","822","828","834","840","846","852","858","864","870","876","882","888","894","900","906","912","918","924","930","936","942","948","954","960","966","972","978","984","990","996","1002","1008","1014","1020","1026","1032","1038","1044","1050","1056","1062","1068","1074","1080","1086","1092","1098","1104","1110","1116","1122","1128","1134","1140","1146","1152","1158","1164","1170","1176","1182","1188","1194","1200","1206","1212","1218","1224","1230","1236","1242","1248","1254","1260","1266","1272","1278","1284","1290","1296","1302","1308","1314","1320","1326","1332","1338","1344","1350","1356","1362","1368","1374","1380","1386","1392","1398","1404","1410","1416","1422","1428","1434","1440","1446","1452","1458","1464","1470","1476","1482","1488","1494","1500","1506","1512","1518","1524","1530"),
 				"display" => "select",
 				"comment" => "Registration timer T3212 period in minutes. Should be a factor of 6.
 Set to 0 to disable periodic registration.
@@ -519,7 +516,7 @@ Defaults to 0 (arbitrary)",
 				"validity" => array("check_field_validity",0,255)
 			),
 			"RA_COLOUR" => array(
-				array("selected"=>0, 0,1,2,3,4,5,6,7),
+				array("selected"=>"0", "0","1","2","3","4","5","6","7"),
 				"display" => "select",
 				"comment" => "GPRS Routing Area Color as advertised in the C0T0 beacon
 Interval allowed: 0..7
@@ -528,12 +525,11 @@ Defaults to 0 (arbitrary)"
 		),
 		"gprs_advanced" => array(
 			"Debug" => array(
-				"param" => "Debug",
 				"display" => "checkbox",
-                                "value" => "0",
-                                "comment" => "Toggle GPRS debugging. Defaults to no."
-	                 ),
-			 "MS.Power.Alpha" => array(
+				"value" => "0",
+				"comment" => "Toggle GPRS debugging. Defaults to no."
+			),
+			"MS.Power.Alpha" => array(
 				 array("selected" => "10",array("MS.Power.Alpha_id"=>"1","MS.Power.Alpha"=>"0.1"),array("MS.Power.Alpha_id"=>"2","MS.Power.Alpha"=>"0.2"),array("MS.Power.Alpha_id"=>"3","MS.Power.Alpha"=>"0.3"),array("MS.Power.Alpha_id"=>"4","MS.Power.Alpha"=>"0.4"),array("MS.Power.Alpha_id"=>"5","MS.Power.Alpha"=>"0.5"),array("MS.Power.Alpha_id"=>"6","MS.Power.Alpha"=>"0.6"),array("MS.Power.Alpha_id"=>"7","MS.Power.Alpha"=>"0.7"),array("MS.Power.Alpha_id"=>"8","MS.Power.Alpha"=>"0.8"),array("MS.Power.Alpha_id"=>"9","MS.Power.Alpha"=>"0.9"),array("MS.Power.Alpha_id"=>"10","MS.Power.Alpha"=>"1.0")),
 				"display" => "select",
 				"comment" => "MS power control parameter, unitless, in steps of 0.1, so a parameter of 5 is an alpha value of 0.5.
@@ -549,33 +545,33 @@ The optimum value will tend to be lower for BTS units with higher power output
 Valid range is 0...31 for gamma values of 0...62 dB. See GSM 05.08 10.2.1."
 	                 ),
 			 "MS.Power.T_AVG_T" => array(
-				 array("selected"=>15, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25),
+				array("selected"=>"15","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"),
 				"display" => "select",
 				"comment" => "MS power control parameter; see GSM 05.08 10.2.1.
 Valid range is 0...25."
 			),
 			"MS.Power.T_AVG_W" => array(
-				array("selected"=>15, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25),
+				array("selected"=>"15", "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"),
 				"display" => "select",
 				"comment" => "MS power control parameter; see GSM 05.08 10.2.1.
 Valid range is 0...25
 Defaults to 15."
 	                 ),
 			 "Multislot.Max.Downlink" => array(
-				 array("selected"=>3, 0,1,2,3,4,5,6,7,8,9,10),
+				array("selected"=>"3","0","1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "Maximum number of channels used for a single MS in downlink
 Valid range is 0...10
 Defaults to 3."			
 			),
 			"Multislot.Max.Uplink" => array(
-				array("selected"=>2, 0,1,2,3,4,5,6,7,8,9,10),
+				array("selected"=>"2", "0","1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "Maximum number of channels used for a single MS in uplink
 Valid range is 0...10. Defaults to 2."
 	                 ),
 			 "Codecs.Downlink" => array(
-				 "display" => "text",
+				"display" => "text",
 				"value" => "14",
 				"comment" => "List of allowed GPRS downlink codecs 1..4 for CS-1..CS-4.
 Currently, only 1 and 4 are supported e.g. 14."
@@ -583,20 +579,19 @@ Currently, only 1 and 4 are supported e.g. 14."
 			),
 			"Codecs.Uplink" => array(
 				"display" => "text",
-                                "value" => "14",
+				"value" => "14",
 				"comment" => "List of allowed GPRS uplink codecs 1..4 for CS-1..CS-4.
 Currently, only 1 and 4 are supported e.g. 14."
-	                 ),
+			),
 			 "Uplink.KeepAlive" => array(
-				 array("selected"=>300, 200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000),
+				array("selected"=>"300", "200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100","2200","2300","2400","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000"),
 				"display" => "select",
-				"value" => "300",
 				"comment" => "How often to send keep-alive messages for persistent TBFs in milliseconds; must be long enough to avoid simultaneous in-flight duplicates, and short enough that MS gets one every 5 seconds.
 Allowed interval 200:5000(100)
 Defauts to 300"
 			),
 			"Uplink.Persist" => array(
-				array("selected"=>4000,0,100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000),
+				array("selected"=>"4000","0","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100","2200","2300","2400","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000"),
 				"display" => "select",
 				"comment" => "After completion, uplink TBFs are held open for this time in milliseconds
 If non-zero, must be greater than GPRS.Uplink.KeepAlive
@@ -606,7 +601,7 @@ Defauts to 4000.",
 				"validity" => array("check_uplink_persistent", "Uplink_KeepAlive")
 	                 ),
 			 "TBF.Downlink.Poll1" => array(
-				 array("selected"=>10, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
+				array("selected"=>"10", "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"),
 				"display" => "select",
 				"comment" => "When the first poll is sent for a downlink tbf, measured in blocks sent.
 Allowed values 5:15
@@ -614,10 +609,10 @@ Defauts to 10"
 			),
 			"TBF.EST" => array(
 				"display" => "checkbox",
-                                "value" => "1",
+				"value" => "1",
 				"comment" => "Allow MS to request another uplink assignment at end up of uplink TBF. See GSM 4.60 9.2.3.4
-Defauts to yes."
-	                 ),
+				Defauts to yes."
+			),
 			"TBF.Expire" => array(
 				"display" => "text",
 				"value" => "30000",
@@ -627,7 +622,7 @@ Defauts to 30000",
 				"validity" => array("check_field_validity",20000,40000)
 			),
 			"TBF.KeepExpiredCount" => array(
-				array("selected"=>20, 15,16,17,18,19,20,21,22,23,24,25),
+				array("selected"=>"20", "15","16","17","18","19","20","21","22","23","24","25"),
 				"display" => "select",
 				"comment" => "How many expired TBF structs to retain; they can be viewed with gprs list tbf -x
 Allowed interval 15:25"
@@ -638,7 +633,7 @@ Allowed interval 15:25"
 				"comment" => "If 0, no tbf retry, otherwise if a tbf fails it will be retried with this codec, numbered 1..4."
 			),
 			"advanceblocks"=> array(
-				array("selected"=>10,5,6,7,8,9,10,11,12,13,14,15),
+				array("selected"=>"10","5","6","7","8","9","10","11","12","13","14","15"),
 				"display" => "select",
 				"comment" => "Number of advance blocks to use in the CCCH reservation.
 Allowed interval 5:15
@@ -662,94 +657,94 @@ Value 0 implies 500msec
 3 imples 0msec."			
 			),
 			"ChannelCodingControl.RSSI" => array(
-				array("selected"=>-40,-65,-64,-63,-62,-61,-60,-59,-58,-57,-56,-55,-54,-53,-52,-51,-50,-49,-48,-47,-46,-45,-44,-43,-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,-29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15),
+				array("selected"=>"-40","-65","-64","-63","-62","-61","-60","-59","-58","-57","-56","-55","-54","-53","-52","-51","-50","-49","-48","-47","-46","-45","-44","-43","-42","-41","-40","-39","-38","-37","-36","-35","-34","-33","-32","-31","-30","-29","-28","-27","-26","-25","-24","-23","-22","-21","-20","-19","-18","-17","-16","-15"),
 				"display" => "select",
 				"comment" => "If the initial unlink signal strength is less than this amount in DB GPRS uses a lower bandwidth but more robust encoding CS-1.
 This value should normally be GSM.Radio.RSSITarget + 10 dB.
 Interval allowed -65:-15
 Defaults to -40.",
 				"validity" => array("check_channelcodingcontrol_rssi")
-	                 ),
+			),
 			"Channels.Congestion.Threshold" => array(
-				array("selected"=>200, 100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300),
+				array("selected"=>"200","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","255","260","265","270","275","280","285","290","295","300"),
 				"display" => "select",
 				"comment" => "The GPRS channel is considered congested if the desired bandwidth exceeds available bandwidth by this amount, specified in percent
 Interval allowed 100:300(5)
 Defaults to 200."
 			),
 			"Channels.Congestion.Timer" => array(
-				array("selected"=>60,30,35,40,45,50,55,60,65,70,75,80,85,90),
+				array("selected"=>"60","30","35","40","45","50","55","60","65","70","75","80","85","90"),
 				"display" => "select",
 				"comment" => "How long in seconds GPRS congestion exceeds the Congestion
 Threshold before we attempt to allocate another channel for GPRS
 Interval allowed 30:90(5)
 Defaults to 60."
-	                 ),
+	        ),
 			"Channels.Min.C0" => array(
-				array("selected"=>3,0,1,2,3,4,5,6,7),
+				array("selected"=>"3","0","1","2","3","4","5","6","7"),
 				"display" => "select",
 				"comment" => "Minimum number of channels allocated for GPRS service on ARFCN C0.
 Interval allowed 0:7.
 Defaults to 3."
 			),
 			"Channels.Min.CN" => array(
-				array("selected"=>0, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
+				array("selected"=>"0","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"),
 				"display" => "select",
 				"comment" => "Minimum number of channels allocated for GPRS service on ARFCNs other than C0
 Interval allowed 0:100
 Defaults to 0."
-	                 ),
-			 "Channels.Max" => array(
-				 array("selected"=>4, 0,1,2,3,4,5,6,7,8,9,10),
+	        ),
+			"Channels.Max" => array(
+				array("selected"=>"4","0","1","2","3","4","5","6","7","8","9","10"),
 				"display" => "select",
 				"comment" => "Maximum number of channels allocated for GPRS service.
 Interval allowed 0:10.
 Defaults to 4."
-	                 ),
-			 "Counters.Assign" => array(
-				 array("selected"=>10, 5,6,7,8,9,10,11,12,13,14,15),
+	        ),
+			"Counters.Assign" => array(
+				 array("selected"=>"10","5","6","7","8","9","10","11","12","13","14","15"),
 				"display" => "select",
 				"comment" => "Maximum number of assign messages sent.
 Interval allowed 5:15
 Defaults to 10"
 			),
 			"Counters.N3101" => array(
-				array("selected"=>20, 8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32),
+				array("selected"=>"20","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32"),
 				"display" => "select",
 				"comment" => "Counts unused USF responses to detect nonresponsive MS. Should be > 8. See GSM04.60 sec 13.
 Interval allowed 8:32
 Defaults to 20"
 			),
 			"Counters.N3103" => array(
-				array("selected"=>8, 4,5,6,7,8,9,10,11,12),
+				array("selected"=>"8", "4","5","6","7","8","9","10","11","12"),
 				"display" => "select",
 				"comment" => "Counts ACK/NACK attempts to detect nonresponsive MS. See GSM04.60 sec 13
 Interval allowed 4:12
 Defaults to 8."
 			),
 			"Counters.N3105" => array(
-				array("selected"=>12, 6,7,8,9,10,11,12,13,14,15,16,17,18),
+				array("selected"=>"12", "6","7","8","9","10","11","12","13","14","15","16","17","18"),
 				"display" => "select",
 				"comment" => "Counts unused RRBP responses to detect nonresponsive MS. See GSM04.60 sec 13
 Interval allowed 6:18
 Defaults to 12"
 			),
 			"Counters.Reassign" => array(
-				array("selected"=>6, 3,4,5,6,7,8,9),
+				array("selected"=>"6", "3","4","5","6","7","8","9"),
 				"display" => "select",
 				"comment" => "Maximum number of reassign messages sent
 Interval allowed 3:9
 Defaults to 6"
 			),
 			"Counters.TbfRelease" => array(
-				array("selected"=>5, 3,4,5,6,7,8),
+				array("selected"=>"5", "3","4","5","6","7","8"),
 				"display" => "select",
 				"comment" => "Maximum number of TBF release messages sent
 Interval allowed 3:8
 Defaults to 5"
-	                 ),
+	        ),
 			"Downlink.KeepAlive" => array(
-				array("selected"=>300, 200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000),
+				array("selected"=>"300","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100","2200","2300","2400","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000"),
 				"display" => "select",
 				"comment" => "How often to send keep-alive messages for persistent TBFs in milliseconds
 must be long enough to avoid simultaneous in-flight duplicates, and short enough that MS gets one every 5 seconds.
@@ -759,25 +754,25 @@ Defaults to 300"
 			),
 			"Downlink.Persist" => array(
 				"display" => "text",
-                                "value" => "0",
+                "value" => "0",
 				"comment" => "After completion, downlink TBFs are held open for this time in milliseconds
 If non-zero, must be greater than GPRS.Downlink.KeepAlive.",
 				"validity" => array("check_downlink_persistent", "Downlink_KeepAlive")
-	                 ),
+	        ),
 			"LocalTLLI.Enable" => array(
 				"display" => "checkbox",
 				"value" => "1",
 				"comment" => "Enable recognition of local TLLI."
 			),
 			"MS.KeepExpiredCount" => array(
-				array("selected"=>20, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30),
+				array("selected"=>"20","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"),
 				"display" => "select",
 				"comment" => "How many expired MS structs to retain; they can be viewed with gprs list ms -x.
 Interval allowed 10:30
 Defaults to 20"
-	                 ),
-			 "NC.NetworkControlOrder" => array(
-				 array("selected"=>2, 0,1,2,3),
+	        ),
+			"NC.NetworkControlOrder" => array(
+				array("selected"=>"2", "0","1","2","3"),
 				"display" => "select",
 				"comment" => "Controls measurement reports and cell reselection mode (MS autonomous or under network control); should not be changed
 Interval allowed 0:3
@@ -801,17 +796,17 @@ Mode I implies combined routing updating procedures."
 5=Packet access allowed for priority level 1 to 3,
 6=Packet access allowed for priority level 1 to 4"
 			
-	                 ),
-			 "RRBP.Min" => array(
-				 array("selected"=>0,0,1,2,3),
+	        ),
+			"RRBP.Min" => array(
+				array("selected"=>"0","0","1","2","3"),
 				"display" => "select",
 				"comment" => "Minimum value for RRBP reservations, range 0..3. Should normally be 0. A non-zero value gives the MS more time to respond to the RRBP request."
 			),
 			"Reassign.Enable" => array(
 				"display" => "checkbox",
-                                "value" => "1",
-                                "comment" => "Enable TBF Reassignment."
-	                 ),
+				"value" => "1",
+				"comment" => "Enable TBF Reassignment."
+			),
 			"SendIdleFrames" => array(
 				"display" => "checkbox",
 				"value" => "0",
@@ -823,9 +818,9 @@ Mode I implies combined routing updating procedures."
 				"comment" => "Port number of the SGSN required for GPRS service.
 This must match the port specified in the SGSN config file, currently osmo_sgsn.cfg.",
 				"validity" => array("check_valid_integer")
-	                 ),
+	        ),
 			"Timers.Channels.Idle" => array(
-				array("selected"=>6000, 3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,8200,8300,8400,8500,8600,8700,8800,8900,9000),
+				array("selected"=>"6000", "3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500","7600","7700","7800","7900","8000","8100","8200","8300","8400","8500","8600","8700","8800","8900","9000"),
 				"display" => "select",
 				"comment" => "How long in milliseconds a GPRS channel is idle before being returned to the pool of channels.
 Also depends on Channels.Min.
@@ -834,28 +829,28 @@ Interval allowed 3000:6000(100)
 Defaults to 6000."
 			),
 			"Timers.MS.Idle" => array(
-				array("selected"=>600, 300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900),
+				array("selected"=>"600","300","310","320","330","340","350","360","370","380","390","400","410","420","430","440","450","460","470","480","490","500","510","520","530","540","550","560","570","580","590","600","610","620","630","640","650","660","670","680","690","700","710","720","730","740","750","760","770","780","790","800","810","820","830","840","850","860","870","880","890","900"),
 				"display" => "select",
 				"comment" => "How long in seconds an MS is idle before the BTS forgets about it
 Interval allowed 300:900(10)
 Defaults to 600."
 	                 ),
 			"Timers.MS.NonResponsive" => array(
-				array("selected"=>6000, 3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,8200,8300,8400,8500,8600,8700,8800,8900,9000),
+				array("selected"=>"6000", "3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500","7600","7700","7800","7900","8000","8100","8200","8300","8400","8500","8600","8700","8800","8900","9000"),
 				"display" => "select",
 				"comment" => "How long in milliseconds a TBF is non-responsive before the BTS kills it
 Interval allowed 3000:9000(100)
 Defaults to 6000."
 			),
 			"Timers.T3169" => array(
-				array("selected"=>5000,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500),
+				array("selected"=>"5000","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500"),
 				"display" => "select",
 				"comment" => "Nonresponsive downlink TBF resource release timer, in milliseconds. See GSM04.60 Section 13
 Interval allowed 2500:7500(100)
 Defaults to 5000"
 			),
 			"Timers.T3191" => array(
-				array("selected"=>5000,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500),
+				array("selected"=>"5000","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500"),
 				"display" => "select",
 				"comment" => "Nonresponsive downlink TBF resource release timer, in milliseconds. See GSM04.60 Section 13
 Interval allowed 2500:7500(100)
@@ -863,7 +858,7 @@ Defaults to 5000"
 				 
 			 ),
 			 "Timers.T3193" => array(
-				 array("selected"=>0,0,100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000),
+				 array("selected"=>"0","0","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100","2200","2300","2400","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000"),
 				 "display" => "select",
 				 "comment" => "Timer T3193 (in milliseconds) in the base station corresponds to T3192 in the MS, which is set by GPRS.CellOptions.T3192Code
 The T3193 value should be slightly longer than that specified by the T3192Code
@@ -872,13 +867,13 @@ Interval allowed 0:5000(100)
 Defaults to 0"
 			),
 			"Timers.T3195" => array(
-				array("selected"=>5000,2500,2600,2700,2800,2900,3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,7000,7100,7200,7300,7400,7500),
+				array("selected"=>"5000","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500"),
 				"display" => "select",
 				"comment" => "Nonresponsive downlink TBF resource release timer, in milliseconds. See GSM04.60 Section 13
 Interval allowed 2500:7500(100)
 Defaults to 5000"
 			)
-		),
+		)
 	);
 	$fields["core"] =  array(
 		"sgsn" => array(
@@ -897,7 +892,7 @@ Defaults to 3480.",
 				"validity" => array("check_timer_implicitdetach", "Timer_RAUpdate")
 			),
 			"Timer.MS.Idle" => array(
-				array("selected"=>600, 300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900),
+				array("selected"=>"600","300","310","320","330","340","350","360","370","380","390","400","410","420","430","440","450","460","470","480","490","500","510","520","530","540","550","560","570","580","590","600","610","620","630","640","650","660","670","680","690","700","710","720","730","740","750","760","770","780","790","800","810","820","830","840","850","860","870","880","890","900"),
 				"display" => "select",
 				"comment" => "How long an MS is idle before the SGSN forgets TLLI specific information. Interval allowed 300:900(10). Defaults to 600."
 			),
@@ -913,7 +908,7 @@ Defaults to 3240.",
 				"validity" => array("check_timer_raupdate")
 			),
 			"Timer.Ready" =>array(
-				array("selected"=>44, 30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90),
+				array("selected"=>"44","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90"),
 				"display" => "select",
 				"comment" => "Also known as T3314, 3GPP 24.008 4.7.2.1
 Inactivity period required before MS may perform another routing area or cell update, in seconds. Interval allowed 30:90. Defaults to 44."
@@ -942,7 +937,7 @@ Allowed value 1492:9000",
 				"validity" => array("check_field_validity",1492,9000)
 			),
 			"IP.ReuseTimeout" => array(
-				array("selected"=>180, 120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240),
+				array("selected"=>"180","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240"),
 				"display" => "select",
 				"comment" => "How long IP addresses are reserved after a session ends. Allowed value 120:240."
 			),		
@@ -963,7 +958,6 @@ Allowed value 1492:9000",
 				"validity" => array("check_valid_ipaddress")
 			),
 			"MS.IP.MaxCount" => array(
-				"param"=>"MS.IP.MaxCount",
 				"display" => "text",
 				"value" => "254",
 				"comment" => "Number of IP addresses to use for MS. Allowed values 1:254
@@ -1008,7 +1002,7 @@ Defaults to -63",
 				"validity" => array("check_field_validity", -90, 90)
 			),
 			"RadioFrequencyOffset" => array(
-				array("selected"=>"128", 64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192),
+				array("selected"=>"128","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192"),
 				"display" => "select",
 				"comment" => "Master radio interface clock frequency adjustment. Fine-tuning adjustment for the transceiver master clock. 
 Set at the factory, do not adjust without proper calibration.
@@ -1017,7 +1011,7 @@ Defaults to 128  (but some radios provide their own calibrated default)."
 			),
 
 			"TX.OffsetI" => array(
-				array("selected"=>"0",-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31,-32,-33,-34,-35,-36,-37,-38,-39,-40,-41,-42,-43,-44,-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,-57,-58,-59,-60,-61,-62,-63, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63),
+				array("selected"=>"0","-1","-2","-3","-4","-5","-6","-7","-8","-9","-10","-11","-12","-13","-14","-15","-16","-17","-18","-19","-20","-21","-22","-23","-24","-25","-26","-27","-28","-29","-30","-31","-32","-33","-34","-35","-36","-37","-38","-39","-40","-41","-42","-43","-44","-45","-46","-47","-48","-49","-50","-51","-52","-53","-54","-55","-56","-57","-58","-59","-60","-61","-62","-63","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63"),
 				"display" => "select",
 				"comment" => "Radio interface transmitter DC offset correction for I. 
 Set at the factory, do not adjust without proper calibration.
@@ -1025,7 +1019,7 @@ Defaults to 0."
 			),
 
 			"TX.OffsetQ" => array(
-				array("selected"=>"0",-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31,-32,-33,-34,-35,-36,-37,-38,-39,-40,-41,-42,-43,-44,-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,-57,-58,-59,-60,-61,-62,-63, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63),
+				array("selected"=>"0","-1","-2","-3","-4","-5","-6","-7","-8","-9","-10","-11","-12","-13","-14","-15","-16","-17","-18","-19","-20","-21","-22","-23","-24","-25","-26","-27","-28","-29","-30","-31","-32","-33","-34","-35","-36","-37","-38","-39","-40","-41","-42","-43","-44","-45","-46","-47","-48","-49","-50","-51","-52","-53","-54","-55","-56","-57","-58","-59","-60","-61","-62","-63","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63"),
 				"display" => "select",
 				"comment" => "Radio interface transmitter DC offset correction for Q. 
 Set at the factory, do not adjust without proper calibration.
@@ -1033,7 +1027,7 @@ Defaults to 0."
 			),
 
 			"TxAttenOffset" => array(
-				array("selected"=>"0", 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100),
+				array("selected"=>"0","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"),
 				"display" => "select",
 				"comment" => "Transmitter attenuation in dB.
 Hardware-specific gain adjustment for transmitter, matched to the amplifier.
@@ -1043,7 +1037,7 @@ Defaults to empty value. Radios provide their own calibrated default."
 			),
 
 			"Timeout.Clock" => array(
-				array("selected"=>10, 5,6,7,8,9,10,11,12,13,14,15),
+				array("selected"=>"10","5","6","7","8","9","10","11","12","13","14","15"),
 				"display" => "select",
 				"comment" => "Transceiver read timeout in seconds.
 How long to wait during a read operation from the transceiver before giving up
@@ -1152,7 +1146,7 @@ Defaults to 30000",
 				"validity"=> array("check_field_validity",1000,120000)
 			),
 			"heartbeat_timeout"=> array(
-                                "display" => "text",
+                "display" => "text",
 				"value" => "60000",
 				"comment" => "Interval, in milliseconds, to wait for heartbeat (PING) or any other signalling packets from mbts application
 MBTS will be restarted if this timer ellapses
@@ -1334,106 +1328,106 @@ Defaults to 720000",
 
 	$fields["hardware"] = array(
 		"site_info" => array(
-		    "location" => array(
-			"column_name" => "Site location",
-			"comment" => "No default is provided
-		Latitude, longitude
-		ddd.dddddd,ddd.dddddd format",
-			"validity" => array("check_valid_geolocation")
-		    ),
-		    "siteName" => array(
-			"column_name" => "Site name"
-		    ),
-		    "antennaDirection" => array(
-			"column_name" => "Antenna direction",
-			"comment" => "The direction the antenna is pointed, in degrees from true north.
-		No default is provided",
-			"validity" => array("check_valid_float")
-		    ),
-		    "antennaBeamwidth" => array(
-			"value" => "360",
-			"column_name" => "Antenna beam width",
-			"comment" => "Default is omni, 360 degrees",
-			"validity" => array("check_field_validity", 1, 360)
-		    ),
-		    "reportingPeriod" => array(
-			"value" => 15,
-			"column_name" => "Reporting period",
-			"comment" => "Reporting period in minutes for HW status. 
-		Default is 15 minutes",
-			"validity" => array("check_valid_integer")
-		    ),
+			"location" => array(
+				"column_name" => "Site location",
+				"comment" => "No default is provided
+				Latitude, longitude
+				ddd.dddddd,ddd.dddddd format",
+				"validity" => array("check_valid_geolocation")
+			),
+			"siteName" => array(
+				"column_name" => "Site name"
+			),
+			"antennaDirection" => array(
+				"column_name" => "Antenna direction",
+				"comment" => "The direction the antenna is pointed, in degrees from true north.
+No default is provided",
+				"validity" => array("check_valid_float")
+			),
+			"antennaBeamwidth" => array(
+				"value" => "360",
+				"column_name" => "Antenna beam width",
+				"comment" => "Default is omni, 360 degrees",
+				"validity" => array("check_field_validity", 1, 360)
+			),
+			"reportingPeriod" => array(
+				"value" => 15,
+				"column_name" => "Reporting period",
+				"comment" => "Reporting period in minutes for HW status. 
+Default is 15 minutes",
+				"validity" => array("check_valid_integer")
+			),
 		),
 		"site_equipment" => array(
-		    "antenna_type"=> array(
-			"comment" => "String"
-		    ),
-		    "antenna_serial_number"=> array(
-			"comment" => "String"
-		    ),
-		    "antenna_cable_type"=> array(
-			"comment" => "String"
-		    ),
-		    "antenna_cable_length"=> array(
-			"comment" => "String"
-		    ),
-		    "power_suply_type"=> array(
-			"comment" => "String"
-		    ),
-		    "power_suply_serial_number"=> array(
-			"comment" => "String"
-		    ),
-		    "custom_parameters" => array(
-			"display" => "textarea",
-			"comment" => "Custom parameters that will be stored on the equipment. 
-		They are not used in configuration but are kept for informative purpose.
-		They are stored in key=value form. The keys should not match any of the above keys.
-		Ex:
-		antenna_serial_number2=342134
-		antenna_cable_length2=0.5
-		"
-		    )
+			"antenna_type"=> array(
+				"comment" => "String"
+			),
+			"antenna_serial_number"=> array(
+				"comment" => "String"
+			),
+			"antenna_cable_type"=> array(
+				"comment" => "String"
+			),
+			"antenna_cable_length"=> array(
+				"comment" => "String"
+			),
+			"power_suply_type"=> array(
+				"comment" => "String"
+			),
+			"power_suply_serial_number"=> array(
+				"comment" => "String"
+			),
+			"custom_parameters" => array(
+				"display" => "textarea",
+				"comment" => "Custom parameters that will be stored on the equipment. 
+They are not used in configuration but are kept for informative purpose.
+They are stored in key=value form. The keys should not match any of the above keys.
+Ex:
+antenna_serial_number2=342134
+antenna_cable_length2=0.5
+"
+			)
 		),
 		"shutdown" => array(
-		    "maxVswr" => array(
-			"value" => "1.5",
-			"comment" => "VSWR level for automatic shutdown of the power amplifier if the RF feed is damaged.
-		Default is 1.5",
-			"validity" => array("check_valid_float")
-		    ),
-		    "amplifierShutdownTemp" => array(
-			"value" => 80,
-			"comment" => "Transistor temperature in deg C for safety shutdown of the power amplifier. 
-		Default is 80.",
-			"validity" => array("check_field_validity", 1, 85)
-		    ),
-		    "amplifierRestartTemp" => array(
-			"value" => 70,
-			"comment" => "Default is 70.",
-			"validity" => array("check_field_validity", 1, 85)
-		    ),
-		    "powerSupplyShutdownTemp" => array(
-			"value" => 85,
-			"comment" => "Transformer temperature in deg C for safety shutdown of power supply sections.
-		Default is 85",
-			"validity" => array("check_field_validity", 1, 85)
-		    ),
-		    "powerSupplyRestartTemp" => array(
-			"value" => 75,
-			"comment" => "Default 75.",
-			"validity" => array("check_field_validity", 1, 85)
-		    ),
-		    "softwareShutdownTemp" => array(
-			"value" => 100,
-			"comment" => "CPU core temperature for shutdown of the SatSite
-		If the temperature exceeds this level, all digital radio processing functions are suspended. Default 100.",
-			"validity" => array("check_field_validity", 1, 100)
-		    ),
-		    "softwareRestartTemp" => array(
-			"value" => 80,
-			"comment" => "Default 80",
-			"validity" => array("check_field_validity", 1, 85)
-		    )
+			"maxVswr" => array(
+				"value" => "1.5",
+				"comment" => "VSWR level for automatic shutdown of the power amplifier if the RF feed is damaged.
+Default is 1.5",
+				"validity" => array("check_valid_float")
+			),
+			"amplifierShutdownTemp" => array(
+				"value" => 80,
+				"comment" => "Transistor temperature in deg C for safety shutdown of the power amplifier. 
+Default is 80.",
+				"validity" => array("check_field_validity", 1, 85)
+			),
+			"amplifierRestartTemp" => array(
+				"value" => 70,
+				"comment" => "Default is 70.",
+				"validity" => array("check_field_validity", 1, 85)
+			),
+			"powerSupplyShutdownTemp" => array(
+				"value" => 85,
+				"comment" => "Transformer temperature in deg C for safety shutdown of power supply sections.
+Default is 85",
+				"validity" => array("check_field_validity", 1, 85)
+			),
+			"powerSupplyRestartTemp" => array(
+				"value" => 75,
+				"comment" => "Default 75.",
+				"validity" => array("check_field_validity", 1, 85)
+			),
+			"softwareShutdownTemp" => array(
+				"value" => 100,
+				"comment" => "CPU core temperature for shutdown of the SatSite
+If the temperature exceeds this level, all digital radio processing functions are suspended. Default 100.",
+				"validity" => array("check_field_validity", 1, 100)
+			),
+			"softwareRestartTemp" => array(
+				"value" => 80,
+				"comment" => "Default 80",
+				"validity" => array("check_field_validity", 1, 85)
+			)
 		),
 	);
 
@@ -1457,7 +1451,7 @@ It will also cause an un-registration if the handset powers off and really heavy
 Defaults to yes."
 			),
 			"SACCHTimeout.BumpDown" => array(
-				array("selected"=>1, 1,2,3),
+				array("selected"=>"1", "1","2","3"),
 				"display" => "select",
 				"comment"=> "RSSI decrease amount. Decrease the RSSI by this amount to induce more power in the MS each time we fail to receive a response from it.
 Interval allowed: 1..3
@@ -1494,17 +1488,17 @@ The IP address of receiving Wireshark, if you use it for real time traces.",
 	
 		"test" => array(
 			"SimulatedFER.Downlink"=>array(	
-				array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
+				array("selected"=>"0","0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100"),
 				"display" => "select",
 				"comment" => "Probability (0-100) of dropping any downlink frame to test robustness."
 			),
 			 "SimulatedFER.Uplink"=> array( 
-				 array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
+				array("selected"=>"0","0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100"),
 				"display" => "select",
 				"comment" => " Probability (0-100) of dropping any uplink frame to test robustness."
 			),
 			"UplinkFuzzingRate" => array(
-				array("selected"=>0, 0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100),
+				array("selected"=>"0","0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100"),
 				"display" => "select",
 				"comment" => "Probability (0-100) of flipping a bit in any uplink frame to test robustness."
 			)
@@ -1513,85 +1507,85 @@ The IP address of receiving Wireshark, if you use it for real time traces.",
 
 	$sdr_mode = get_working_mode();
 	if ($sdr_mode=="roaming" ||  $sdr_mode=="dataroam") {
-	$fields["core"] = array(
+		$fields["core"] = array(
 
-		"roaming" => array(
-			"error_get_network" => array(
-			"display" => "message",
-			"column_name"=> "",
-			"value" => ""
-			),
-			"expires" => array(
-				"display" => "text",
-				"value" => "3600",
-				"comment" => "Expire time for registrations."
-			),
-			"reg_sip" => array(
-				"display" => "text",
-				"comment" => "String: ip:port where SIP requests are sent.
+			"roaming" => array(
+				"error_get_network" => array(
+					"display" => "message",
+					"column_name"=> "",
+					"value" => ""
+				),
+				"expires" => array(
+					"display" => "text",
+					"value" => "3600",
+					"comment" => "Expire time for registrations."
+				),
+				"reg_sip" => array(
+					"display" => "text",
+					"comment" => "String: ip:port where SIP requests are sent.
 It is REQUIRED to set reg_sip or nodes_sip.
 Example: reg_sip=192.168.1.245:5058",
-				"validity" => array("valid_reg_sip","reg_sip")
-			),
-			"nodes_sip" => array(
-				"display" => "text",
-				"comment" => "json object: node => ip:port of each YateUCN server
+					"validity" => array("valid_reg_sip","reg_sip")
+				),
+				"nodes_sip" => array(
+					"display" => "text",
+					"comment" => "json object: node => ip:port of each YateUCN server
 node, which is computed based on the TMSI received from the handset.
-This ensures that registrations are always sent to the same YateUCN server.".
-//It is REQUIRED to set reg_sip or nodes_sip.
-"Example: nodes_sip={\"123\":\"192.168.1.245:5058\",\"101\":\"192.168.1.176:5059\"}",
-				"validity" => array("valid_nodes_sip", "nodes_sip")
-			),
-			"nnsf_bits" => array(
-				"display" => "text",
-				"value" => "8",
-				"comment" => "Int: Number of bits to use for
+This ensures that registrations are always sent to the same YateUCN server.
+It is REQUIRED to set reg_sip or nodes_sip.
+Example: nodes_sip={\"123\":\"192.168.1.245:5058\",\"101\":\"192.168.1.176:5059\"}",
+					"validity" => array("valid_nodes_sip", "nodes_sip")
+				),
+				"nnsf_bits" => array(
+					"display" => "text",
+					"value" => "8",
+					"comment" => "Int: Number of bits to use for
 the Non Access Stratum (NAS) Node Selection Function (NNSF)."
-			),
-			"gstn_location" => array(
-				"display" => "text",
-				"comment" => "String: unique number that identies the cell in the national database
+				),
+				"gstn_location" => array(
+					"display" => "text",
+					"comment" => "String: unique number that identies the cell in the national database
 Associated to each base station by the network operator."
-			),
-			"text_sms" => array(
-				"display" => "checkbox",
-				"value" => "0",
-				"comment" => "If possible decode and send the SMS as text/plain SIP MESSAGE body.
+				),
+				"text_sms" => array(
+					"display" => "checkbox",
+					"value" => "0",
+					"comment" => "If possible decode and send the SMS as text/plain SIP MESSAGE body.
 By default the binary type application/vnd.3gpp.sms is used."
-			),
-			"my_sip" => array(
-				"display" => "text",
-				"comment" => "string: ip:port for the local SIP listener.
+				),
+				"my_sip" => array(
+					"display" => "text",
+					"comment" => "string: ip:port for the local SIP listener.
 Unless otherwise configured, this is the IP of the machine
 where YateBTS is installed.
 Example: my_sip=198.168.1.168"
+				),
+
 			),
 
-		),
-
-		"handover" => array(
-			"enable" => array(
-				"display" => "checkbox",
-				"value" => "1",
-				"comment" => "Globally enable handover functions.
+			"handover" => array(
+				"enable" => array(
+					"display" => "checkbox",
+					"value" => "1",
+					"comment" => "Globally enable handover functions.
 Default is enabled."
-			),
-			"neighbors" => array(
-				"display" => "text",
-				"comment" => "Comma separated list of neighbor SIP addresses.
+				),
+				"neighbors" => array(
+					"display" => "text",
+					"comment" => "Comma separated list of neighbor SIP addresses.
 Each neighbor will be periodically queried for target handover availability.
 Example: neighbors=10.0.0.1, 10.0.0.2, 10.0.0.3:5065.
 Default is empty."
-			),
-			"reason" => array(
-				"display" => "text",
-				"value" => "GSM;text=\"Handover\"",
-				"comment" => 'Text to place in the Reason SIP header.
+				),
+				"reason" => array(
+					"display" => "text",
+					"value" => "GSM;text=\"Handover\"",
+					"comment" => 'Text to place in the Reason SIP header.
 An empty or boolean false value disables the Reason header.
 Default: GSM;text="Handover".'
-			)
-		),
-	);
+				)
+			),
+		);
 	}
 /*	$fields["Logging"] = array(
 		"logging" => array(
@@ -1648,13 +1642,13 @@ If a string is provided it will replace default domain mnc<NNN>.mcc<NNN>.gprs"
 		    );
 	}
 
-	foreach($fields as $section => $subsections) {
-		foreach ($subsections as $subs => $data1) {
-			foreach ($data1 as $paramname => $data) {
+	foreach ($fields as $section=>$subsections) {
+		foreach ($subsections as $subs=>$data1) {
+			foreach ($data1 as $paramname=>$data) {
 				if (isset($data["comment"])) {
 					$fields[$section][$subs][$paramname]["comment"] = str_replace(array("\t\t\t\t","\n"),array("","<br/>"), $data["comment"]);
 				}
-		}
+			}
 		}
 	}
 
