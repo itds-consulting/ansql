@@ -177,6 +177,7 @@ function validate_mme_params()
 		$mme_local = "local" . $mme_index;
 		if (!(getparam($mme_address) || getparam($mme_local)))
 			break;
+		$mme_addresses[] = getparam($mme_address);
 		foreach ($mme_validations as $param=>$param_validation) {
 			$suffix = "";
 			if ($param == "address")
@@ -201,6 +202,16 @@ function validate_mme_params()
 			}
 		}
 	}
+
+	if (count(array_unique($mme_addresses))<count($mme_addresses)) { 
+		$err = "Found duplicated MME Addresses. ";
+		$dup = array_count_values($mme_addresses);
+		foreach ($dup as $ip=>$how_many) 
+			$err .= "The Address: ".$ip. " is duplicated. ";
+
+		return array(false, $err, array("mme_address"));
+	}
+
 	return array(true);
 }
 
