@@ -194,7 +194,7 @@ class Database
 	 * Make database connection
 	 * @param $connection_index Numeric. Mark connection index in case backup connection is available
 	 * Default value is ''. Valid values '',2,3 .. (1 is excluded)
-	 * @return The connection to the database. If the connection is not possible, backup connection is tried if set, else page dies
+	 * @return The connection to the database. If the connection is not possible, backup connection is tried if set, else return NULL if $exit_gracefully is set, otherwise page dies 
 	 */
 	public static function connect($connection_index="")
 	{
@@ -204,6 +204,11 @@ class Database
 
 		if (self::$_connection && self::$_connection!==true)
 			return self::$_connection;
+                
+                if ($connection_index!='' && (!is_int($connection_index) || $connection_index<2 )) {
+                        Debug::trigger_report('critical', "Invalid connection index in Database::connect(): $connection_index");
+                        return;
+                }
 
 		$db_data = array("db_host","db_user","db_database","db_passwd","db_type");
 		for ($i=0; $i<count($db_data); $i++) {
@@ -257,8 +262,42 @@ class Database
 
 		return self::$_connection;
 	}
+        
+        /**
+         * Disconnect existing connection and connect to another database
+         * @param $connection_index Mark connection index in case backup connection is available
+	 * Default value is ''. Valid values '',2,3 .. (1 is excluded)
+         * @return The connection to new database. If the connection is not possible, backup connection is tried if set, else return NULL if $exit_gracefully is set, otherwise page dies 
+         */
+        public static function switchDatabase($connection_index='')
+        {
+                global $db_identifier;
+            
+                Database::disconnect();
+                if (!isset($_SESSION["ansql_default_db_identifier"]) && $db_identifier) {
+                        $_SESSION["ansql_default_db_identifier"] = $db_identifier;
+                }
+                
+                if ($connection_index != '') {
+                        global ${"db_identifier$connection_index"};
+                        $db_identifier = ${"db_identifier$connection_index"};
+                        if (!$db_identifier) {
+                                Debug::trigger_report ("critical", "No indentifier for connection_index=$connection_index");
+                        }
+                        Debug::xdebug("switch_database", "db_identifier='$db_identifier', default_db_identifier='".$_SESSION['ansql_default_db_identifier']."'");
+                } else {
+                        if (!$_SESSION["ansql_default_db_identifier"]) {
+                                Debug::trigger_report("critical", "No default identifier in switch_database(), $connection_index=$connection_index");
+                        }
 
-	/**
+                        $db_identifier = $_SESSION["ansql_default_db_identifier"];
+                        unset($_SESSION["ansql_default_db_identifier"]);
+                        Debug::xdebug("switch_database", "db_identifier='$db_identifier'");
+                }
+                return Database::connect($connection_index);
+        }
+
+        /**
 	 * Start transaction
 	 */
 	public static function transaction()
