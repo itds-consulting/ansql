@@ -355,34 +355,58 @@ function logout_from_api()
 // Additionally it initializes available nodes in $_SESSION["node_types"]
 function get_working_mode()
 {
+	if (!isset($_SESSION["available_sdr_modes"])) {
+		// nib,roaming,dataroam,enb
+		$installed_modes = request_api(array(), "get_available_modes", "modes");
+		$modes = clean_sdr_modes($installed_modes);
+		$_SESSION["available_sdr_modes"] = $modes;
+	}
+	
 	if (!isset($_SESSION["sdr_mode"])) {
+		// bts, enb
 		$installed_nodes = request_api(array(), "get_node_type", "node_type");
-                $node_types = clean_node_types($installed_nodes);
-                
+		$node_types = clean_node_types($installed_nodes);
+
 		if (count($node_types) && isset($node_types[0]["sdr_mode"])) {
 			$_SESSION["node_types"] = $node_types;
 			$sdr_mode = $node_types[0]["sdr_mode"];
+			
+			if (!in_array($sdr_mode, $_SESSION["available_sdr_modes"])) {
+				$sdr_mode = "";
+			}
+			
 			$_SESSION["sdr_mode"] = $sdr_mode;
-
 			return $sdr_mode;
 		}
 		return "";
-	} 
+	}
+	
 	return $_SESSION["sdr_mode"];
+}
+
+function clean_sdr_modes($installed_modes)
+{
+	$modes = array();
+	$accepted_modes = array("nib","roaming","dataroam","enb");
+	foreach ($installed_modes as $mode) {
+		if (in_array($mode, $accepted_modes))
+			$modes[] = $mode;
+	}
+	return $modes;
 }
 
 function clean_node_types($installed_nodes)
 {
-    // Ex: [{"type":"smsc","version":"unknown"},{"type":"eir","version":"unknown"},{"type":"ucn","version":"unknown"},{"type":"bts","version":"0.1-1_r74_r289.mga5","sdr_mode":"enb"},
-    // {"type":"enb","version":"0.1-1_r74_r289.mga5","sdr_mode":"enb"},{"type":"stp","version":"unknown"},{"type":"dra","version":"unknown"},{"type":"pcrf","version":"unknown"},{"type":"hss","version":"unknown"}]
-    
-    $nodes = array();
-    $accepted_nodes = array("enb","bts");
-    foreach($installed_nodes as $node) {
-        if (!isset($node["type"]) || !in_array($node["type"], $accepted_nodes))
-                continue;
-        $nodes[] = $node;
-    }
-    return $nodes;
+	// Ex: [{"type":"smsc","version":"unknown"},{"type":"eir","version":"unknown"},{"type":"ucn","version":"unknown"},{"type":"bts","version":"0.1-1_r74_r289.mga5","sdr_mode":"enb"},
+	// {"type":"enb","version":"0.1-1_r74_r289.mga5","sdr_mode":"enb"},{"type":"stp","version":"unknown"},{"type":"dra","version":"unknown"},{"type":"pcrf","version":"unknown"},{"type":"hss","version":"unknown"}]
+
+	$nodes = array();
+	$accepted_nodes = array("enb", "bts");
+	foreach ($installed_nodes as $node) {
+		if (!isset($node["type"]) || !in_array($node["type"], $accepted_nodes))
+			continue;
+		$nodes[] = $node;
+	}
+	return $nodes;
 }
 ?>
