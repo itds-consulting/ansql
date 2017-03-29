@@ -3285,7 +3285,10 @@ function exception_to_save()
 /**
  * Saves page info, puts the parameters from $_REQUEST in array $_SESSION["previous_page"]
  * If exceptions_to_save() is true and method biggins with one of: edit,add_,delete, import, export
- * then page info is not saved
+ * then page info is not saved.
+ * 
+ * !! It is really important to test the whole project again if this is added later on, not at the start of the project.
+ * Information added in this SESSION field is automatically added in forms/links built in ansql, and it might override the visual fields from forms/start of links
  */ 
 function save_page_info()
 {
