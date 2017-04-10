@@ -3868,8 +3868,11 @@ function generateNumericToken($length)
 function display_bit_field($val)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
-	if ($val=="1" || $val == "on" || $val == "enable" || $val == "yes")
+	$bits = array("on","true","enabled","enable","yes","1");
+	if (in_array($val,$bits)) {
 		return "yes";
+	}
+
 	return "no";
 }
 
