@@ -1507,9 +1507,7 @@ The IP address of receiving Wireshark, if you use it for real time traces.",
 
 	$sdr_mode = get_working_mode();
 	if ($sdr_mode=="roaming" ||  $sdr_mode=="dataroam") {
-		$fields["core"] = array(
-
-			"roaming" => array(
+		$fields["core"]["roaming"] = array(
 				"error_get_network" => array(
 					"display" => "message",
 					"column_name"=> "",
@@ -1559,11 +1557,10 @@ By default the binary type application/vnd.3gpp.sms is used."
 Unless otherwise configured, this is the IP of the machine
 where YateBTS is installed.
 Example: my_sip=198.168.1.168"
-				),
+				)
+			);
 
-			),
-
-			"handover" => array(
+		$fields["core"]["handover"] = array(
 				"enable" => array(
 					"display" => "checkbox",
 					"value" => "1",
@@ -1584,8 +1581,7 @@ Default is empty."
 An empty or boolean false value disables the Reason header.
 Default: GSM;text="Handover".'
 				)
-			),
-		);
+			);
 	}
 /*	$fields["Logging"] = array(
 		"logging" => array(

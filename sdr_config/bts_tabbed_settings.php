@@ -62,10 +62,10 @@ class BtsTabbedSettings extends TabbedSettings
 		$sdr_mode = $_SESSION["sdr_mode"];
 
 		if ($sdr_mode == "dataroam") {
-			$structure["Core"] = array("Roaming", "GPRS roaming", "Handover");
+			$structure["Core"] = array("Roaming", "GPRS roaming", "Handover", "SGSN", "GGSN");
 		}
 		elseif ($sdr_mode == "roaming") {
-			$structure["Core"] = array("Roaming", "Handover");
+			$structure["Core"] = array("Roaming", "Handover", "SGSN", "GGSN");
 		}
 		else
 			$structure["Core"] = array("SGSN", "GGSN");
@@ -86,8 +86,8 @@ class BtsTabbedSettings extends TabbedSettings
 			You should review all parameters in this section.",
 			"gprs_advanced" => "Section [gprs_advanced] controls more advanced GPRS features.
 			You normally don't need to make changes in this section.",
-			"ggsn" => "Section [ggsn] has internal GGSN function configuration.",
-			"sgsn" => "Section [sgsn] has internal SGSN function configuration.",
+			"ggsn" => "Section [ggsn] has internal GGSN function configuration.<br/>Used in GPRS with Local breakout setup.<br/>Additionally, you need to have  IP Forwarding enabled and to define NAT rule that forwards the data coming from your phones to local internet connection.",
+			"sgsn" => "Section [sgsn] has internal SGSN function configuration.<br/>Used in GPRS with Local breakout setup.",
 			"control" => "Section [control] - configuration for various MBTS controls.
 			You normally don't need to change anything in this section.",
 			"transceiver" => "Section [transceiver] controls how the radio transceiver is started and operates.",
