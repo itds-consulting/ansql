@@ -234,4 +234,14 @@ function check_SpecialRntiCodingEfficiency($field_name, $field_value)
 
 	return array(true);
 }
+
+function check_valid_tac($field_name, $field_value)
+{
+	if (!ctype_xdigit($field_value))
+		return array(false, "Invalid '$field_name' value $field_value. Values should be hex format. Ex: 1A0C");
+	if (strlen($field_value)!=4)
+		return array(false, "Invalid '$field_name' value $field_value. Value should be 4 digits long. Ex: 1A0C");
+	
+	return array(true);
+}
 ?>

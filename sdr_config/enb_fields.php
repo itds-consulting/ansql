@@ -47,7 +47,7 @@ The same for every eNodeB in the network.",
 4 digit hex value. Ex: 2A9F
 This value must be set. There is no default.",
 	"required" => true,
-	"validity" => array("check_field_validity", 0, 65535)
+	"validity" => array("check_valid_tac") //array("check_field_validity", 0, 65535)
     ),
 
     "CellIdentity" => array(
@@ -62,7 +62,7 @@ Ex: 0000001",
 According to 3GPP 36.413, this parameter is optional. 
 If it is set, the MME may use it as a human readable name of the eNB. 
 See paragraphs 8.7.3.2 and 9.1.8.4 of the above referenced specification.",
-	"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9]+$")
+	"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9 ]+$")
     ),
 
 	"Band" => array(
