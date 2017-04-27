@@ -78,17 +78,20 @@ class BtsTabbedSettings extends TabbedSettings
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
 
 		return array(
-			"gsm" => "Section [gsm] controls basic GSM operation.
+			"gsm" => "Section [gsm] controls basic GSM operation. \n
 			You MUST set and review all parameters here before starting the BTS!",
-			"gsm_advanced" => "Section [gsm_advanced] controls more advanced GSM features.
+			"gsm_advanced" => "Section [gsm_advanced] controls more advanced GSM features.\n
 			You normally don't need to make changes in this section",
-			"gprs" => "Section [gprs] controls basic GPRS operation.
+			"gprs" => "Section [gprs] controls basic GPRS operation.\n
 			You should review all parameters in this section.",
-			"gprs_advanced" => "Section [gprs_advanced] controls more advanced GPRS features.
+			"gprs_advanced" => "Section [gprs_advanced] controls more advanced GPRS features.\n
 			You normally don't need to make changes in this section.",
-			"ggsn" => "Section [ggsn] has internal GGSN function configuration.<br/>Used in GPRS with Local breakout setup.<br/>Additionally, you need to have  IP Forwarding enabled and to define NAT rule that forwards the data coming from your phones to local internet connection.",
-			"sgsn" => "Section [sgsn] has internal SGSN function configuration.<br/>Used in GPRS with Local breakout setup.",
-			"control" => "Section [control] - configuration for various MBTS controls.
+			"ggsn" => "Section [ggsn] has internal GGSN function configuration.\n
+Used in 'GPRS with Local breakout setup'.\n
+Additionally, you need to have  IP Forwarding enabled and to define NAT rule that forwards the data coming from your phones to local internet connection.",
+			"sgsn" => "Section [sgsn] has internal SGSN function configuration.\n
+Used in 'GPRS with Local breakout setup'.",
+			"control" => "Section [control] - configuration for various MBTS controls.\n
 			You normally don't need to change anything in this section.",
 			"transceiver" => "Section [transceiver] controls how the radio transceiver is started and operates.",
 			"tapping" => "Section [tapping] - settings control if radio layer GSM and GPRS packets are tapped to Wireshark.",
@@ -102,11 +105,11 @@ class BtsTabbedSettings extends TabbedSettings
 			"site_info" => "Site specific information.",
 			"site_equipment" => "This is an area for customer-specific parameters for other site equipment,
 like antennas, cables, and anything else too \"dumb\" to carry its own
-configuration and identifying information.
+configuration and identifying information.\n
 No defaults are provided.",
-			"shutdown" => "Parameters for safety shutdown of SatSite components.
-Raising these parameters above their default values may result in damage to
-the eNodeB hardware or reduced equipment life. This parameters are ignored in Labkit units."
+			"shutdown" => "Parameters for safety shutdown of SatSite components.\n
+Raising these parameters above their default values may result in damage to the eNodeB hardware or reduced equipment life. \n
+This parameters are ignored in Labkit units."
 		);
 	}
 

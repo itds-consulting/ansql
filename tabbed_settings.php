@@ -388,6 +388,7 @@ abstract class TabbedSettings
 		$section_desc = $this->getSectionsDescription();
 
 		foreach ($section_desc as $subsect=>$desc) {
+			$desc = str_replace("\n","<br/>",$desc);
 			$style = (isset($section_desc[$subsection]) && $subsect==$subsection) ? "" : "style='display:none;'";
 			print "<div id=\"info_$subsect\" $style>". $desc ."</div>";
 		}

@@ -22,22 +22,21 @@ $enodeb_params = array(
 	"comment" => "eNodeB ID
 20 bits
 Unique to every eNodeB in the network.
-This value is concatinated with the PLMN ID to create
-a 44-bit global eNodeB identity.
+This value is concatinated with the PLMN ID to create a 44-bit global eNodeB identity.
 This value must be set; there is no default.",
 	"required" => true,
 	"validity"=> array("check_valid_enodebid")
 	),
 
     "MCC" => array(
-	"comment" => "Mobile Country Code part of the PLMN Identity
+	"comment" => "Mobile Country Code part of the PLMN Identity.
 The same for every eNodeB in the network.",
 	"required" => true,
 	"validity" => array("check_field_validity", false, false,"^[0-9]{3}$")
     ),
 
     "MNC" => array(
-	"comment" => "Mobile Network Code part of the PLMN Identity
+	"comment" => "Mobile Network Code part of the PLMN Identity.
 The same for every eNodeB in the network.",
 	"required" => true,
 	"validity" => array("check_field_validity", false, false,"^[0-9]{2,3}$")
@@ -45,7 +44,8 @@ The same for every eNodeB in the network.",
 
     "TAC" => array(
 	"comment" => "Tracking Area Code
-This value must be set; there is no default.",
+4 digit hex value. Ex: 2A9F
+This value must be set. There is no default.",
 	"required" => true,
 	"validity" => array("check_field_validity", 0, 65535)
     ),
@@ -59,9 +59,9 @@ Ex: 0000001",
 
     "Name" => array(
 	"comment" =>"Human readable eNB Name that is sent to the MME during S1-MME setup.
-According to 3GPP 36.413, this parameter is optional; if it is set,
-the MME may use it as a human readable name of the eNB. See paragraphs
-8.7.3.2 and 9.1.8.4 of the above referenced specification.",
+According to 3GPP 36.413, this parameter is optional. 
+If it is set, the MME may use it as a human readable name of the eNB. 
+See paragraphs 8.7.3.2 and 9.1.8.4 of the above referenced specification.",
 	"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9]+$")
     ),
 
@@ -165,8 +165,7 @@ Valid range for a SatSite 142 is 0..43",
 	"comment" => "OFDM crest factor allowance in dB
 allowed range 5 .. 20, default 13
 lower value -> higher output power
-Can be used to push higher output levels, but also
-can produce higher distortion and clipping."
+Can be used to push higher output levels, but also can produce higher distortion and clipping."
     ),
 
     "DistributedVrbs" => array(
@@ -174,8 +173,7 @@ can produce higher distortion and clipping."
 	"column_name" => "Distributed Virtual Resource Blocks",
 	"display" => "checkbox",
 	"comment" => "Allowed values: false for localized or true(checked) for distributed type.
-This option improves multipath performance,
-but limits resource allocations to 16 RBs (2.88 MHz).",
+This option improves multipath performance, but limits resource allocations to 16 RBs (2.88 MHz).",
     )
 ),
 
@@ -236,19 +234,25 @@ Srb1.rlcPollByte = 0
     "Srb1.rlcMaxRetxThreshold" => array(
 	    array("1","2","3","4","6","8","16","32", "selected" => "4"),
 	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
+	. "Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on.\n "
+	. "Default 4.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcPollPdu" => array(
 	    array("0","4","8","16","32","64","128","256","selected"=>"0"),
 	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 0. Value 0 matches infinity from TS.",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
+	. "Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. \n"
+	. "Infinity (0) corresponds to an infinite number of PDUs. \n"
+	. "Default 0. Value 0 matches infinity from TS.",
 	    "triggered_by" => "srb1.mode"
     ),
     "Srb1.rlcPollByte" => array(
 	    array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected"=>"0"),
 	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 0. Value 0 matches infinity value from TS",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB.\n"
+	. " Default 0. Value 0 matches infinity value from TS",
 	    "triggered_by" => "srb1.mode"
     ),
 
@@ -300,19 +304,25 @@ Srb2.rlcPollByte = 0
     "Srb2.rlcMaxRetxThreshold" => array(
 	    array("1","2","3","4","6","8","16","32", "selected" => "4"),
 	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
+	. "Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. \n"
+	. "Default 4.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcPollPdu" => array(
 	    array("0","4","8","16","32","64","128","256","selected"=>"0"),
 	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 0. Value 0 matches infinity from TS.",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]\n"
+	. "Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. \n"
+	. "Infinity (0) corresponds to an infinite number of PDUs. \n"
+	. "Default 0. Value 0 matches infinity from TS.",
 	    "triggered_by" => "srb2.mode"
     ),
     "Srb2.rlcPollByte" => array(
 	    array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected" => "0"),
 	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 0. Value 0 matches infinity value from TS",
+	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. \n"
+	. "Default 0. Value 0 matches infinity value from TS",
 	    "triggered_by" => "srb2.mode"
     ),
 
@@ -346,7 +356,9 @@ Srb2.rlcPollByte = 0
     "DrbUm.pdcpDiscardTimer" => array(
 	array("0","50","100","150","300","500","750","1500", "selected"=>"100"),
 	"display" => "select",
-	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds. Default 100. Value 0 matches infinity from TS.",
+	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. \n"
+	. "Value in milliseconds. Default 100. \n"
+	. "Value 0 matches infinity from TS.",
 	"required"=> true
     ),
 
@@ -375,19 +387,24 @@ Srb2.rlcPollByte = 0
     "DrbAm.rlcMaxRetxThreshold" => array(
 	array("1","2","3","4","6","8","16","32", "selected" => "4"),
 	"display" => "select",
-	"comment" => "Parameter for RLC AM in TS 36.322 [7]. Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
+	"comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
+	. "Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
 	"required"=> true
     ),
     "DrbAm.rlcPollPdu" => array(
 	array("0","4","8","16","32","64","128","256","selected"=>"128"),
 	"display" => "select",
-	"comment" => "Parameter for RLC AM in TS 36.322 [7]. Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. Infinity (0) corresponds to an infinite number of PDUs. Default 128. Value 0 matches infinity value from TS.",
+	"comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
+	. "Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. \n"
+	. "Infinity (0) corresponds to an infinite number of PDUs. \n"
+	. "Default 128. Value 0 matches infinity value from TS.",
 	"required"=> true
     ),
     "DrbAm.rlcPollByte" => array(
 	array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected" => "125"),
 	"display" => "select",
-	"comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. Default 125. Value 0 matches infinity value from TS",
+	"comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. \n"
+	. "Default 125. Value 0 matches infinity value from TS",
 	"required"=> true
     ),
     "DrbAm.pdcpSnFieldLength" => array(
@@ -399,7 +416,8 @@ Srb2.rlcPollByte = 0
     "DrbAm.pdcpDiscardTimer" => array(
 	array("0","50","100","150","300","500","750","1500", "selected"=>"0"),
 	"display" => "select",
-	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds. Default 0. Value 0 matches infinity from TS.",
+	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds.\n "
+	. "Default 0. Value 0 matches infinity from TS.",
 	"required"=> true
     ),
     "DrbAm.pdcpStatusRequired" => array(
@@ -606,12 +624,12 @@ Default is 15 minutes",
     ),
     "custom_parameters" => array(
 	"display" => "textarea",
-	"comment" => "Custom parameters that will be stored on the equipment. <br/>
-They are not used in configuration but are kept for informative purpose.<br/>
-They are stored in key=value form. The keys should not match any of the above keys.<br/>
-Ex:<br/>
-antenna_serial_number2=342134<br/>
-antenna_cable_length2=0.5<br/>
+	"comment" => "Custom parameters that will be stored on the equipment. 
+They are not used in configuration but are kept for informative purpose.
+They are stored in key=value form. The keys should not match any of the above keys.
+Ex:
+antenna_serial_number2=342134
+antenna_cable_length2=0.5
 "
     ),
 ),
@@ -802,12 +820,12 @@ Default value: 14",
 	//"comment" => "DCI for uplink"
     //),
 
-    "DistributedVrbs" => array(
+ /*"DistributedVrbs" => array(
 	"display" => "checkbox",
 	"comment" => "Checked if the resource blocks are distributed"
     ),
 
-   /* "PrachResponseDelay" => array(
+    "PrachResponseDelay" => array(
 	"comment" => "Integer. Response delay for PRACH events in subrames.",
 	"validity" => array("check_valid_integer")
 ),*/
@@ -898,8 +916,7 @@ Default 3.',
     "Pucch.CsAn" => array(
 	array("0","1","2","3","4","5","6","7","selected"=>"7"),
 	"display" => "select",
-	"comment" => 'Number of cyclic shifts used for PUCCH formats 1/1a/1b in a resource block with a mix of
-formats 1/1a/1b and 2/2a/2b ("nCS_AN" in SIB2)
+	"comment" => 'Number of cyclic shifts used for PUCCH formats 1/1a/1b in a resource block with a mix of formats 1/1a/1b and 2/2a/2b ("nCS_AN" in SIB2)
 Default 3'
     ),
 
@@ -1091,8 +1108,8 @@ Ex: 10.167.227.%u",
     ),
 
     "AuxRoutingTable" => array(
-	"comment" => "Auxiliary routing table that is used for configuring TUN interfaces
-routes. Can be the table number or name (if it's configured in
+	"comment" => "Auxiliary routing table that is used for configuring TUN interfaces routes. 
+Can be the table number or name (if it's configured in
 /etc/iproute2/rt_tables)
 Ex: 131",
 	"validity" => array("check_auxrouting_table")
@@ -1100,10 +1117,8 @@ Ex: 131",
 
     "SymmetricMacCapture" => array(
 	"display" => "checkbox",
-	"comment" => "Whether to submit wireshark capture for MAC PDUs on both LteConnection
-instances. If disabled, only the LteConnection that represents the
-eNodeB submits wireshark capture, causing each MAC PDUs to appear only
-once and in the right direction (DL-SCH vs. UL-SCH)."
+	"comment" => "Whether to submit wireshark capture for MAC PDUs on both LteConnection instances. 
+If disabled, only the LteConnection that represents the eNodeB submits wireshark capture, causing each MAC PDUs to appear only once and in the right direction (DL-SCH vs. UL-SCH)."
     ),
 ),
 
@@ -1135,7 +1150,7 @@ NOTE: When test mode is enabled, regular PDSCH traffic is suppressed,included SI
     "DownlinkTrafficGeneratorLoad" => array(
 	"value" => "0",
 	"comment" => "The PDSCH utilisation for the traffic generator, in percentages.
-; Allowed integer range: 0 - 100. Default value: 0."
+Allowed integer range: 0 - 100. Default value: 0."
     ),
 
     "DownlinkTrafficGeneratorSubframes" => array(
@@ -1149,8 +1164,8 @@ Traffic simulator uses this many subframes, starting from subframe 0."
 Enable and disable specific channel types.
 
 Indicates if the named PHY channel's data can be sent on the TX grid.
-Note that the RsEnabled is the master enabler for all the reference signals,
-currently only CSRS. To enable CSRS, RsEnabled must also be true.
+Note that the RsEnabled is the master enabler for all the reference signals, currently only CSRS. 
+To enable CSRS, RsEnabled must also be true.
 Default is yes for all.
 ",
 	"display" => "message"
@@ -1248,6 +1263,16 @@ Default is yes for all.
 )
 
 );
+
+	foreach ($enodeb_params as $section=>$subsections) {
+		foreach ($subsections as $subs=>$data1) {
+			foreach ($data1 as $paramname=>$data) {
+				if (isset($data["comment"])) {
+					$enodeb_params[$section][$subs][$paramname]["comment"] = str_replace(array("\t\t\t\t","\n"),array("","<br/>"), $data["comment"]);
+				}
+			}
+		}
+	}
 
 	if (isset($_SESSION["enb_fields"]["interfaces_ips"])) {
 		$interfaces_ips = $_SESSION["enb_fields"]["interfaces_ips"]["both"];

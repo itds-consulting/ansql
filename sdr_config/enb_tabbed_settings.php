@@ -73,36 +73,36 @@ class EnbTabbedSettings extends TabbedSettings
 	        $developers_tab = false;
 
 		$desc = array(
-			"enodeb" => "These are the most basic configuration parameters and the ones most likely to be changed. They are gathered in this section to make them easy to find.", //basic section from file
+			"enodeb" => "These are the most basic configuration parameters and the ones most likely to be changed.<br/><br/>
+They are gathered in this section to make them easy to find.", //basic section from file
 			"bearers" => "Bearer parameters (RLC and PDCP layers)",
 
 			"gtp" => "S1-U interface parameters",
 			
-			"mme" => "Hand-configured MME.
+			"mme" => "Hand-configured MME. \n
 		    The eNodeB normally selects an MME using DNS,
-		    but explicit MME selection is also possible.
-		    This is an example of an explicit MME configuration.
+		    but explicit MME selection is also possible.  \n
+		    This is an example of an explicit MME configuration:  
 
-		    This section configures an MME:
-		    address = 192.168.56.62
-		    local = 192.168.56.1
-		    streams = 5
+		    address = 192.168.56.62 
+		    local = 192.168.56.1 
+		    streams = 5 
 		    dscp = expedited",
 
 			"scheduler" => "Parameters related to the MAC scheduler",
-			"advanced" => 'Here, "advanced" just means parameters that are not normally changed.
-		    It is not a reference to LTE-Advanced features.',
+			"advanced" => "Here, \"advanced\" just means parameters that are not normally changed.  \n
+		    It is not a reference to LTE-Advanced features.",
 			"measurements" => "KPI-related performance measurements",
 			"radiohardware" => "Control parameters for the lower PHY",
 
 			"site_info" => "Site specific information.",
 			"site_equipment" => "This is an area for customer-specific parameters for other site equipment,
 like antennas, cables, and anything else too \"dumb\" to carry its own
-configuration and identifying information.
+configuration and identifying information. \n
 No defaults are provided.",
-			"shutdown" => "Parameters for safety shutdown of SatSite components.
-Raising these parameters above their default values may result in damage to
-the eNodeB hardware or reduced equipment life. This parameters are ignored in Labkit units."
+			"shutdown" => "Parameters for safety shutdown of SatSite components. \n
+Raising these parameters above their default values may result in damage to the eNodeB hardware or reduced equipment life.  \n
+This parameters are ignored in Labkit units."
 		);
 
 		if ($developers_tab) {
