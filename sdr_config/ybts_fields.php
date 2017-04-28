@@ -3,7 +3,7 @@
  * ybts_fields.php
  * This file is part of the Yate-BTS Project http://www.yatebts.com
  *
- * Copyright (C) 2014 Null Team
+ * Copyright (C) 2014-2017 Null Team
  *
  * This software is distributed under multiple licenses;
  * see the COPYING file in the main directory for licensing
@@ -44,7 +44,7 @@ function get_default_fields_ybts()
 	$fields = array();
 	$fields["radio"] = array(
 		"gsm" => array(
-		"Radio.Band"=>	array( 
+			"Radio.Band"=>	array( 
 				array(array("Radio.Band_id"=>"850", "Radio.Band"=>"GSM850"), array("Radio.Band_id"=>"900", "Radio.Band"=>"EGSM900"),array("Radio.Band_id"=> "1800", "Radio.Band"=>"DCS1800"),array("Radio.Band_id"=>"1900", "Radio.Band"=>"PCS1900")),
 				"display" => "select",
 				"comment" => "The GSM operating band.
@@ -442,12 +442,12 @@ Ideal value is dictated by the hardware
 Interval allowed: 0..75
 Defaults to empty value. Radios provide their own calibrated default." 
 			),
-			"ShowCountry" => array( 
+		/*	"ShowCountry" => array( 
 				"display" => "checkbox",
 				"value" => "0",
 				"comment" => "Tell the phone to show the country name based on MCC
 Defaults to no"
-			),
+			),*/
 			"Timer.T3103" => array( 
 				array("selected"=>"5000", "2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000","5100","5200","5300","5400","5500","5600","5700","5800","5900","6000","6100","6200","6300","6400","6500","6600","6700","6800","6900","7000","7100","7200","7300","7400","7500"),
 				"display" => "select",
@@ -525,9 +525,17 @@ Defaults to 0 (arbitrary)"
 		),
 		"gprs_advanced" => array(
 			"Debug" => array(
-				"display" => "checkbox",
-				"value" => "0",
-				"comment" => "Toggle GPRS debugging. Defaults to no."
+				array("selected"=>"1",  "1","2","4","8","16","32"),
+				"display" => "select",
+				"comment" => "Activate GPRS debug. It is a mask of debug levels to activate.
+The bits that can be set are:
+GPRS_ERR = 1 -  report an error, default value for Debug
+GPRS_OK  = 2 -  report a succesful outcome
+GPRS_CHECK_FAIL = 4 - report that a condition check has failed
+GPRS_CHECK_OK = 8  -  report that a condition check has passed
+GPRS_LOOP = 16 - print debug information in loops
+GPRS_MSG  = 32 -  report sending/receiving of messages
+"
 			),
 			"MS.Power.Alpha" => array(
 				 array("selected" => "10",array("MS.Power.Alpha_id"=>"1","MS.Power.Alpha"=>"0.1"),array("MS.Power.Alpha_id"=>"2","MS.Power.Alpha"=>"0.2"),array("MS.Power.Alpha_id"=>"3","MS.Power.Alpha"=>"0.3"),array("MS.Power.Alpha_id"=>"4","MS.Power.Alpha"=>"0.4"),array("MS.Power.Alpha_id"=>"5","MS.Power.Alpha"=>"0.5"),array("MS.Power.Alpha_id"=>"6","MS.Power.Alpha"=>"0.6"),array("MS.Power.Alpha_id"=>"7","MS.Power.Alpha"=>"0.7"),array("MS.Power.Alpha_id"=>"8","MS.Power.Alpha"=>"0.8"),array("MS.Power.Alpha_id"=>"9","MS.Power.Alpha"=>"0.9"),array("MS.Power.Alpha_id"=>"10","MS.Power.Alpha"=>"1.0")),
@@ -543,7 +551,24 @@ Valid range is 0...10 for alpha values of 0.0 ... 1.0. See GSM 05.08 10.2.1."
 Determines baseline of handset uplink power relative to downlink RSSI
 The optimum value will tend to be lower for BTS units with higher power output
 Valid range is 0...31 for gamma values of 0...62 dB. See GSM 05.08 10.2.1."
-	                 ),
+	         ),
+			 "MS.Power.RSSITarget" => array(
+				 "value" => "-25",
+				 "comment" => "Target uplink RSSI for the MS GPRS power control loop if active.
+Expressed in dB wrt to the receiver's A/D convertor full scale.
+Gamma will be ajusted for the MS in order to reach the target RSSI
+Valid range -75...-5",
+				"validity" => array("check_field_validity",-75,-5)
+			),
+			"MS.Power.RSSIInterval"=> array(
+				"value"=>"3",
+				"comment"=>"Interval around MS.Power.RSSITarget for which Gamma will not be adjusted
+Interval for accepted RSSI values will be (MS.Power.RSSITarget - MS.Power.RSSIInterval,MS.Power.RSSITarget + MS.Power.RSSIInterval)
+Setting it to 0 will deactivate the power control loop.
+Valid range is 0...10",
+				 "validity" => array("check_field_validity",0,10)
+			 ),
+
 			 "MS.Power.T_AVG_T" => array(
 				array("selected"=>"15","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"),
 				"display" => "select",
@@ -569,19 +594,18 @@ Defaults to 3."
 				"display" => "select",
 				"comment" => "Maximum number of channels used for a single MS in uplink
 Valid range is 0...10. Defaults to 2."
-	                 ),
-			 "Codecs.Downlink" => array(
-				"display" => "text",
-				"value" => "14",
+			),
+			"Codecs.Downlink" => array(
+				array("selected"=>"14", "1", "4", "14"),
+				"display" => "select",
 				"comment" => "List of allowed GPRS downlink codecs 1..4 for CS-1..CS-4.
-Currently, only 1 and 4 are supported e.g. 14."
-				
+Currently, only 1 and 4 are supported e.g. 14.",
 			),
 			"Codecs.Uplink" => array(
-				"display" => "text",
-				"value" => "14",
+				array("selected"=>"14", "1", "4", "14"), 
+				"display" => "select",
 				"comment" => "List of allowed GPRS uplink codecs 1..4 for CS-1..CS-4.
-Currently, only 1 and 4 are supported e.g. 14."
+Currently, only 1 and 4 are supported e.g. 14.",
 			),
 			 "Uplink.KeepAlive" => array(
 				array("selected"=>"300", "200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100","2200","2300","2400","2500","2600","2700","2800","2900","3000","3100","3200","3300","3400","3500","3600","3700","3800","3900","4000","4100","4200","4300","4400","4500","4600","4700","4800","4900","5000"),
@@ -631,6 +655,11 @@ Allowed interval 15:25"
 				 array("selected"=>"1", array("TBF.Retry_id"=>"0", "TBF.Retry"=>"Do Not Retry"),array("TBF.Retry_id"=>"1", "TBF.Retry"=>"Codec 1"),array("TBF.Retry_id"=>"2", "TBF.Retry"=>"Codec 2"),array("TBF.Retry_id"=>"3","TBF.Retry"=>"Codec 3"),array("TBF.Retry_id"=>"4","TBF.Retry"=>"Codec 4")),
 				"display" => "select",
 				"comment" => "If 0, no tbf retry, otherwise if a tbf fails it will be retried with this codec, numbered 1..4."
+			),
+			"LLC.PDUExpire"=>array(
+				"comment" => "Time, in miliseconds after which to give up on transmitting a downlink PDU.",
+				"value" => "60000",
+				"validity" => array("check_valid_integer")
 			),
 			"advanceblocks"=> array(
 				array("selected"=>"10","5","6","7","8","9","10","11","12","13","14","15"),
@@ -807,6 +836,14 @@ Mode I implies combined routing updating procedures."
 				"value" => "1",
 				"comment" => "Enable TBF Reassignment."
 			),
+			"Release" => array(
+				"value" => "4",
+				"comment" => "Protocol Release claiming to be supported.
+Interval allowed 2:10. Defaults to 2.
+If Uplink.Persist is not zero, then the release is forced to at least 4.
+Set this to at least 6 to work around a System Information 13 decoding bug in Wireshark.",
+				"validity" => array("check_field_validity",2,10)
+			),
 			"SendIdleFrames" => array(
 				"display" => "checkbox",
 				"value" => "0",
@@ -877,9 +914,10 @@ Defaults to 5000"
 	);
 	$fields["core"] =  array(
 		"sgsn" => array(
-			"Debug"=>array(	
+			"sgsn_debug"=>array(	
 				"display" => "checkbox",
 				"value" =>"0",
+				"column_name" => "Debug",
 				"comment" => "Add layer-3 messages to the GGSN.Logfile, if any."
 			),
 			"Timer.ImplicitDetach" => array( 
@@ -1062,7 +1100,7 @@ Defaults to 16 if no radio capabilities are available
 Otherwise: the default value will be taken from radio capabilities
 I.e. this parameter may be used to override radio capabilities
 Allowed interval [1..1024]",
-				"validity" => array("check_field_validity",0,1024)
+				"validity" => array("check_field_validity",1,1024)
 			),
 
 			"radio_latency_slots" => array(
@@ -1099,7 +1137,7 @@ Defaults to 5000. Allowed interval [0..20000]",
 				"validity" => array("check_field_validity",0,20000)
 			),
 			"gsm_time_sync_check" => array(
-                                "value" => "0",
+				"value" => "0",
 				"comment" => "integer: Interval, in milliseconds, to check GSM time sync with upper layer.
 This parameter should be used when debugging: when sync times out a debug FAIL message will be printed.
 Set to 0 to disable it.
@@ -1134,6 +1172,26 @@ This parameter is applied on reload and is ignored if print_status is 0"
 to load for the operation. Possible values are:
     - nib: loads script necessary for Network In a Box mode of operation
     - roaming: loads script necessary for the voice roaming mode of operation"
+			),
+			"networkname" => array(
+				"comment" => "Network short name to be sent to MS.
+This parameter is applied on reload.
+Available only in the private YateBTS version",
+				"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9 ]+$")
+			),
+			"networkname.full" => array(
+				"comment" => "Network full name to be sent to MS.
+This parameter is applied on reload.
+Available only in the private YateBTS version",
+				"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9 ]+$")
+			),
+			"networkname.ci" => array(
+				"display" => "checkbox",
+				"value" => "off",
+				"comment" => "Instruct MS to add country initials to network name.
+Defaults to no.
+This parameter is applied on reload.
+Available only in the private YateBTS version"
 			),
 			"heartbeat_ping"=> array(
 				"display" => "text",
@@ -1194,6 +1252,20 @@ Defaults to no parameter."
 				"comment" => "Directory to change after forking the MBTS application.
 Defaults to expansion of \${modulepath}/server/bts"
 			),
+			"extra_yatepeer_args" => array(
+				"comment" => "Extra command line parameters to be used to initialize libyate based applications we may start.
+E.g. extra_yatepeer_args=-Dm",
+			),
+			"peer_abort" => array(
+				"comment" => "Abort peer counter.
+Send a SIGABRT signal to peer when heartbeat receive times out or heartbeat send fails.
+This parameter should be used when debugging.
+This parameter is not applied on reload.
+Allowed interval [0 .. 100].
+The counter is decreased each time the peer is aborted by yate.
+A SIGTERM signal will be sent to peer when this counter is 0 or the peer is terminated for other reason.",
+				"validity" =>  array("check_field_validity",0,100)
+			),
 			"print_msg" => array(
 				"display" => "text",
 				"value" => "yes",
@@ -1250,7 +1322,7 @@ Interval allowed: 4000..20000
 Defaults to 5000",
 				"validity"=> array("check_field_validity",4000,20000)
 			),   
-		        "t313" => array(
+			"t313" => array(
 				"display" => "text",
 				"value" => "5000",
 				"comment" => "Connect (answer) timeout interval in milliseconds (wait for Connect Ack)
@@ -1544,6 +1616,12 @@ the Non Access Stratum (NAS) Node Selection Function (NNSF)."
 					"display" => "text",
 					"comment" => "String: unique number that identies the cell in the national database
 Associated to each base station by the network operator."
+				),
+				"sos_sip" => array(
+					"comment"=>"String: host:port where SIP emergency calls are sent.
+If not set any emergency calls will be delivered to reg_sip or nodes_sip.
+Ex: sos_sip=192.168.1.215:5059",
+					"validity" => array("valid_sos_sip")
 				),
 				"text_sms" => array(
 					"display" => "checkbox",

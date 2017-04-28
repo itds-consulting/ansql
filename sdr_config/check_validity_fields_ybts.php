@@ -341,6 +341,30 @@ function check_rach_ac($field_name, $field_value)
 	return array(true);
 }
 
+/**
+ * Validate sos_sip from [roaming] section 
+ * String: host:port where SIP emergency calls are sent.
+ * If not set any emergency calls will be delivered to reg_sip or nodes_sip.
+ * Ex: sos_sip=192.168.1.215:5059
+ */
+function valid_sos_sip($field_name, $field_value)
+{
+	if (!strlen($field_value))
+		return array(true);
+
+	$expl = explode(":",$field_value);
+	$ip = $expl[0];
+	if (!filter_var($ip, FILTER_VALIDATE_IP))
+		return array(false, "Field $field_name '$field_value' doesn't contain a valid IP address.");
+
+	$port = (isset($expl[1])) ? $expl[1] : null;
+
+	if (!$port || !filter_var($port,FILTER_VALIDATE_INT))
+		return array(false, "Field $field_name '$field_value' doesn't contain a valid port.");
+
+	return array(true);
+}
+
 function validate_roaming_params()
 {
 	$required = array("nnsf_bits", "gstn_location");
