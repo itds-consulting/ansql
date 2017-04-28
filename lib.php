@@ -4470,5 +4470,109 @@ function flush_buffers()
     ob_start(); 
 }
 
+/**
+ * Displays node statistics. 
+ * @param $query_stats Array The statistics of a product(HSS, UCN, SDR, etc)
+ * @param $product_name Text The name of the product
+ */ 
+function display_query_stats($query_stats, $product_name)
+{
+/*
+ * {"code":0,
+ *  "stats":{
+ *          "engine":{"version":"5.5.1","revision":6202,"nodename":"ybtsUNCONFIG","runid":1491988359,"plugins":23,"inuse":1,"handlers":222,"hooks":4,"messages":0,
+ *                     "maxqueue":2,"messagerate":2,"maxmsgrate":14,"enqueued":745014,"dequeued":745014,"dispatched":745061,"supervised":true,"runattempt":9,"lastsignal":0,
+ *                     "threads":39,"workers":10,"mutexes":197,"semaphores":18,"acceptcalls":"accept","congestion":0},
+ *          "uptime":{"wall":620866,"user":84312,"kernel":44640},
+ *          "bladerf":{"ifaces":1},
+ *          "yrtp":{"chans":0,"mirrors":0},
+ *          "sip":{"routed":0,"routing":0,"total":0,"chans":0,"transactions":0},
+ *          "mbts":{"state":"RadioUp"},
+ *          "ybts":{"count":0}
+ *          }
+ * }
+ *
+ * {"code":0,
+ *  "stats":{
+ *            "engine":{"version":"5.5.1","revision":1815,"nodename":"hostedcore_test","plugins":27,"inuse":0,"handlers":354,"hooks":5,"messages":0,"supervised":true,
+ *                      "runattempt":1,"lastsignal":0,"threads":24,"workers":5,"mutexes":297,"semaphores":0,"acceptcalls":"accept","congestion":0},
+ *            "ucn_gmsc":{"inbound":0,"routed":0,"diverted":0,"failed":0},
+ *            "ucn_pgw":{"apns":0,"sessions":0,"bearers":0,"reservations":0,"redirecting":0},
+ *            "ucn_ati":{"sent":0,"recv":0,"errs":0,"fail":0},
+ *            "ucn_gtt":{"local":0,"stp":0,"back":0,"fail":0}
+ *          }
+ * }
+ *
+ * {"code":0,
+ *  "stats":{
+ *           "engine": {"version":"5.5.1","revision":1815,"nodename":"hostedcore_test","plugins":14,"inuse":0,"handlers":180,"hooks":4,"messages":0,"supervised":true,
+ *           			"runattempt":1,"lastsignal":0,"threads":22,"workers":5,"mutexes":229,"semaphores":1,"acceptcalls":"accept","congestion":0},
+ *           "hss_cluster":{"nodename":"hostedcore_test","remote":0,"state":"standalone"},
+ *           "hss_repair":{"clean":true,"cycles":11087,"checks":2510095,"errors":0,"fixed":0},
+ *           "auc_map":{"auth2g":0,"auth3g":0,"auth4g":0,"resyncs":0,"unknowns":0,"illegals":0,"inactives":0,"reports":0},
+ *           "hss_gtt":{"local":0,"imsi":0,"msisdn":0,"stp":0,"back":0,"fail":0},
+ *           "auc_diam":{"auth2g":0,"auth3g":0,"auth4g":0,"resyncs":0,"unknowns":0,"illegals":0,"inactives":0}
+ *           }
+ * }
+ *
+ */ 
+	if (!isset($query_stats["stats"]))
+		return;
+
+	$stats = $query_stats["stats"];
+
+	$display_inline_count = 5;
+	$css_level1 = "prop_lev1";
+	$css_cat_level2 = "cat_lev2";
+	$css_prop_level2 = "prop_lev2";
+
+	print "<table class='query_stats' border='1' cellspacing='0' cellpadding='0'>";
+	foreach ($stats as $stat_name=>$stat_props) {
+		print "<tr>";
+		print "<td class='$css_level1'>";
+		print $stat_name;
+		print "</td>";
+		print "<td class='$css_cat_level2'>";
+		if (count($stat_props) > $display_inline_count)
+			display_inline($stat_props);
+		else
+			display_cat_prop($stat_props);
+		print "</td>";
+		print "</tr>";
+	}
+	print "</table>";
+}
+
+function display_inline($stat_props)
+{
+	$sign = "";
+	print "<table class='stats_subcat'>";
+	print "<tr>";
+	print "<td class='cat_lev2'>";
+	foreach ($stat_props as $stat_name=>$stat_val) {
+		print $sign .$stat_name.": ". $stat_val;
+		$sign = ", ";
+	}
+	print "</td>";
+	print "</tr>";
+	print "</table>";
+}
+
+function display_cat_prop($stat_props)
+{
+	print "<table class='stats_subcat'>";
+
+	foreach ($stat_props as $stat_name=>$stat_val) {
+		print "<tr>";
+		print "<td class='cat_lev2'>";
+		print $stat_name;
+		print "</td>";
+		print "<td class='prop_lev2'>";
+		print $stat_val;
+		print "</td>";
+		print "</tr>";
+	}
+	print "</table>";
+}
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
