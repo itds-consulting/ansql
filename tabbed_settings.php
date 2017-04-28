@@ -96,14 +96,16 @@ abstract class TabbedSettings
 			$field_param = htmlspecialchars_decode($field_param);
 
 			if (!valid_param($field_param)) {
-				if (!in_array($param_name, $allow_empty_params))
+				if (!in_array($param_name, $allow_empty_params)) {
 					$this->error_field[] = array("Field $param_name can't be empty.", $param_name);
+					continue;
+				}
 			}
 
 			$res = array(true);
 			if (isset($data["display"]) && $data["display"]=="select" && !isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
 				$res = $this->validSelectField($param_name, $field_param, $data[0]);
-			elseif (isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
+			elseif (isset($data["validity"]) && valid_param($field_param)) 
 				$res = $this->cbValidityField($data["validity"], $param_name, $field_param);
 
 			if (!$res[0])
@@ -351,6 +353,8 @@ abstract class TabbedSettings
 				}
 			}
 		}
+		if (isset($fields["detect_invalidities"]))
+			print "<div class=\"notice\">Detected invalid values<br/>".$fields["detect_invalidities"]."</div>";
 
 		print "<div id=\"err_$subsection\">";
 		if (!isset($fields[$section][$subsection]))
