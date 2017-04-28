@@ -409,4 +409,30 @@ function clean_node_types($installed_nodes)
 	}
 	return $nodes;
 }
+/**
+ * Uses get_node_status API request to get the node status. 
+ * Returns array("state":text,"color":red/green/yellow,"details":true/false)
+ */ 
+function node_status()
+{
+	$res = make_request(array(),"get_node_status");
+
+	if ($res["code"] != 0)
+		return array("state"=>$res["message"], "color"=>"red", "details"=>false);
+
+	$node_status = array(
+		"details"=>true,
+		"state"=>$res["status"]["state"]
+	);
+
+	if ($res["status"]["operational"]) {
+		$node_status["color"] = "green";
+	} else {
+		$node_status["color"] = "red";
+		if ($res["status"]["level"] == "MILD")
+			$node_status["color"] = "yellow";
+	}
+
+	return $node_status;
+}
 ?>
