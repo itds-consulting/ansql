@@ -833,10 +833,12 @@ Default value: 14",
 
 "measurements" => array(
 
-    "reportingPeriod" => array(
+    // prefixed because it matches reportingPeriod from sdr.conf
+    "kpi_reportingPeriod" => array(
 	"value" => "15",
 	"comment" => 'Measurement reporting period in minutes. Default 15',
-	"validity" => array("check_field_validity",1,14400)
+	"validity" => array("check_field_validity",1,14400),
+	"column_name" => "ReportingPeriod"
     ),
 
     "reportingPath" => array( 

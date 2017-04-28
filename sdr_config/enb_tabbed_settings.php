@@ -215,6 +215,11 @@ This parameters are ignored in Labkit units."
 			foreach ($data as $key=>$subsection) {
 				if (isset($request_fields[$subsection])) {
 					foreach ($request_fields[$subsection] as $param=>$data) {
+						
+						if ($subsection=="measurements" && $param=="reportingPeriod") {
+							$param = "kpi_reportingPeriod";
+						}
+						
 						if (!isset($fields[$section][$subsection]))
 							continue;
 
@@ -356,6 +361,11 @@ This parameters are ignored in Labkit units."
 		}
 		if (count($satsite))
 			$request_fields["sdr"] = $satsite;
+		
+		if (isset($fields["measurements"]["kpi_reportingPeriod"])) {
+			$fields["measurements"]["reportingPeriod"] = $fields["measurements"]["kpi_reportingPeriod"];
+			unset($fields["measurements"]["kpi_reportingPeriod"]);
+		}
 
 		if (strlen($fields["mme"]["mme_address"])) {
 
