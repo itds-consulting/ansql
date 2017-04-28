@@ -24,7 +24,7 @@ require_once("ansql/sdr_config/create_radio_band_select_array.php");
 
 class BtsTabbedSettings extends TabbedSettings
 {
-	protected $allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg", "RadioFrequencyOffset", "TxAttenOffset", "Radio.RxGain", "my_sip", "reg_sip", "nodes_sip", "gstn_location", "neighbors", "gprs_nnsf_bits", "nnsf_dns", "network_map", "local_breakout", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection", "custom_parameters");
+	protected $allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg", "RadioFrequencyOffset", "TxAttenOffset", "Radio.RxGain", "my_sip", "reg_sip", "nodes_sip", "gstn_location", "neighbors", "gprs_nnsf_bits", "nnsf_dns", "network_map", "local_breakout", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection", "custom_parameters", "networkname", "networkname.full", "sos_sip", "extra_yatepeer_args", "peer_abort");
 
 	protected $default_section    = "radio";
 	protected $default_subsection = "gsm";
@@ -179,6 +179,7 @@ This parameters are ignored in Labkit units."
 
 		$custom_site_equipment = "";
 		$network_map = "";
+		$detect_invalidities = "";
 		foreach ($structure as $section=>$data) {
 			foreach ($data as $key=>$subsection) {
 				if (isset($request_fields[$subsection])) {
@@ -193,6 +194,8 @@ This parameters are ignored in Labkit units."
 						}
 						if ($subsection=="gprs_roaming" && $param=="nnsf_bits")
 							$param = "gprs_nnsf_bits";
+						if ($subsection=="sgsn" && $param=="Debug")
+							$param = "sgsn_debug";
 						if (!isset($fields[$section][$subsection][$param])) {
 							if ($subsection!="site_equipment")
 								continue;
@@ -201,6 +204,49 @@ This parameters are ignored in Labkit units."
 							$custom_site_equipment .= "$param=$data";
 							continue;
 						}
+						
+						// check if a value that was already set in api has changed from the default structure in the fields
+						// for example a checkbox value was changed into select/text field or a select value has changed and now is not among the values allowed
+						// all this will be displayed to the user as notice 
+						if (isset($fields[$section][$subsection][$param]["display"])) {
+							$display = $fields[$section][$subsection][$param]["display"];
+							$ckbox_val = array("yes","on","no","off","true","false"); // "1"/"0" can't be tested since this could be a default value for any type of field
+							$skip_special_params = array("print_msg");
+							if (in_array($data,$ckbox_val,true) && $display!="checkbox" && !in_array($param, $skip_special_params)) {
+								//this array will keep the parameters that have checkboxes allowed values but they are not displayed as checkboxes
+								$detect_invalidities .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ";
+								if ($fields[$section][$subsection][$param]["display"] == "select")
+									$detect_invalidities .= $fields[$section][$subsection][$param][0]["selected"]. "</br>";
+								else
+									$detect_invalidities .= $fields[$section][$subsection][$param]["value"]. "</br>";
+								continue;//so that the value will not be changed with the one set in API fields
+
+								// check if the values of select field were changed from the api ones
+							} elseif ($display == 'select') {
+								if (isset($fields[$section][$subsection][$param][0][0][$param."_id"])) {
+									foreach ($fields[$section][$subsection][$param][0] as $id=>$param_val){
+										if (isset($param_val[$param."_id"]))
+											$allowed_values[] = $param_val[$param."_id"];
+									}
+									//there is a particular case for Radio.C0 that is build from value_radio.band."-".value_radio.c0, 
+									$new_data = $data;
+									if ($param == "Radio.C0") 
+										$new_data = $request_fields['gsm']['Radio.Band']."-".$data;
+									if (!in_array($new_data, $allowed_values)) {
+										$def_value = (isset($fields[$section][$subsection][$param][0]["selected"])) ? $fields[$section][$subsection][$param][0]["selected"] : "Not selected";
+										$detect_invalidities .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ". $def_value ."</br>";
+										continue;
+
+									}
+								} elseif (!in_array($data, $fields[$section][$subsection][$param][0])) {
+									$def_value = (isset($fields[$section][$subsection][$param][0]["selected"])) ? $fields[$section][$subsection][$param][0]["selected"] : "Not selected";
+									$detect_invalidities .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ". $def_value ."</br>";
+									continue;
+								}
+							}
+						}
+						if (strlen($detect_invalidities))
+							$fields["detect_invalidities"] = $detect_invalidities;
 
 						if (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"] == "select") {
 							if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
@@ -228,7 +274,7 @@ This parameters are ignored in Labkit units."
 		if (strlen($custom_site_equipment))
 			$fields["hardware"]["site_equipment"]["custom_parameters"]["value"] = $custom_site_equipment;
 
-		if (isset($fields['radio']['gsm']['Radio.Band'][0]["selected"])) {
+		if (isset($fields['radio']['gsm']['Radio.Band'][0]["selected"]) && isset($fields['radio']['gsm']["Radio.C0"][0]["selected"])) {
 			$particle = $fields['radio']['gsm']['Radio.Band'][0]["selected"];
 			$fields['radio']['gsm']["Radio.C0"][0]["selected"] = "$particle-".$fields['radio']['gsm']["Radio.C0"][0]["selected"];
 		}
@@ -291,6 +337,9 @@ This parameters are ignored in Labkit units."
 				$fields['gprs_roaming'][$assoc[0]] = trim($assoc[1]);
 			}
 		}
+
+		$fields['sgsn']['Debug'] = $fields['sgsn']['sgsn_debug'];
+		unset($fields['sgsn']['sgsn_debug']);
 
 		if (getparam("my_sip")=="Custom")
 			$fields["roaming"]["my_sip"] = getparam("custom_my_sip");
