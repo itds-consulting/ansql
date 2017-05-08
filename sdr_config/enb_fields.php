@@ -66,15 +66,15 @@ See paragraphs 8.7.3.2 and 9.1.8.4 of the above referenced specification.",
     ),
 
     "Band" => array(
-	 array("selected"=> "1", "1","2","3","4","5","6","7","8","9","10","11","12","13","14","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44"),
-	"display" => "select",	
+	array("selected"=> "1", "1","2","3","4","5","6","7","8","9","10","11","12","13","14","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44"),
+	"display" => "select_without_non_selected",	
 	"comment" => 'Band selection ("freqBandIndicator" in SIB1)
 In most systems, this is set by the hardware type and should not be changed.'
     ),
 
     "Bandwidth" => array(
 	array("selected"=>"25", "6","15","25","50","75","100"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => format_comment("
 Bandwidth is the LTE radio channel BW, in number of resource blocks
 (in the frequency domain). The allowed values and the corresponding
@@ -141,10 +141,10 @@ This gives a phy cell id range of 0..503
 The combination 3*NID1+NID2 should never be the same for cells with overlapping coverage.
 Some parameters are to have default values derived from physical layer cell id.
 These are: 
-On Radio in EnodeB screen: Pusch.RefSignalGroup
-On Access Channe in PRACH screen: Prach.RootSequence
-On Access Channels in PUSCH screen: Pusch.CyclicShift
-On Access Channels in PUCCH screen: Resource allocation offset
+On Access Channels in PRACH screen: RootSequenceIndex
+On Access Channels in PUSCH screen: groupAssignmentPUSCH
+On Access Channels in PUSCH screen: cyclicShift
+On Access Channels in PUCCH screen: n1Pucch-An
 ")
     ),
 
@@ -157,21 +157,14 @@ On Access Channels in PUCCH screen: Resource allocation offset
     ),
     "NID2" => array(
 	array("0", "1", "2"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"required" => true,
 	"javascript" => "onchange='set_cellid_dependencies();'"
     ),
 
-    "groupAssignmentPUSCH"  => array(
-	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29", "selected" => "0"),
-	"display" => "select",
-	"comment" => 'PUSCH group assignment, delta-SS in 36.211 5.5.2.1.1
-Cells with overlapping coverage should have different values. Default 0.'
-    ),
-
     "CrestFactor" => array(
 	array("5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20", "selected"=>"12"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "Estimated crest factor in dB, 5 to 20, default 12.
 Larger value gives higher power output at risk of more interference to adjacent channels."
     ),
@@ -445,51 +438,52 @@ If the temperature exceeds this level, all digital radio processing functions ar
 
     "SiWindowLength" => array(
 	array("1","2","5","10","15","20","40", "selected"=>"20"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "RRC System Information Window Length in milliseconds (subframes)."
     ),
 
     "SiPeriodicity" => array(
 	array("8","16","32","64","128","256","512", "selected"=>"8"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "Scheduler System Information Periodicity in frames."
     ),
 
     "SiRedundancy" => array(
 	array("1","2","3","4","5","6","7","8", "selected"=> "2"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "Scheduler SI Redundancy. Should be larger for cell with large coverage area."
     ),
 
     "defaultPagingCycle" => array(
 	array("32","64","126","256","selected"=>"32"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "RRC default paging cycle",
     ),
     
     "nB" => array(
 	array("0", "32", "64", "128", "256", "512", "1024", "2048", "4096", "selected"=>"512"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "RRC paging nB parameter x1000"
     ),
 		
     "TxGain2" => array(
 	array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"25"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "TX post-mixer gain in dB.
-\"Naked\" BladeRF 25 dB"
+\"Naked\" BladeRFor Lab Kit: 25 dB.
+SatSite: 11 dB"
     ),
     
     "RxGain1" => array(
 	array("5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"5"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "Rx pre-mixer gain in dB.
 \"Naked\" BladeRF or Lab Kit: 5 dB"
     ),
     
     "RxGain2" => array(
 	array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"12"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "Rx post-mixer gain in dB.
 \"Naked\" BladeRF or Lab Kit: 15 dB"
     ),
@@ -499,7 +493,9 @@ If the temperature exceeds this level, all digital radio processing functions ar
 	"comment" => 'Total power transmitted in CSRS.
 Actual value in dBm, range -50 to +60
 Depends on hardware, crest factor adjustment and TX gain settings
-"Naked" BladeRF, default settings: -34',
+"Naked" BladeRF, default settings: -34
+LabKit: -20
+SatSite: 20',
 	"validity" => array("check_field_validity",-60,50)
     ),
     
@@ -531,14 +527,14 @@ NOTE: This value will be increased automatically if a message can not be schedul
 	 ),
 	"SpecialDCI" => array(
 		array("dci1a","dci1c","selected"=>"dci1c"),
-		"display" => "select",
+		"display" => "select_without_non_selected",
 		"comment" => "The DCI format for special RNTI's RA-RNTI, P-RNTI, SI-RNTI",
 		"column_name" => "DCI for S-RNTI"
 	),
     
 	"retxBSR-Timer" => array(
 		array("sf320", "sf640", "sf1280", "sf2560", "sf5120", "sf10240", "selected"=>"sf1280"),
-		"display" => "select",
+		"display" => "select_without_non_selected",
 		"comment" => "Retransmission BSR timer
 After how many subframes the UE should send a new BSR should it receive no allocation.
 Value in subframes.
@@ -547,7 +543,7 @@ Default is sf1280."
 
 	"periodicBSR-Timer" => array(
 		array("sf5", "sf10", "sf16", "sf20", "sf32", "sf40", "sf64", "sf80", "sf128", "sf160", "sf320", "sf640", "sf1280", "sf2560", "infinity", "selected"=>"infinity"),
-		"display" => "select",
+		"display" => "select_without_non_selected",
 		"comment" => "Periodic BSR timer
 At which interval UE should send BSR even if it has no new data.
 Value is in subframes.
@@ -556,7 +552,7 @@ Default is infinity."
     
 	"GapType" => array(
 		array("1","2","selected"=>"1"),
-		"display" => "select",
+		"display" => "select_without_non_selected",
 		"comment" => "Parameter Ngap from DCI, currently set as system wide configuration; corresponds to Ngap,1/Ngap,2"
 	),
 )
@@ -568,15 +564,28 @@ Default is infinity."
 "pusch" => array(
     // This params will be sent in "basic" section when sending request to API
 
+    "groupAssignmentPUSCH"  => array(
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29", "selected" => "0"),
+	"display" => "select_without_non_selected",
+	"comment" => 'PUSCH group assignment, delta-SS in 36.211 5.5.2.1.1
+Cells with overlapping coverage should have different values.
+Default 0.
+Derived from physical CellID: physical cellid % 30'
+    ),
+    
     "cyclicShift" => array(
 	array("0","1","2","3","4","5","6","7","selected"=>"0"),
-	"display" => "select",
-	"comment" => 'Base cyclic shift for PUSCH DMRS, 36.211 5.5.2.1.1. Default 0.'
+	"display" => "select_without_non_selected",
+	"comment" => 'Base cyclic shift for PUSCH DMRS, 36.211 5.5.2.1.1.
+Default 0. 
+Derived from physical CellID: physical cellid % 8 '
     ),
     
     "p0_NominalPUSCH" => array(
 	"value" => -70,
-	"comment" => "Expected UL RSSI power on PUSCH in dBm. Default -70.",
+	"comment" => "Expected UL RSSI power on PUSCH in dBm. 
+Range: -126,24. 
+Default -70. ",
 	"validity" => array("check_field_validity",-126,24)
     )
 ),
@@ -586,7 +595,7 @@ Default is infinity."
 
     "deltaPUCCH-Shift" => array(
 	array("1","2","3","selected"=>"1"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => 'Delta Shift ("deltaPUCCH_Shift" in SIB2). Default 1.'
     ),
 
@@ -600,7 +609,7 @@ Default 3.',
 
     "nCS-An" => array(
 	array("0","1","2","3","4","5","6","7","selected"=>"5"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => 'PUCCH cycle shift.
 Allowed values: 0..7, but must also be a multiple of deltaPUCCH-Shift.
 Default is 5.'
@@ -608,7 +617,7 @@ Default is 5.'
 
     "srPeriodicity" => array(
 	array("5", "10", "20", "40", "80", "2", "1","selected"=>"10"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "PUCCH Scheduling Request Periodicity in subframes. 
 Default 10."
     ),
@@ -619,6 +628,15 @@ Default 10."
 Range -127 to -96.
 Default -96",
 	"validity" => array("check_field_validity",-127,-96)
+    ),
+    
+    "n1Pucch-An" => array(
+	"value" => 0,
+	"comment" => "Pucch resource allocation offset.
+Valid range is 0 .. (2047 * number of UL resource blocks / 110)
+Where number of UL resource blocks = Bandwitdh
+",
+	"validity" => array("check_n1PucchAn", "Bandwidth")
     )
 ),
 "prach" => array(
@@ -644,14 +662,14 @@ Default is 0.',
     
     "numberOfRA-Preambles" => array(
 	array("4","8","12","16","20","24","28","32","36","40","44","48","52","56","60","64","selected"=>"4"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => 'Number of PRACH preambles to use.
 Default 4.'
     ),
     
     "preambleInitialReceivedTargetPower" => array(
 	array("-120", "-118", "-116", "-114", "-112", "-110", "-108", "-106", "-104", "-102", "-100", "-98", "-96", "-94", "-92", "-90", "selected" => "-90"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"column_name" => 'Initial RSSI Target',
 	"comment" => 'Initial target RSSI for PRACH transmissions in dBm.
 Allows values multiples of 2, -90 .. -120. Default -90.',
@@ -659,7 +677,7 @@ Allows values multiples of 2, -90 .. -120. Default -90.',
     
     "prach-ConfigIndex" => array(
 	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15", "selected"=>"0"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => 'PRACH configuration index
 Determines how often the UE is allowed to send PRACH.
 3GPP 36.211 Table 5.7.1-2 (FDD) or Tables 5.7.1-3, 4 (TDD)'
@@ -667,7 +685,7 @@ Determines how often the UE is allowed to send PRACH.
     
     "zeroCorrelationZoneConfig" => array(
 	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"7"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => 'PRACH zero correlation zone configuration
 Larger cell radius requires larger values.
 3GPP 36.211 5.7.2-2
@@ -680,7 +698,7 @@ Default value of 7 (4.4 km)'
     
     "PrachThreshold-dB" => array(
 	array("15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","selected"=>"20"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "PRACH post-filter SNR detection threshold in dB
 Negative threshold enables a debugging feature that steps up the threshold with each detection event.
 Allowed range 15-30 dB.
@@ -691,14 +709,14 @@ Default is 20 dB."
 "pdcch" => array(
     "CFI" => array(
 	array("1","2","3","selected"=>"2"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "Control format indicator (from PCFICH)
 Controls number of symbols used for PDCCH."
     ),
 
     "Ng" => array(
 	array("oneSixth", "half", "one", "two", "selected"=>"oneSixth"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"column_name" => "PHICH Ng factor",
 	"comment" => "PHICH Ng factor (from MIB in PBCH)
 Determines bandwidth used for PHICH, affects available bandwidth for PDCCH."
@@ -706,7 +724,7 @@ Determines bandwidth used for PHICH, affects available bandwidth for PDCCH."
 
     "PdcchFormat" => array(
 	array("2","3","selected"=>"2"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "PdcchFormat, 3GPP 36.211 Table 6.8.1-1
 Aggregation level in PDCCH is 2^format.
 Default is 2."
@@ -845,7 +863,7 @@ Traffic simulator uses this many subframes, starting from subframe 0."
     
     "SimulatePdschTraffic" => array(
 	array("0", "1023", "31", "301", "602", "selected"=>"0"),
-	"display" => "select",
+	"display" => "select_without_non_selected",
 	"comment" => "PDSCH traffic simulator
 Fills free PDSCH elements with random QPSK symbols in selected subframes.
 Control is a bit mask. If bit N is set in the mask, fill subframe N.

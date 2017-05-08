@@ -108,7 +108,7 @@ abstract class TabbedSettings
 			}
 
 			$res = array(true);
-			if (isset($data["display"]) && $data["display"]=="select" && !isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
+			if (isset($data["display"]) && ($data["display"]=="select" ||  $data["display"]=="select_without_non_selected") && !isset($data["validity"]) && !in_array($param_name, $allow_empty_params)) 
 				$res = $this->validSelectField($param_name, $field_param, $data[0]);
 			elseif (isset($data["validity"]) && valid_param($field_param)) 
 				$res = $this->cbValidityField($data["validity"], $param_name, $field_param);
@@ -126,7 +126,7 @@ abstract class TabbedSettings
 			// build also request_fields fields with different structure
 			$request_fields[$subsection][$param_name] = $field_param;
 
-			if (isset($data["display"]) && $data["display"]=='select')
+			if (isset($data["display"]) && ($data["display"]=='select' || $data["display"]=="select_without_non_selected"))
 				$new_fields[$section][$subsection][$param_name][0]["selected"] = $field_param;
 			else
 				$new_fields[$section][$subsection][$param_name]["value"]       = $field_param;
@@ -263,7 +263,7 @@ abstract class TabbedSettings
 
 						$val_req = (getparam($paramname)) ? getparam($paramname) : "off";
 
-					} elseif (isset($data["display"]) && $data["display"]=='select')
+					} elseif (isset($data["display"]) && ($data["display"]=='select' || $data["display"]=='select_without_non_selected'))
 						$value = (isset($data[0]["selected"])) ? $data[0]["selected"] : "";
 
 					else
@@ -303,7 +303,8 @@ abstract class TabbedSettings
 							if (in_array($data,$ckbox_val,true) && $display!="checkbox" && !in_array($param, $this->skip_special_params)) {
 								//this array will keep the parameters that have checkboxes allowed values but they are not displayed as checkboxes
 								$this->detected_invalidities_message .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ";
-								if ($default_fields[$section][$subsection][$param]["display"] == "select") {
+								if ($default_fields[$section][$subsection][$param]["display"] == "select" ||
+								    $default_fields[$section][$subsection][$param]["display"] == "select_without_non_selected") {
 									$this->detected_invalidities_message .= $default_fields[$section][$subsection][$param][0]["selected"]. "</br>";
 									$request_fields[$subsection][$param] = $default_fields[$section][$subsection][$param][0]["selected"];
 								} else {
@@ -313,8 +314,12 @@ abstract class TabbedSettings
 								continue;//so that the value will not be changed with the one set in API fields
 
 								// check if the values of select field were changed from the api ones
-							} elseif ($display == 'select') {
-								if (isset($default_fields[$section][$subsection][$param][0][0][$param."_id"])) {
+							} elseif ($display == 'select' || $display == 'select_without_non_selected') {
+								//if (isset($default_fields[$section][$subsection][$param][0][0]) && isset($default_fields[$section][$subsection][$param][0][0][$param."_id"])) {
+								if (isset($default_fields[$section][$subsection][$param][0][0]) && 
+								    is_array($default_fields[$section][$subsection][$param][0][0]) && 
+								    array_key_exists($param."_id", $default_fields[$section][$subsection][$param][0][0])) {
+									
 									foreach ($default_fields[$section][$subsection][$param][0] as $id=>$param_val){
 										if (isset($param_val[$param."_id"]))
 											$allowed_values[] = $param_val[$param."_id"];
@@ -369,7 +374,7 @@ abstract class TabbedSettings
 					foreach ($fields[$m_section][$m_subsection] as $param_name=>$data) {
 
 						$paramname = str_replace(".", "_", $param_name);
-						if (isset($data["display"]) && $data["display"]=="select") {
+						if (isset($data["display"]) && ($data["display"]=="select" || $data["display"]=="select_without_non_selected")) {
 							$fields[$m_section][$m_subsection][$param_name][0]["selected"] = getparam($paramname);
 							if (getparam($paramname)=="Custom") {
 								$fields[$m_section][$m_subsection]["custom_".$param_name]["value"] = getparam("custom_".$param_name);

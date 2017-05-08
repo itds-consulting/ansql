@@ -1033,12 +1033,12 @@ function set_cellid_dependencies()
 	if (!nid1 || !nid2)
 		return;
 
-	var pucchDelta = document.getElementById("Pucch.Delta").value;
+//	var pucchDelta = document.getElementById("Pucch.Delta").value;
 	var cellid = 3*parseInt(nid1) + parseInt(nid2);
 	var rootSequenceIndex = cellid + get_rand_int(0, 334); 
 //	var prachFreqOffset = cellid % 95;
-	var puschRefSignalGroup = cellid % 30;
-	var puschCyclicShift = cellid % 8;
+        var groupAssignmentPUSCH = cellid % 30;
+	var cyclicShift = cellid % 8;
 
 	var resourceAllocationOffset = cellid;
 /*	if (pucchDelta == 1)
@@ -1049,10 +1049,10 @@ function set_cellid_dependencies()
 		var pucchCsAn = 3*(cellid%3);
 */
 	document.getElementById("rootSequenceIndex").value = rootSequenceIndex;
-//	document.getElementById("Prach.FreqOffset").value = prachFreqOffset;
-	document.getElementById("Pusch.RefSigGroup").value = puschRefSignalGroup;
-	document.getElementById("Pusch.CyclicShift").value = puschCyclicShift;
-	document.getElementById("Pucch.An").value = resourceAllocationOffset;
+//	document.getElementById("prach-FreqOffset").value = prachFreqOffset;
+        document.getElementById("groupAssignmentPUSCH").value = groupAssignmentPUSCH;
+	document.getElementById("cyclicShift").value = cyclicShift;
+	document.getElementById("n1Pucch-An").value = resourceAllocationOffset;
 //	document.getElementById("Pucch.CsAn").value = pucchCsAn;
 }
 

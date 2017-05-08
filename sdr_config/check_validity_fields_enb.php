@@ -123,6 +123,18 @@ function check_uplink_rbs($field_name, $field_value, $ulrbsstartind, $rbs)
 	return array(true);
 }
 
+function check_n1PucchAn($field_name, $field_value, $bandwidth)
+{
+	$valid = check_valid_number($field_name, $field_value);
+	if (!$valid[0])
+		return $valid;	
+	$bandwidth_value = (int) $bandwidth;
+	$max_n1PucchAn =  floor (2047 * $bandwidth_value / 110);
+	if ($field_value<0 || $field_value>$max_n1PucchAn)
+		return array(false, "$field_name should be between 0 and 2047 * Bandwidth / 110 ($max_n1PucchAn)");
+	return array(true);
+}
+
 function check_valid_enodebid($field_name, $field_value)
 {
 	$valid = check_valid_number($field_name, $field_value);
