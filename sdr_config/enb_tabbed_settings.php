@@ -190,6 +190,11 @@ This parameters are ignored in Labkit units."
 
 		return get_default_fields_enb();
 	}
+	
+	function buildParticularParam($data=null, $param=null, $request_fields=array())
+	{
+		return $data;
+	}
 
 	/**
 	 * Build form fields by applying response fields over default fields

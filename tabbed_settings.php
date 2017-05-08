@@ -33,6 +33,8 @@ abstract class TabbedSettings
 	protected $open_tabs            = 1;
 	protected $subsections_advanced = array();
 	protected $menu_css             = "menu";
+	protected $skip_special_params = array();
+	protected $detected_invalidities_message = "";
 
 	protected $title;
 
@@ -57,6 +59,9 @@ abstract class TabbedSettings
 
 	// returns Array(true/false, "error")
 	abstract function storeFormResult(array $fields);
+
+	//returns the modified value of the fields
+	abstract function buildParticularParam($data=null,$param=null,$request_fields=array());
 
 	// Validate form result. Use field definition to do this: select/checkbox/Factory calibrated param/or call function to make callback specified in "validity" in field format
 	// Returns array(true/false, "fields"=>.. (fields to build form), "request_fields"=> .. (fields to be sent to API or written to file)
@@ -275,6 +280,67 @@ abstract class TabbedSettings
 		return $fields_modified;
 	}
 
+	/**
+	 * Detects the invalid fields by comparing the requests fields (received from api)
+	 * with the ones in the default fields structure
+	 * Overrides the request invalid fields with their corresponding default values
+	 */ 
+	function detectInvalidFields($structure,&$request_fields,$default_fields)
+	{
+		foreach ($structure as $section=>$data) {
+			foreach ($data as $key=>$subsection) {
+				if (isset($request_fields[$subsection])) {
+					foreach ($request_fields[$subsection] as $param=>$data) {
+						if (!isset($default_fields[$section][$subsection]))
+							continue;
+						
+						// check if a value that was already set in api has changed from the default structure in the fields
+						// for example a checkbox value was changed into select/text field or a select value has changed and now is not among the values allowed
+						// all this will be displayed to the user as notice 
+						if (isset($default_fields[$section][$subsection][$param]["display"])) {
+							$display = $default_fields[$section][$subsection][$param]["display"];
+							$ckbox_val = array("yes","on","no","off","true","false"); // "1"/"0" can't be tested since this could be a default value for any type of field
+							if (in_array($data,$ckbox_val,true) && $display!="checkbox" && !in_array($param, $this->skip_special_params)) {
+								//this array will keep the parameters that have checkboxes allowed values but they are not displayed as checkboxes
+								$this->detected_invalidities_message .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ";
+								if ($default_fields[$section][$subsection][$param]["display"] == "select") {
+									$this->detected_invalidities_message .= $default_fields[$section][$subsection][$param][0]["selected"]. "</br>";
+									$request_fields[$subsection][$param] = $default_fields[$section][$subsection][$param][0]["selected"];
+								} else {
+									$this->detected_invalidities_message .= $default_fields[$section][$subsection][$param]["value"]. "</br>";
+									$request_fields[$subsection][$param] = $default_fields[$section][$subsection][$param]["value"];
+								}
+								continue;//so that the value will not be changed with the one set in API fields
+
+								// check if the values of select field were changed from the api ones
+							} elseif ($display == 'select') {
+								if (isset($default_fields[$section][$subsection][$param][0][0][$param."_id"])) {
+									foreach ($default_fields[$section][$subsection][$param][0] as $id=>$param_val){
+										if (isset($param_val[$param."_id"]))
+											$allowed_values[] = $param_val[$param."_id"];
+									}
+									$new_data = $this->buildParticularParam($data, $param, $request_fields);
+									if (!in_array($new_data, $allowed_values)) {
+										$def_value = (isset($default_fields[$section][$subsection][$param][0]["selected"])) ? $default_fields[$section][$subsection][$param][0]["selected"] : "Not selected";
+										$this->detected_invalidities_message .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ". $def_value ."</br>";
+										$request_fields[$subsection][$param] = $def_value;
+										continue;
+
+									}
+								} elseif (!in_array($data, $default_fields[$section][$subsection][$param][0])) {
+									$def_value = (isset($default_fields[$section][$subsection][$param][0]["selected"])) ? $default_fields[$section][$subsection][$param][0]["selected"] : "Not selected";
+									$this->detected_invalidities_message .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ". $def_value ."</br>";
+									$request_fields[$subsection][$param] = $def_value;
+									continue;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/** Graphical methods */
 
 	/**
@@ -290,10 +356,12 @@ abstract class TabbedSettings
 		$default_fields  = $this->getDefaultFields();
 
 		//if the params are not set in ybts get the default values to be displayed
-		if (!$response_fields)  
+		if (!$response_fields) { 
 			$fields = $default_fields;
-		else 
+		} else {
+			$this->detectInvalidFields($structure,$response_fields,$default_fields);
 			$fields = $this->applyRequestFields($response_fields);
+		}
 		
 		if (strlen($this->error)) {//get fields value from getparam
 			foreach ($structure as $m_section=>$params) {
@@ -353,8 +421,9 @@ abstract class TabbedSettings
 				}
 			}
 		}
-		if (isset($fields["detect_invalidities"]))
-			print "<div class=\"notice\">Detected invalid values<br/>".$fields["detect_invalidities"]."</div>";
+		
+		if (strlen($this->detected_invalidities_message))
+			print "<div class=\"notice\">Detected invalid values<br/>".$this->detected_invalidities_message."</div>";
 
 		print "<div id=\"err_$subsection\">";
 		if (!isset($fields[$section][$subsection]))
