@@ -4519,34 +4519,129 @@ function display_query_stats($query_stats, $product_name)
 	if (!isset($query_stats["stats"]))
 		return;
 
+	if ($product_name == 'HLR') {
+		display_hlr($query_stats["stats"]);
+		return;
+	}
+
 	$stats = $query_stats["stats"];
-
-	$display_inline_count = 5;
-	$css_level1 = "prop_lev1";
-	$css_cat_level2 = "cat_lev2";
-	$css_prop_level2 = "prop_lev2";
-
-	print "<table class='query_stats' border='1' cellspacing='0' cellpadding='0'>";
+	$length = 1;
 	foreach ($stats as $stat_name=>$stat_props) {
-		print "<tr>";
-		print "<td class='$css_level1'>";
-		print $stat_name;
+		if ($stat_name != "engine") {
+			if (count($stat_props)>$length)
+				$length = count($stat_props);
+		}
+	}
+
+	$display_splitted_count = 8;
+	$table_css = 'query_stats';
+	$td_css = 'container_qs';
+	
+	print "<table class='container_query_stats' cellspacing='0' cellpadding='0'>";
+	print "<tr>";
+	foreach ($stats as $stat_name=>$stat_props) {
+		print "<td class='$td_css'>";
+		display_stats_format(count($stat_props),$display_splitted_count,$stat_props,$stat_name,$table_css,$length);
 		print "</td>";
-		print "<td class='$css_cat_level2'>";
-		if (count($stat_props) > $display_inline_count)
-			display_inline($stat_props);
-		else
-			display_cat_prop($stat_props);
-		print "</td>";
-		print "</tr>";
 	}
 	print "</table>";
 }
 
-function display_inline($stat_props)
+function display_splitted_props($stats,$stat_name, $display)
+{
+	$i=1;
+	$half_stats = count($stats)/2;
+	print "<table class='$display $stat_name' cellspacing='0' cellpadding='0'>";
+	print "<tr> <td class='prop_lev1'>".$stat_name." </td></tr>";
+	foreach ($stats as $prop=>$val) {
+		if ($i==0 || $i==$half_stats-1)
+			print "<tr>";
+		print "<td class='cat_prop2'>".$prop."</td>";
+		print "<td class='cat_prop2_desc'>".$val."</td>";
+		if ($i==$half_stats || $i==count($stats) || $i%2==0)
+			print "</tr>";
+		$i++;
+	}
+	print "</table>";
+}
+
+function display_hlr($stats)
+{
+	$split_stats["left"] = array("engine","uptime");
+
+	$max_length = 1;
+	foreach ($stats as $prop=>$details) {
+		if (preg_match("/map/",$prop)) {
+			$split_stats["right"]["line2"][] = $prop;
+			$max_length = isset($length["line2"]) ? $length["line2"] : $max_length;
+			if (count($details)>$max_length)
+				$length["line2"] = count($details);
+		} elseif (preg_match("/diam/",$prop)) {
+			$split_stats["right"]["line3"][] = $prop;
+			$max_length = isset($length["line3"]) ? $length["line3"] : $max_length;
+			if (count($details)>$max_length)
+				$length["line3"] = count($details);
+		} elseif (preg_match("/sig/",$prop)) {
+			$split_stats["right"]["line4"][] = $prop;
+			$max_length = isset($length["line4"]) ? $length["line4"] : $max_length;
+			if (count($details)>$max_length)
+				$length["line4"] = count($details);
+		} elseif (preg_match("/hss/",$prop)) {
+			$split_stats["right"]["line1"][] = $prop;
+			$max_length = isset($length["line1"]) ? $length["line1"] : $max_length;
+			if (count($details)>$max_length)
+				$length["line1"] = count($details);
+		} else {
+			$split_stats["right"]["line5"][] = $prop;
+			$max_length = isset($length["line5"]) ? $length["line5"] : $max_length;
+			if (count($details)>$max_length)
+				$length["line5"] = count($details);
+		}
+	}
+
+	print "<table class='container_query_stats' cellspacing='0' cellpadding='0'>";
+	print "<tr>";
+	foreach ($split_stats as $position=>$prop_names) {
+		$td_css = 'container_qs_'.$position;
+		print "<td class='$td_css'>";
+		display_stats_hlr($prop_names, $position, $stats, $length);
+		print "</td>";
+	}
+	print "</tr>";
+	print "</table>";
+}
+
+function display_stats_hlr($prop_names, $position, $stats, $length)
+{
+	foreach ($prop_names as $k=>$props) {
+
+		if (is_array($props)) {
+			print "<table class='stats_subcat' cellspacing='0' cellpadding='0'>";
+			print "<tr>";
+			foreach ($props as $k=>$prop) {
+				print "<td class='container_qs'>";
+				display_stats_format(count($stats[$prop]),8,$stats[$prop],$prop,"query_stats column_right",$length[$k]);
+				print "</td>";
+
+			}
+		} else {
+			display_stats_format(count($stats[$props]),8,$stats[$props],$props, "query_stats column_left",1);
+		}
+	}
+}
+
+function display_stats_format($stats_length, $max_columns, $cat_props, $prop, $table_css,$max_length)
+{
+	if ($stats_length > $max_columns) //if a category has more than 8 proprieties splitted into 2 columns
+		display_splitted_props($cat_props, $prop, $table_css);
+	else
+		display_cat_prop($cat_props, $prop, $table_css,$max_length);
+}
+
+function display_props_inline($stat_props)
 {
 	$sign = "";
-	print "<table class='stats_subcat'>";
+	print "<table class='stats_subcat' cellspacing='0' cellpadding='0'>";
 	print "<tr>";
 	print "<td class='cat_lev2'>";
 	foreach ($stat_props as $stat_name=>$stat_val) {
@@ -4558,9 +4653,10 @@ function display_inline($stat_props)
 	print "</table>";
 }
 
-function display_cat_prop($stat_props)
+function display_cat_prop($stat_props,$stat_name,$display,$max_length)
 {
-	print "<table class='stats_subcat'>";
+	print "<table class='$display' cellspacing='0' cellpadding='0'>";
+	print "<tr> <td class='prop_lev1'>".$stat_name." </td></tr>";
 
 	foreach ($stat_props as $stat_name=>$stat_val) {
 		print "<tr>";
@@ -4572,7 +4668,15 @@ function display_cat_prop($stat_props)
 		print "</td>";
 		print "</tr>";
 	}
+		if (count($stat_props)<$max_length)
+			fill_td($max_length-count($stat_props));
 	print "</table>";
+}
+
+function fill_td($total)
+{
+	for ($i=0; $i<$total; $i++)
+		print "<tr><td class='cat_lev2'>&nbsp;</td></tr>";
 }
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
