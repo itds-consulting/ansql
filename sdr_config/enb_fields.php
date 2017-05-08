@@ -65,7 +65,7 @@ See paragraphs 8.7.3.2 and 9.1.8.4 of the above referenced specification.",
 	"validity" => array("check_field_validity", false, false, "^[a-zA-Z0-9 ]+$")
     ),
 
-	"Band" => array(
+    "Band" => array(
 	 array("selected"=> "1", "1","2","3","4","5","6","7","8","9","10","11","12","13","14","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44"),
 	"display" => "select",	
 	"comment" => 'Band selection ("freqBandIndicator" in SIB1)
@@ -108,7 +108,25 @@ EARFCN 2525, 881.5 MHz, Band 5 ("850")
 EARFCN 3100, 2655.0 MHz, Band 7 ("2600")
 EARFCN 5790, 740.0 MHz, Band 17 ("700 b")
 EARFCN 6300, 806.0 MHz, Band 20 ("800 DD")
-Special ISM EARFCN extension: 2400 MHz @ EARFCN 50000 offset; valid range: 50000 - 50959'),
+EARFCN 36100, 1910.0 MHz, Band 33 ("IMT/1900")
+EARFCN 38000, 2595.0 MHz, Band 38 ("TD 2600")
+
+Debug EARFCN extension: 2400 MHz @ EARFCN 50000 offset; valid range: 50000 - 50959
+Some handy examples for WiFi \'extended EARFCNs\':
+EARFCN 50120, 2412 MHz, Channel 1 (2.4 GHz WiFi)	2401 - 2423 MHz
+EARFCN 50170, 2417 MHz, Channel 2 (2.4 GHz WiFi)	2404 - 2428 MHz
+EARFCN 50220, 2422 MHz, Channel 3 (2.4 GHz WiFi)	2411 - 2433 MHz
+EARFCN 50270, 2427 MHz, Channel 4 (2.4 GHz WiFi)	2416 - 2438 MHz
+EARFCN 50320, 2432 MHz, Channel 5 (2.4 GHz WiFi)	2421 - 2443 MHz
+EARFCN 50370, 2437 MHz, Channel 6 (2.4 GHz WiFi)	2426 - 2448 MHz
+EARFCN 50420, 2442 MHz, Channel 7 (2.4 GHz WiFi)	2431 - 2453 MHz
+EARFCN 50470, 2447 MHz, Channel 8 (2.4 GHz WiFi)	2436 - 2458 MHz
+EARFCN 50520, 2452 MHz, Channel 9 (2.4 GHz WiFi)	2441 - 2463 MHz
+EARFCN 50570, 2457 MHz, Channel 10 (2.4 GHz WiFi)	2451 - 2468 MHz
+EARFCN 50620, 2462 MHz, Channel 11 (2.4 GHz WiFi)	2451 - 2473 MHz
+EARFCN 50670, 2467 MHz, Channel 12 (2.4 GHz WiFi)	2456 - 2478 MHz
+EARFCN 50720, 2472 MHz, Channel 13 (2.4 GHz WiFi)	2461 - 2483 MHz
+EARFCN 50840, 2484 MHz, Channel 14 (2.4 GHz WiFi)	2473 - 2495 MHz'),
 	"required" => true,
 	"validity" => array("validate_earfcn_band", "Band"),
     ),
@@ -144,286 +162,30 @@ On Access Channels in PUCCH screen: Resource allocation offset
 	"javascript" => "onchange='set_cellid_dependencies();'"
     ),
 
-    
-    "Pusch.RefSigGroup" => array(
-	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29", "selected" => "2"),
+    "groupAssignmentPUSCH"  => array(
+	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29", "selected" => "0"),
 	"display" => "select",
-	"comment" => 'Reference Signal Group Assignment ("groupAssignmentPUSCH" in SIB2)
-Cells with overlapping coverage should have different values. Default 2.'
-    ),
-
-    "OutputLevel" => array(
-	"value" => "40",
-	"comment" => "Settable output level, dBm
-Valid range for a SatSite 142 is 0..43",
-	"validity" => array("check_output_level_validity", "MaximumOutput")
+	"comment" => 'PUSCH group assignment, delta-SS in 36.211 5.5.2.1.1
+Cells with overlapping coverage should have different values. Default 0.'
     ),
 
     "CrestFactor" => array(
-	array("5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20", "selected"=>"13"),
+	array("5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20", "selected"=>"12"),
 	"display" => "select",
-	"comment" => "OFDM crest factor allowance in dB
-allowed range 5 .. 20, default 13
-lower value -> higher output power
-Can be used to push higher output levels, but also can produce higher distortion and clipping."
+	"comment" => "Estimated crest factor in dB, 5 to 20, default 12.
+Larger value gives higher power output at risk of more interference to adjacent channels."
     ),
 
     "DistributedVrbs" => array(
-	"value" => true,
+	"value" => false,
 	"column_name" => "Distributed Virtual Resource Blocks",
 	"display" => "checkbox",
-	"comment" => "Allowed values: false for localized or true(checked) for distributed type.
-This option improves multipath performance, but limits resource allocations to 16 RBs (2.88 MHz).",
-    )
-),
-
-"bearers" => array(
-
-    "__" => array(
-	"value" => "SRB configuration. Don't change mode from 'default' unless you are really sure.",
-	"display" => "objtitle",
-    ),
-
-    // TBI!! How is this shown
-
-    "Srb1.mode" => array(
-	array("default", "unacknowledged", "acknowledged", "selected"=>"default"),
-	"display" => "select",
-	"required" => true,
-	"javascript" => "onchange='srb_mode(1);'",
-	"comment" => 'Default: default.
-Alternately, specify "unacknowledged" mode configuration for SRB1:
-Srb1.mode = unacknowledged
-Srb1.rlcSnFieldLength = 10
-Srb1.rlcTReordering = 35
-
-Alternately, specify "acknowledged" mode configuration for SRB1:
-Srb1.mode = acknowledged
-Srb1.rlcTPollRetransmit = 45
-Srb1.rlcTReordering = 35
-Srb1.rlcTStatusProhibit = 0
-Srb1.rlcMaxRetxThreshold = 4
-Srb1.rlcPollPdu = 0
-Srb1.rlcPollByte = 0
-'
-    ),
-    "Srb1.rlcSnFieldLength" => array(
-	    array("5","10","selected"=>"10"),
-	    "display" => "select",
-	    "comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
-	    "triggered_by" => "srb1.mode",
-    ),
-    "Srb1.rlcTReordering" => array(
-	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "35"),
-	    "display" => "select",
-	    "comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 35.",
-	    "triggered_by" => "srb1.mode"
-    ),
-    "Srb1.rlcTPollRetransmit" => array(
-	    array("5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225"," 230","235","240","245","250","300","350","400","450","500", "selected"=>"45"),
-	    "display" => "select",
-	    "comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 45.",
-	    "triggered_by" => "srb1.mode"
-    ),
-    "Srb1.rlcTStatusProhibit" => array(
-	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected" => "0"),
-	    "display" => "select",
-	    "comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 0.",
-	    "triggered_by" => "srb1.mode"
-    ),
-    "Srb1.rlcMaxRetxThreshold" => array(
-	    array("1","2","3","4","6","8","16","32", "selected" => "4"),
-	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
-	. "Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on.\n "
-	. "Default 4.",
-	    "triggered_by" => "srb1.mode"
-    ),
-    "Srb1.rlcPollPdu" => array(
-	    array("0","4","8","16","32","64","128","256","selected"=>"0"),
-	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
-	. "Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. \n"
-	. "Infinity (0) corresponds to an infinite number of PDUs. \n"
-	. "Default 0. Value 0 matches infinity from TS.",
-	    "triggered_by" => "srb1.mode"
-    ),
-    "Srb1.rlcPollByte" => array(
-	    array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected"=>"0"),
-	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB.\n"
-	. " Default 0. Value 0 matches infinity value from TS",
-	    "triggered_by" => "srb1.mode"
-    ),
-
-    "Srb2.mode" => array(
-	array("default", "unacknowledged", "acknowledged", "selected"=>"default"),
-	"display" => "select",
-	"required" => true,
-	"javascript" => "onchange='srb_mode(2);'",
-	"comment" => 'Default: default.
-Alternately, specify "unacknowledged" mode configuration for SRB2:
-Srb2.mode = unacknowledged
-Srb2.rlcSnFieldLength = 10
-Srb2.rlcTReordering = 35
-
-Alternately, specify "acknowledged" mode configuration for SRB2:
-Srb2.mode = acknowledged
-Srb2.rlcTPollRetransmit = 45
-Srb2.rlcTReordering = 35
-Srb2.rlcTStatusProhibit = 0
-Srb2.rlcMaxRetxThreshold = 4
-Srb2.rlcPollPdu = 0
-Srb2.rlcPollByte = 0
-'
-    ),
-    "Srb2.rlcSnFieldLength" => array(
-	    array("5","10","selected"=>"10"),
-	    "display" => "select",
-	    "comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
-	    "triggered_by" => "srb2.mode"
-    ),
-    "Srb2.rlcTReordering" => array(
-	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "35"),
-	    "display" => "select",
-	    "comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 35.",
-	    "triggered_by" => "srb2.mode"
-    ),
-    "Srb2.rlcTPollRetransmit" => array(
-	    array("5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected"=>"45"),
-	    "display" => "select",
-	    "comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 45.",
-	    "triggered_by" => "srb2.mode"
-    ),
-    "Srb2.rlcTStatusProhibit" => array(
-	    array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected" => "0"),
-	    "display" => "select",
-	    "comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 0.",
-	    "triggered_by" => "srb2.mode"
-    ),
-    "Srb2.rlcMaxRetxThreshold" => array(
-	    array("1","2","3","4","6","8","16","32", "selected" => "4"),
-	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
-	. "Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. \n"
-	. "Default 4.",
-	    "triggered_by" => "srb2.mode"
-    ),
-    "Srb2.rlcPollPdu" => array(
-	    array("0","4","8","16","32","64","128","256","selected"=>"0"),
-	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]\n"
-	. "Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. \n"
-	. "Infinity (0) corresponds to an infinite number of PDUs. \n"
-	. "Default 0. Value 0 matches infinity from TS.",
-	    "triggered_by" => "srb2.mode"
-    ),
-    "Srb2.rlcPollByte" => array(
-	    array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected" => "0"),
-	    "display" => "select",
-	    "comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. \n"
-	. "Default 0. Value 0 matches infinity value from TS",
-	    "triggered_by" => "srb2.mode"
-    ),
-
-    "drb" => array(
-	"value" => "DRB default configuration - for QCI 9",
-	"display" => "objtitle"
-    ),
-
-    "drb_um" => array(
-	"value" => 'DRB "unacknowledged" mode - See 3GPP 36.508 - 4.8.2.1.2.1, 4.8.2.1.3.1',
-	"display" => "objtitle"
-    ),
-    "DrbUm.rlcSnFieldLength" => array(
-	array("5", "10", "selected" => "10"),
-	"display" => "select",
-	"comment" => "Indicates the UM RLC SN field size, see TS 36.322 [7], in bits. Default 10.",
-	"required"=> true
-    ),
-    "DrbUm.rlcTReordering" => array(
-	array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "50"),
-	"display" => "select",
-	"comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 50.",
-	"required"=> true
-    ),
-    "DrbUm.pdcpSnFieldLength" => array(
-	array("7","12", "selected"=>"12"),
-	"display" => "select",
-	"comment" => "Indicates the PDCP Sequence Number length in bits. Default 12.",
-	"required"=> true
-    ),
-    "DrbUm.pdcpDiscardTimer" => array(
-	array("0","50","100","150","300","500","750","1500", "selected"=>"100"),
-	"display" => "select",
-	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. \n"
-	. "Value in milliseconds. Default 100. \n"
-	. "Value 0 matches infinity from TS.",
-	"required"=> true
-    ),
-
-    "drb_am" => array(
-	"value" => 'DRB "acknowledged" mode - See 3GPP 36.508 - 4.8.2.1.2.2, 4.8.2.1.3.2',
-	"display" => "objtitle"
-    ),
-    "DrbAm.rlcTPollRetransmit" => array(
-	array("5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected"=>"80"),
-	"display" => "select",
-	"comment" => "Timer for RLC AM in TS 36.322 [7], in milliseconds. Default 80.",
-	"required"=> true
-    ),
-    "DrbAm.rlcTReordering" => array(
-	array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","110","120","130","140","150","160","170","180","190","200", "selected" => "80"),
-	"display" => "select",
-	"comment" => "Timer for reordering in TS 36.322 [7], in milliseconds. Default 80.",
-	"required"=> true
-    ),
-    "DrbAm.rlcTStatusProhibit" => array(
-	array("0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100","105","110","115","120","125","130","135","140","145","150","155","160","165","170","175","180","185","190","195","200","205","210","215","220","225","230","235","240","245","250","300","350","400","450","500", "selected" => "60"),
-	"display" => "select",
-	"comment" => "Timer for status reporting in TS 36.322 [7], in milliseconds. Default 60.",
-	"required"=> true
-    ),
-    "DrbAm.rlcMaxRetxThreshold" => array(
-	array("1","2","3","4","6","8","16","32", "selected" => "4"),
-	"display" => "select",
-	"comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
-	. "Value t1 corresponds to 1 retransmission, t2 to 2 retransmissions and so on. Default 4.",
-	"required"=> true
-    ),
-    "DrbAm.rlcPollPdu" => array(
-	array("0","4","8","16","32","64","128","256","selected"=>"128"),
-	"display" => "select",
-	"comment" => "Parameter for RLC AM in TS 36.322 [7]. \n"
-	. "Value 4 corresponds to 4 PDUs, 8 to 8 PDUs and so on. \n"
-	. "Infinity (0) corresponds to an infinite number of PDUs. \n"
-	. "Default 128. Value 0 matches infinity value from TS.",
-	"required"=> true
-    ),
-    "DrbAm.rlcPollByte" => array(
-	array("0","25","50","75","100","125","250","375","500","750","1000","1250","1500","2000","3000", "selected" => "125"),
-	"display" => "select",
-	"comment" => "Parameter for RLC AM in TS 36.322 [7]. In kB. \n"
-	. "Default 125. Value 0 matches infinity value from TS",
-	"required"=> true
-    ),
-    "DrbAm.pdcpSnFieldLength" => array(
-	array("7","12", "selected"=>"12"),
-	"display" => "select",
-	"comment" => "Indicates the PDCP Sequence Number length in bits. Default 12.",
-	"required"=> true
-    ),
-    "DrbAm.pdcpDiscardTimer" => array(
-	array("0","50","100","150","300","500","750","1500", "selected"=>"0"),
-	"display" => "select",
-	"comment" => "Indicates the discard timer value specified in TS 36.323 [8]. Value in milliseconds.\n "
-	. "Default 0. Value 0 matches infinity from TS.",
-	"required"=> true
-    ),
-    "DrbAm.pdcpStatusRequired" => array(
-	"value" => true,
-	"display" => "checkbox",
-	"comment" => "Indicates whether or not the UE shall send a PDCP Status Report upon re-establishment of the PDCP entity and upon PDCP data recovery as specified in TS 36.323 [8]. Default true."
+	"comment" => "Distributed Virtual Resource Blocks
+Allowed values: false for localized or true for distributed type.
+This option improves multipath performance,
+but limits resource allocations to 16 RBs (2.88 MHz) in systems
+with LTE bandwidth of > 5 MHz.
+Default is false.",
     )
 )
 ),
@@ -684,334 +446,254 @@ If the temperature exceeds this level, all digital radio processing functions ar
     "SiWindowLength" => array(
 	array("1","2","5","10","15","20","40", "selected"=>"20"),
 	"display" => "select",
-	"comment" => "Scheduler SI Window Length in milliseconds (frames)"
+	"comment" => "RRC System Information Window Length in milliseconds (subframes)."
     ),
 
     "SiPeriodicity" => array(
 	array("8","16","32","64","128","256","512", "selected"=>"8"),
 	"display" => "select",
-	"comment" => "Allowed values: powers of two between 8 and 512"
+	"comment" => "Scheduler System Information Periodicity in frames."
     ),
 
     "SiRedundancy" => array(
 	array("1","2","3","4","5","6","7","8", "selected"=> "2"),
 	"display" => "select",
-	"comment" => "Should be larger for cell with large coverage area."
+	"comment" => "Scheduler SI Redundancy. Should be larger for cell with large coverage area."
     ),
 
-    "DefaultPagingCycle" => array(
+    "defaultPagingCycle" => array(
 	array("32","64","126","256","selected"=>"32"),
 	"display" => "select",
-	"comment" => "Default Paging Cycle for UE DRX",
+	"comment" => "RRC default paging cycle",
     ),
-
-    "RxLevelMinimum" => array(
-	"value" => "-70",
-	"comment" => 'Minimum power level for cell reselection, dBm ("q_RxLevMin" in SIB1)
-Allowed range -70 .. -22. Default -70.',
-	 "validity" => array("check_field_validity", -70, -22)
-    ),
-),
-
-"advanced" => array(
-
-    "GridLength" => array(
-	"value" => 8,
-	"comment" => "The length of the resource grid circular buffer in subframes. Default 8",
-	"validity" => array("check_field_validity", 1, 16)
-    ),
-
-    "LeadModulation" => array(
-	"value" => 14,
-	"comment" => "Maximum samples in the future to compute radio modulation
-Given in OFDM symbol periods
-Minimum 2 symbols, maximum 2 subframes, default 1 subframe.
-Default value: 14",
-	"validity" => array("check_field_validity", 2, 28)
-    ),
-
-    "LeadScheduling" => array(
-	array("1","2","3","4","5","selected"=>"2"),
+    
+    "nB" => array(
+	array("0", "32", "64", "128", "256", "512", "1024", "2048", "4096", "selected"=>"512"),
 	"display" => "select",
-	"comment" => "Maximum number of subframes to schedule in advance, 1 to 5, default 2."
+	"comment" => "RRC paging nB parameter x1000"
     ),
-
-    "RadioPriority" => array(
-	array("normal","high","highest","selected"=>"high"),
+		
+    "TxGain2" => array(
+	array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"25"),
 	"display" => "select",
-	"comment" => 'Radio thread priority, default "high", can be also "normal" or "highest"'
+	"comment" => "TX post-mixer gain in dB.
+\"Naked\" BladeRF 25 dB"
     ),
-
-    "ModulatorPriority"  => array(
-	array("normal","high","highest","selected"=>"high"),
+    
+    "RxGain1" => array(
+	array("5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"5"),
 	"display" => "select",
-	"comment" => 'Modulator thread priority, default "high", can be also "normal" or "highest"'
+	"comment" => "Rx pre-mixer gain in dB.
+\"Naked\" BladeRF or Lab Kit: 5 dB"
     ),
-
-    "SchedulerPriority" => array(
-	array("normal","high","highest","selected"=>"normal"),
+    
+    "RxGain2" => array(
+	array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"12"),
 	"display" => "select",
-	"comment" => 'Scheduler thread priority, default "normal", can be also "high" or "highest"'
+	"comment" => "Rx post-mixer gain in dB.
+\"Naked\" BladeRF or Lab Kit: 15 dB"
     ),
+    
+    'referenceSignalPower' => array(
+	"value" => -34,
+	"comment" => 'Total power transmitted in CSRS.
+Actual value in dBm, range -50 to +60
+Depends on hardware, crest factor adjustment and TX gain settings
+"Naked" BladeRF, default settings: -34',
+	"validity" => array("check_field_validity",-60,50)
+    ),
+    
+    "activity_timeout" => array(
+	"value" => 10000,
+	"comment" => "Timeout interval (in milliseconds) for detecting user inactivity on radio connection 
+Defaults to 10 seconds.",
+	// tried to guess possible validation. No validation in code
+	"validity" => array("check_field_validity", 500, 500000)
+    ),
+    
+    "T302" => array(
+	"value" => 5,
+	"comment" => "T302: integer: Value of RRC T302 timer in seconds
+Provided by the enodeB to the UE in a RRC connection reject
+Defaults to 5 seconds.",
+	"validity" => array("check_valid_integer")
+    )
 ),
 
 "scheduler" => array(
 
-   /* "SibModulationRate" => array(
-	array("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","selected"=>"2"),
-	"display" => "select",
-	"comment" => "Sib modulation rate"
-),*/
-
-	"SpecialRntiCodingEfficiency" => array(
+	"SpecialRntiCodeEfficiency" => array(
 		 "value" => "0.0625",
-		 "comment" => "A float value in the range 0.0625 - 4.0, default to 0.0625.",
+		 "comment" => "SpecialRntiCodeEfficiency: float: The bits/element for DL special RNTI messages (SIBs, paging, RAR).
+Default 0.0652.
+NOTE: This value will be increased automatically if a message can not be scheduled.",
 	 	 "validity" => array("check_SpecialRntiCodingEfficiency")
 	 ),
 	"SpecialDCI" => array(
-		// commented ones are not supported
-		array("dci1a"/*,"dci1c"*/,"selected"=>"dci1a"),
+		array("dci1a","dci1c","selected"=>"dci1c"),
 		"display" => "select",
 		"comment" => "The DCI format for special RNTI's RA-RNTI, P-RNTI, SI-RNTI",
 		"column_name" => "DCI for S-RNTI"
 	),
+    
+	"retxBSR-Timer" => array(
+		array("sf320", "sf640", "sf1280", "sf2560", "sf5120", "sf10240", "selected"=>"sf1280"),
+		"display" => "select",
+		"comment" => "Retransmission BSR timer
+After how many subframes the UE should send a new BSR should it receive no allocation.
+Value in subframes.
+Default is sf1280."
+	),
 
-   // "SibDci" => array(
-	// commented ones are not supported
-//	array(/*"dci0", "dci1", */ "dci1a", /*"dci1a_pdcch", "dci1b",*/ "dci1c", /*"dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci1a"),
-//	"display" => "select",
-//	"comment" => "DCI for SIB"
-//    ),
-	
-   /* "PcchMcs" => array(
-	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"2"),
-	"display" => "select",
-	"comment" => "PCCH MCS"
-    ),
-	
-    "PcchDci" => array(
-	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a", "selected"=>"dci1a"),
-	"display" => "select",
-	"comment" => "DCI for PCCH"
-),
-
-    "RarMcs" => array(
-	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"2"),
-	"display" => "select",
-	"comment" => "RAR MCS"
-    ), 
-
-    "RarDci" => array(
-	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a","selected"=>"dci1a"),
-	"display" => "select",
-	"comment" => "DCI for RAR"
-),
-
-    "downlinkDci" => array(
-	array("dci0", "dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a","selected"=>"dci1a"),
-	"display" => "select",
-	"comment" => "DCI for downlink"
-),*/ 
-
-    //"uplinkDci" => array(
-	// commented ones are not supported
-	//array("dci0", /*"dci1", "dci1a", "dci1a_pdcch", "dci1b", "dci1c", "dci1d", "dci2", "dci2a", "dci3", "dci3a",*/ "selected"=>"dci0"),
-	//"display" => "select",
-	//"comment" => "DCI for uplink"
-    //),
-
- /*"DistributedVrbs" => array(
-	"display" => "checkbox",
-	"comment" => "Checked if the resource blocks are distributed"
-    ),
-
-    "PrachResponseDelay" => array(
-	"comment" => "Integer. Response delay for PRACH events in subrames.",
-	"validity" => array("check_valid_integer")
-),*/
-),
-
-"measurements" => array(
-
-    // prefixed because it matches reportingPeriod from sdr.conf
-    "kpi_reportingPeriod" => array(
-	"value" => "15",
-	"comment" => 'Measurement reporting period in minutes. Default 15',
-	"validity" => array("check_field_validity",1,14400),
-	"column_name" => "ReportingPeriod"
-    ),
-
-    "reportingPath" => array( 
-	"comment" => 'Path to store XML measurement file for FTP access.
-If this is not set, no file is written.',
-    ),
-),
-
-"radiohardware" => array(
-
-    "MaximumOutput" => array(
-	"value" => "43",
-	"comment" => 'Radio maximum output power, dBm
-Set by calibration and should not be changed.
-Default value for SatSite 142 is 43 dBm',
-	"validity" => array("check_field_validity",false,false,false,"43")
-    ),
-
-    "ReceiverReference" => array(
-	"value" => "-20",
-	"comment" => "Receiver saturation point at full gain, referenced to the antenna port.
-Set by calibration and should not be changed.
-Default value for SatSite 142 is -20 dBm.",
-	"validity" => array("check_field_validity",false,false,false,"-20")
-    ),
-),
-
+	"periodicBSR-Timer" => array(
+		array("sf5", "sf10", "sf16", "sf20", "sf32", "sf40", "sf64", "sf80", "sf128", "sf160", "sf320", "sf640", "sf1280", "sf2560", "infinity", "selected"=>"infinity"),
+		"display" => "select",
+		"comment" => "Periodic BSR timer
+At which interval UE should send BSR even if it has no new data.
+Value is in subframes.
+Default is infinity."
+	),
+    
+	"GapType" => array(
+		array("1","2","selected"=>"1"),
+		"display" => "select",
+		"comment" => "Parameter Ngap from DCI, currently set as system wide configuration; corresponds to Ngap,1/Ngap,2"
+	),
+)
 ),
 
 
 "access_channels" => array(
-/*"pdsch" => array(
-     // This params will be sent in "basic" section when sending request to API
-
-    'Pdsch.RefPower' => array(
-	"value" => -20,
-	"comment" => 'Reference Signal Power in dB ("referenceSignalPower" in SIB2)
-Allowed values -60 .. 50. Default -20.',
-	"validity" => array("check_field_validity",-60,50)
-    ),
-),*/
 
 "pusch" => array(
     // This params will be sent in "basic" section when sending request to API
 
-    "Pusch.Qam64" => array(
-	"value" => false,
-	"display" => "checkbox",
-	"comment" => 'Allow use of QAM64 in uplink ("enable64QAM" in SIB2). Default false.'
-    ),
-
-    "Pusch.CyclicShift" => array(
-	array("0","1","2","3","4","5","6","7","selected"=>"3"),
+    "cyclicShift" => array(
+	array("0","1","2","3","4","5","6","7","selected"=>"0"),
 	"display" => "select",
-	"comment" => 'Reference Signal Cyclic Shift ("cyclicShift" in SIB2). Default 3.'
+	"comment" => 'Base cyclic shift for PUSCH DMRS, 36.211 5.5.2.1.1. Default 0.'
     ),
+    
+    "p0_NominalPUSCH" => array(
+	"value" => -70,
+	"comment" => "Expected UL RSSI power on PUSCH in dBm. Default -70.",
+	"validity" => array("check_field_validity",-126,24)
+    )
 ),
 
 "pucch" => array(
     // This params will be sent in "basic" section when sending request to API
 
-    "Pucch.Delta" => array(
+    "deltaPUCCH-Shift" => array(
 	array("1","2","3","selected"=>"1"),
 	"display" => "select",
 	"comment" => 'Delta Shift ("deltaPUCCH_Shift" in SIB2). Default 1.'
     ),
 
-    "Pucch.RbCqi" => array(
+    "nRB-CQI" => array(
 	"value" => 3,
-	"comment" => 'Bandwidth available for use by PUCCH formats 2/2a/2b, in RBs ("nRB_CQI" in SIB2)
-Allowed values 0..98, but must not exceed number of RBs in system bandwidth
-Larger values support larger number of connect UEs at the expense of uplink BW.
+	"comment" => 'PUCCH resource for CQI reporting
+Allowed values: 1 .. (number of RB - 2)
 Default 3.',
 	"validity" => array("check_field_validity",0,98)
     ),
 
-    "Pucch.CsAn" => array(
-	array("0","1","2","3","4","5","6","7","selected"=>"7"),
+    "nCS-An" => array(
+	array("0","1","2","3","4","5","6","7","selected"=>"5"),
 	"display" => "select",
-	"comment" => 'Number of cyclic shifts used for PUCCH formats 1/1a/1b in a resource block with a mix of formats 1/1a/1b and 2/2a/2b ("nCS_AN" in SIB2)
-Default 3'
+	"comment" => 'PUCCH cycle shift.
+Allowed values: 0..7, but must also be a multiple of deltaPUCCH-Shift.
+Default is 5.'
     ),
 
-    "Pucch.An" => array(
-	"value" => "0",
-	"column_name" => "Resource allocation offset",
-	"comment" => 'Resource allocation offset parameter ("n1PUCCH_AN" in SIB2)
-Allowed values 0..2047. Default 45',
-	"validity" => array("check_field_validity",0,2047)
+    "srPeriodicity" => array(
+	array("5", "10", "20", "40", "80", "2", "1","selected"=>"10"),
+	"display" => "select",
+	"comment" => "PUCCH Scheduling Request Periodicity in subframes. 
+Default 10."
+    ),
+
+    "p0_NominalPUCCH" => array(
+	"value" => -96,
+	"comment" => "Expected UL RSSI power in PUCCH in dBm.
+Range -127 to -96.
+Default -96",
+	"validity" => array("check_field_validity",-127,-96)
     )
 ),
 "prach" => array(
     // This params will be sent in "basic" section when sending request to API
-
-	"Prach.RootSequence" => array(
+    
+    "rootSequenceIndex" => array(
 	"value" => "0",
-	"comment" => 'Root Sequence Index ("rootSequenceIndex" in SIB2)
+	"comment" => 'PRACH Root Sequence Index
 Cells with overlapping coverage should have different values.
-Allowed values 0..837',
-	"validaty" => array("check_field_validity", 0, 837)
+Allowed values 0..837.
+Default value taken from PHY CID.',
+	"validity" => array("check_field_validity", 0, 837)
     ),
 
-    "Prach.FreqOffset" => array(
+    "prach-FreqOffset" => array(
 	"value" => 0,
-	"comment" => 'Frequency Offset ("prach_ConfigIndex" in SIB2)
-Cells with overlapping coverage should have different values.
-Allowed values 0..94',
+	"comment" => 'PRACH frequency offset in the uplink resource grid.
+In units of resource blocks.
+Allow values are 0 .. (number of RBs - 6)
+Default is 0.',
 	"validity" => array("check_field_validity", 0, 94)
     ),
-
-    "Prach.Preambles" => array(
+    
+    "numberOfRA-Preambles" => array(
 	array("4","8","12","16","20","24","28","32","36","40","44","48","52","56","60","64","selected"=>"4"),
 	"display" => "select",
-	"comment" => 'Number of PRACH preambles ("numberOfRA_Preambles" in SIB2)
-Allowed values multiples of 4, 4..64. Default 4.
-Larger values reduce PRACH contention at the expense of computational load.'
+	"comment" => 'Number of PRACH preambles to use.
+Default 4.'
     ),
-
-    "Prach.PowerStep" => array(
-	array("0","2","4","6","selected"=>"4"),
+    
+    "preambleInitialReceivedTargetPower" => array(
+	array("-120", "-118", "-116", "-114", "-112", "-110", "-108", "-106", "-104", "-102", "-100", "-98", "-96", "-94", "-92", "-90", "selected" => "-90"),
 	"display" => "select",
-	"comment" => 'Power ramping step, dB ("powerRampingStep" in SIB2)'
-    ),
-
-    "Prach.InitialTarget" => array(
-	array("-90","-92", "-94", "-96", "-98", "-100", "-102", "-104", "-106", "-108", "-110", "-112", "-114", "-116", "-118", "-120", "selected" => "-90"),
-    "display" => "select",
 	"column_name" => 'Initial RSSI Target',
-	"comment" => 'Initial RSSI Target, dBm ("preambleInitialReceivedTargetPower" in SIB2)
+	"comment" => 'Initial target RSSI for PRACH transmissions in dBm.
 Allows values multiples of 2, -90 .. -120. Default -90.',
     ),
-
-    "Prach.TransMax" => array(
-	array("3","4","5","6","7","8","10","20","50","100","200", "selected"=>"200"),
-	"display" => "select",
-	"column_name" => "Maximum transmissions",
-	"comment" => 'Maximum transmissions ("preambleTransMax" in SIB2)'
-    ),
-
-    "Prach.ResponseWindow" => array(
-	array(/*"2","3","4","5","6","7","8",*/"10","selected"=>"10"),
-	"display" => "select",
-	"comment" => 'Response window size in subframes ("ra_ResponseWindowSize" in SIB2)
-Allowed values 2..8, 10 (not 9) by the spec,
-but we only support value 10.'
-    ),
-
-    "Prach.ContentionTimer" => array(
-	array("8","16","24","32","40","48","56","64","selected"=>"64"),
-	"display" => "select",
-	"comment" => 'Contention Resolution Timer in subframes ("mac_ContentionResolutionTimer" in SIB2)'
-    ),
-
-    "Prach.ConfigIndex" => array(
+    
+    "prach-ConfigIndex" => array(
 	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15", "selected"=>"0"),
 	"display" => "select",
-	"comment" => 'Configuration Index ("prach_ConfigIndex" in SIB2)',
-	//"validity" => array("check_field_validity",0,63)  // prev validation and valid range
+	"comment" => 'PRACH configuration index
+Determines how often the UE is allowed to send PRACH.
+3GPP 36.211 Table 5.7.1-2 (FDD) or Tables 5.7.1-3, 4 (TDD)'
     ),
-
-    "Prach.ZeroCorr" => array(
+    
+    "zeroCorrelationZoneConfig" => array(
 	array("0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","selected"=>"7"),
 	"display" => "select",
-	"comment" => 'Zero Correlation Zone ("zeroCorrelationZoneConfig" in SIB2)'
+	"comment" => 'PRACH zero correlation zone configuration
+Larger cell radius requires larger values.
+3GPP 36.211 5.7.2-2
+Allowed values: 0, 1..15.
+Values 1..15 correspond to cell radius of 0.8 - 58.9 km, but it is not a linear range; see the table.
+Value 0 is a special case that forces each PRACH preamble to have a unique root sequence index,
+which allows for any cell radius.
+Default value of 7 (4.4 km)'
     ),
+    
+    "PrachThreshold-dB" => array(
+	array("15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","selected"=>"20"),
+	"display" => "select",
+	"comment" => "PRACH post-filter SNR detection threshold in dB
+Negative threshold enables a debugging feature that steps up the threshold with each detection event.
+Allowed range 15-30 dB.
+Default is 20 dB."
+    )
 ),
 
 "pdcch" => array(
     "CFI" => array(
 	array("1","2","3","selected"=>"2"),
 	"display" => "select",
-	"comment" => "Control format indicator
-Determines available bandwidth for the PDCCH."
+	"comment" => "Control format indicator (from PCFICH)
+Controls number of symbols used for PDCCH."
     ),
 
     "Ng" => array(
@@ -1023,13 +705,13 @@ Determines bandwidth used for PHICH, affects available bandwidth for PDCCH."
     ),
 
     "PdcchFormat" => array(
-	array("0","1","2","3","selected"=>"2"),
+	array("2","3","selected"=>"2"),
 	"display" => "select",
-	"comment" => "PDCCH format as specified in TS 136.211 Table 6.8.1-1
-Also called the aggregation level.
-Large aggregation level gives more robust PDCCH transmission,
-at the expense of PDCCH capacity."
+	"comment" => "PdcchFormat, 3GPP 36.211 Table 6.8.1-1
+Aggregation level in PDCCH is 2^format.
+Default is 2."
     ),
+
 )
 ),
 
@@ -1160,6 +842,20 @@ Allowed integer range: 0 - 100. Default value: 0."
 	"comment" => "The number of subframes to use for traffic simulation.
 Traffic simulator uses this many subframes, starting from subframe 0."
     ),
+    
+    "SimulatePdschTraffic" => array(
+	array("0", "1023", "31", "301", "602", "selected"=>"0"),
+	"display" => "select",
+	"comment" => "PDSCH traffic simulator
+Fills free PDSCH elements with random QPSK symbols in selected subframes.
+Control is a bit mask. If bit N is set in the mask, fill subframe N.
+If configured, this feature is active even if PdschEnabled is false.
+Default is 0 - no simulated traffic.
+1023 - all 10 subframes
+31 - first 5 subframes
+301 - every even subframe
+602 - every odd subframe"
+    ),
 
     "____" => array(
 	"value" => "Channel controls for testing
@@ -1263,7 +959,6 @@ Default is yes for all.
     )
 )
 )
-
 );
 
 	foreach ($enodeb_params as $section=>$subsections) {

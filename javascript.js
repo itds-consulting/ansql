@@ -1035,7 +1035,7 @@ function set_cellid_dependencies()
 
 	var pucchDelta = document.getElementById("Pucch.Delta").value;
 	var cellid = 3*parseInt(nid1) + parseInt(nid2);
-	var prachRootSequence = cellid + get_rand_int(0, 334); 
+	var rootSequenceIndex = cellid + get_rand_int(0, 334); 
 //	var prachFreqOffset = cellid % 95;
 	var puschRefSignalGroup = cellid % 30;
 	var puschCyclicShift = cellid % 8;
@@ -1048,7 +1048,7 @@ function set_cellid_dependencies()
 	else if (pucchDelta == 3)
 		var pucchCsAn = 3*(cellid%3);
 */
-	document.getElementById("Prach.RootSequence").value = prachRootSequence;
+	document.getElementById("rootSequenceIndex").value = rootSequenceIndex;
 //	document.getElementById("Prach.FreqOffset").value = prachFreqOffset;
 	document.getElementById("Pusch.RefSigGroup").value = puschRefSignalGroup;
 	document.getElementById("Pusch.CyclicShift").value = puschCyclicShift;

@@ -50,12 +50,12 @@ class EnbTabbedSettings extends TabbedSettings
 		//The key is the MENU alias the sections from $fields 
 		//and for each menu is an array that has the submenu data with subsections 
 		$structure = array(
-			"Radio" => array("EnodeB", "Bearers"),
+			"Radio" => array("EnodeB"/*, "Bearers"*/),
 			"Core" => array("GTP", "MME"/*, "S1AP"*/),
 			"Access channels" => array("PRACH",/* "PDSCH",*/ "PUSCH", "PUCCH", "PDCCH"),
 
 			"Hardware" => array("Site info", "Site equipment", "Shutdown"),
-			"System" => array("System information", "Advanced", "Scheduler", "RadioHardware", "Measurements"),
+			"System" => array("System information", "Scheduler"/*, "Advanced", "RadioHardware", "Measurements"*/),
 		);
 
 		if ($developers_tab)
@@ -75,7 +75,7 @@ class EnbTabbedSettings extends TabbedSettings
 		$desc = array(
 			"enodeb" => "These are the most basic configuration parameters and the ones most likely to be changed.<br/><br/>
 They are gathered in this section to make them easy to find.", //basic section from file
-			"bearers" => "Bearer parameters (RLC and PDCP layers)",
+		//	"bearers" => "Bearer parameters (RLC and PDCP layers)",
 
 			"gtp" => "S1-U interface parameters",
 			
@@ -90,10 +90,10 @@ They are gathered in this section to make them easy to find.", //basic section f
 		    dscp = expedited",
 
 			"scheduler" => "Parameters related to the MAC scheduler",
-			"advanced" => "Here, \"advanced\" just means parameters that are not normally changed.  \n
-		    It is not a reference to LTE-Advanced features.",
-			"measurements" => "KPI-related performance measurements",
-			"radiohardware" => "Control parameters for the lower PHY",
+		/*	"advanced" => "Here, \"advanced\" just means parameters that are not normally changed.  \n
+		    It is not a reference to LTE-Advanced features.",*/
+		//	"measurements" => "KPI-related performance measurements",
+		//	"radiohardware" => "Control parameters for the lower PHY",
 
 			"site_info" => "Site specific information.",
 			"site_equipment" => "This is an area for customer-specific parameters for other site equipment,
@@ -276,7 +276,7 @@ This parameters are ignored in Labkit units."
 		$unack_fields = array("rlcSnFieldLength" ,"rlcTReordering");
 
 		// unset triggered_by for SRB depending on selected mode
-		for ($i=1; $i<3; $i++) {
+/*		for ($i=1; $i<3; $i++) {
 			if (strlen(getparam("Srb$i.mode")))
 				$srb_mode = getparam("Srb$i.mode");
 			elseif (isset($fields["radio"]["bearers"]["Srb$i.mode"][0]["selected"]))
@@ -292,7 +292,7 @@ This parameters are ignored in Labkit units."
 			for ($j=0; $j<count($trigger); $j++) {
 				unset($fields["radio"]["bearers"]["Srb$i.".$trigger[$j]]["triggered_by"]);
 			}
-		}
+		}*/
 
 		if (strlen($custom_site_equipment))
 			$fields["hardware"]["site_equipment"]["custom_parameters"]["value"] = $custom_site_equipment;
