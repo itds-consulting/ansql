@@ -4525,6 +4525,20 @@ function display_query_stats($query_stats, $product_name)
 	}
 
 	$stats = $query_stats["stats"];
+	if ($product_name == 'Yate-SDR') {
+		$stats_order = array("engine","uptime","bladerf","mbts","sip","yrtp","ybts");
+
+		foreach ($stats_order as $k=>$stat_nm) {
+			if (isset($stats[$stat_nm])) {
+				$reordered_stats[$stat_nm] = $stats[$stat_nm];
+				unset($stats[$stat_nm]);
+			}
+		}
+
+		$new_stats = array_merge($reordered_stats, $stats);
+		$stats = $new_stats;
+	}
+
 	$length = 1;
 	foreach ($stats as $stat_name=>$stat_props) {
 		if ($stat_name != "engine") {
@@ -4536,6 +4550,8 @@ function display_query_stats($query_stats, $product_name)
 	$display_splitted_count = 8;
 	$table_css = 'query_stats';
 	$td_css = 'container_qs';
+	$i = 0;
+	$j = 0;
 	
 	print "<table class='container_query_stats' cellspacing='0' cellpadding='0'>";
 	print "<tr>";
@@ -4543,7 +4559,14 @@ function display_query_stats($query_stats, $product_name)
 		print "<td class='$td_css'>";
 		display_stats_format(count($stat_props),$display_splitted_count,$stat_props,$stat_name,$table_css,$length);
 		print "</td>";
+		$i++;
+		if ($i==(4+$j)) {
+			print "</tr><tr><td></td>";
+			$td_css = 'container_right_modif';
+			$j=$j+3;
+		}
 	}
+	print "</tr>";
 	print "</table>";
 }
 
@@ -4554,6 +4577,8 @@ function display_splitted_props($stats,$stat_name, $display)
 	print "<table class='$display $stat_name' cellspacing='0' cellpadding='0'>";
 	print "<tr> <td class='prop_lev1'>".$stat_name." </td></tr>";
 	foreach ($stats as $prop=>$val) {
+		$val = ($val===false) ? "false" : $val;
+		$val = ($val===true) ? "true" : $val;
 		if ($i==0 || $i==$half_stats-1)
 			print "<tr>";
 		print "<td class='cat_prop2'>".$prop."</td>";
@@ -4567,67 +4592,58 @@ function display_splitted_props($stats,$stat_name, $display)
 
 function display_hlr($stats)
 {
-	$split_stats["left"] = array("engine","uptime");
-
+	// reorder query_stats received from api
 	$max_length = 1;
 	foreach ($stats as $prop=>$details) {
-		if (preg_match("/map/",$prop)) {
-			$split_stats["right"]["line2"][] = $prop;
+		if (preg_match("/engine/",$prop)) {
+			$split_stats["line1"]["engine"]=$details;
+		} elseif (preg_match("/uptime/",$prop)) {
+			$split_stats["line2"]["uptime"]=$details;
+		} elseif (preg_match("/map/",$prop)) {
+			$split_stats["line2"][$prop] = $details;
 			$max_length = isset($length["line2"]) ? $length["line2"] : $max_length;
 			if (count($details)>$max_length)
 				$length["line2"] = count($details);
 		} elseif (preg_match("/diam/",$prop)) {
-			$split_stats["right"]["line3"][] = $prop;
+			$split_stats["line3"][$prop] = $details;
 			$max_length = isset($length["line3"]) ? $length["line3"] : $max_length;
 			if (count($details)>$max_length)
 				$length["line3"] = count($details);
 		} elseif (preg_match("/sig/",$prop)) {
-			$split_stats["right"]["line4"][] = $prop;
+			$split_stats["line4"][$prop] = $details;
 			$max_length = isset($length["line4"]) ? $length["line4"] : $max_length;
 			if (count($details)>$max_length)
 				$length["line4"] = count($details);
 		} elseif (preg_match("/hss/",$prop)) {
-			$split_stats["right"]["line1"][] = $prop;
+			$split_stats["line1"][$prop] = $details;
 			$max_length = isset($length["line1"]) ? $length["line1"] : $max_length;
 			if (count($details)>$max_length)
 				$length["line1"] = count($details);
 		} else {
-			$split_stats["right"]["line5"][] = $prop;
+			$split_stats["line5"][$prop] = $details;
 			$max_length = isset($length["line5"]) ? $length["line5"] : $max_length;
 			if (count($details)>$max_length)
 				$length["line5"] = count($details);
 		}
 	}
-
+	$display_splitted_count = 8;
+    $table_css = 'query_stats';
+    $td_css = 'container_qs';
 	print "<table class='container_query_stats' cellspacing='0' cellpadding='0'>";
 	print "<tr>";
-	foreach ($split_stats as $position=>$prop_names) {
-		$td_css = 'container_qs_'.$position;
-		print "<td class='$td_css'>";
-		display_stats_hlr($prop_names, $position, $stats, $length);
-		print "</td>";
+	foreach ($split_stats as $line=>$stats) {
+			print "<tr>";
+			if ($line!="line1" || ($line=="line2" && !array_key_exists("uptime", $split_stats[$line])))
+				print "<td class='$td_css'>&nbsp;</td>";
+			foreach ($stats as $stat_name=>$stat_props) {
+				print "<td class='$td_css'>";
+				display_stats_format(count($stat_props),$display_splitted_count,$stat_props,$stat_name,$table_css,$length[$line]);
+				print "</td>";
+			}
+			print "</tr>";
 	}
 	print "</tr>";
 	print "</table>";
-}
-
-function display_stats_hlr($prop_names, $position, $stats, $length)
-{
-	foreach ($prop_names as $k=>$props) {
-
-		if (is_array($props)) {
-			print "<table class='stats_subcat' cellspacing='0' cellpadding='0'>";
-			print "<tr>";
-			foreach ($props as $k=>$prop) {
-				print "<td class='container_qs'>";
-				display_stats_format(count($stats[$prop]),8,$stats[$prop],$prop,"query_stats column_right",$length[$k]);
-				print "</td>";
-
-			}
-		} else {
-			display_stats_format(count($stats[$props]),8,$stats[$props],$props, "query_stats column_left",1);
-		}
-	}
 }
 
 function display_stats_format($stats_length, $max_columns, $cat_props, $prop, $table_css,$max_length)
@@ -4636,21 +4652,6 @@ function display_stats_format($stats_length, $max_columns, $cat_props, $prop, $t
 		display_splitted_props($cat_props, $prop, $table_css);
 	else
 		display_cat_prop($cat_props, $prop, $table_css,$max_length);
-}
-
-function display_props_inline($stat_props)
-{
-	$sign = "";
-	print "<table class='stats_subcat' cellspacing='0' cellpadding='0'>";
-	print "<tr>";
-	print "<td class='cat_lev2'>";
-	foreach ($stat_props as $stat_name=>$stat_val) {
-		print $sign .$stat_name.": ". $stat_val;
-		$sign = ", ";
-	}
-	print "</td>";
-	print "</tr>";
-	print "</table>";
 }
 
 function display_cat_prop($stat_props,$stat_name,$display,$max_length)
@@ -4664,6 +4665,10 @@ function display_cat_prop($stat_props,$stat_name,$display,$max_length)
 		print $stat_name;
 		print "</td>";
 		print "<td class='prop_lev2'>";
+		if ($stat_val === true)
+			$stat_val = "true";
+		elseif ($stat_val === false)
+			$stat_val = "false";
 		print $stat_val;
 		print "</td>";
 		print "</tr>";

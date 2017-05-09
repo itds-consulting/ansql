@@ -418,11 +418,11 @@ function node_status()
 	$res = make_request(array(),"get_node_status");
 
 	if ($res["code"] != 0)
-		return array("state"=>$res["message"], "color"=>"red", "details"=>false);
+		return array("state"=>html_entity_decode(nl2br($res["message"])), "color"=>"red", "details"=>false);
 
 	$node_status = array(
 		"details"=>true,
-		"state"=>$res["status"]["state"]
+		"state"=> html_entity_decode(nl2br($res["status"]["state"]))
 	);
 
 	if ($res["status"]["operational"]) {
