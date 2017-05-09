@@ -23,7 +23,7 @@ require_once("ansql/sdr_config/check_validity_fields_enb.php");
 
 class EnbTabbedSettings extends TabbedSettings
 {
-	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Band", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex", "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection", "mode", "custom_parameters");
+	protected $allow_empty_params = array("addr4", "addr6", "reportingPath", "radio_driver", "address", "port", "pci", "earfcn", "broadcast", "max_pdu", "AddrSubnet", "AuxRoutingTable", "Name", "streams", "dscp", "UplinkRbs", "UplinkRbStartIndex", "PrachResponseDelay","mme_address_2", "local_2", "streams_2", "dscp_2","mme_address_3", "local_3", "streams_3", "dscp_3","mme_address_4", "local_4", "streams_4", "dscp_4","mme_address_5", "local_5", "streams_5", "dscp_5", "antenna_type", "antenna_serial_number", "antenna_cable_type", "antenna_cable_length", "power_suply_type", "power_suply_serial_number", "location", "siteName", "antennaDirection", "mode", "custom_parameters");
 
 	protected $trigger_names      = array("mme"=>"add_mme_");
 	protected $default_section    = "radio";
@@ -237,7 +237,7 @@ This parameters are ignored in Labkit units."
 							continue;
 						}
 
-						if (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"]=="select") {
+						if (isset($fields[$section][$subsection][$param]["display"]) && ($fields[$section][$subsection][$param]["display"]=="select" || $fields[$section][$subsection][$param]["display"]=="select_without_non_selected")) {
 
 							if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
 								$data = "Factory calibrated";

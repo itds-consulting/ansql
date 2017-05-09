@@ -54,6 +54,7 @@ This value must be set. There is no default.",
 	"column_name" => "Cell Identity",
 	"comment" => "Must 7 digits in length
 Ex: 0000001",
+	"required" => true,
 	"validity" => array("validate_cell_identity")
     ),
 
@@ -66,8 +67,9 @@ See paragraphs 8.7.3.2 and 9.1.8.4 of the above referenced specification.",
     ),
 
     "Band" => array(
-	array("selected"=> "1", "1","2","3","4","5","6","7","8","9","10","11","12","13","14","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44"),
-	"display" => "select_without_non_selected",	
+	array("1","2","3","4","5","6","7","8","9","10","11","12","13","14","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","selected"=> "1"),
+	"display" => "select_without_non_selected",
+	"required" => true,	
 	"comment" => 'Band selection ("freqBandIndicator" in SIB1)
 In most systems, this is set by the hardware type and should not be changed.'
     ),
