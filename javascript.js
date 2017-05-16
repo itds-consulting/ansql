@@ -984,8 +984,10 @@ function toggle_menu()
 		for (var i=0; i<subsections_advanced.length; i++) {
 			if (toggle_content == "Advanced >>") {
 				document.getElementById('tab_'+subsections_advanced[i]).style.display = "none";
+				document.getElementById('space_'+subsections_advanced[i]).style.display = "none";
 			} else {
 				document.getElementById('tab_'+subsections_advanced[i]).style.display = "table-cell";
+				document.getElementById('space_'+subsections_advanced[i]).style.display = "table-cell";
 			}
 		}
 	}

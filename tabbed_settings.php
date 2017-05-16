@@ -636,7 +636,7 @@ abstract class TabbedSettings
 					$hide_subsect = "style='display:none;'";
 
 				print "<div class='submenu_$css' id=\"tab_$link\" $hide_subsect onclick=\"show_submenu_fields('$link')\">" . $name . "</a></div>";
-				print "<div class='submenu_space'>&nbsp;</div>";
+				print "<div class='submenu_space' id=\"space_$link\" $hide_subsect >&nbsp;</div>";
 			}
 			$i++;
 			print '</div>';
