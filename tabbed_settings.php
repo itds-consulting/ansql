@@ -346,6 +346,36 @@ abstract class TabbedSettings
 		}
 	}
 
+	/**
+	 * Sets Calibration fields into request fields format
+	 * to be send to API
+	 */ 
+	function setCalibrationFields(&$fields)
+	{
+		$request_fields = array();
+		if (isset($fields["calibration"])) {
+			$request_fields["general"] = $fields["calibration"];
+			unset($fields["calibration"]);
+		}
+		return $request_fields;
+	}
+
+	/**
+	 * Retrieves Calibration fields from API response and 
+	 * store them into fields values
+	 */ 
+	function storeCalibrationFields(&$response_fields, &$res)
+	{
+		if (isset($response_fields["calibrate"])) {
+			$cal = $response_fields["calibrate"];
+			if (isset($cal["general"])) {
+				$cal = $cal["general"];
+				unset($cal["updated"], $cal["locked"], $cal["mode"]);
+			}
+			$res["calibration"] = $cal; 
+		}
+	}
+
 	/** Graphical methods */
 
 	/**

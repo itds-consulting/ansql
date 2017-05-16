@@ -47,7 +47,7 @@ class BtsTabbedSettings extends TabbedSettings
 		//and for each menu is an array that has the submenu data with subsections 
 
 		$structure = array(
-			"Radio" => array("GSM","GPRS"/*TBI: ,"Bearers"*/, "GSM advanced", "GPRS advanced", "Control"),
+			"Radio" => array("GSM","GPRS"/*TBI: ,"Bearers"*/, "GSM advanced", "GPRS advanced", "Control", "Calibration"),
 			"Core" => array(),
 
 			"Hardware" => array("Site info", "Site equipment", "Shutdown"),
@@ -87,6 +87,7 @@ class BtsTabbedSettings extends TabbedSettings
 			You should review all parameters in this section.",
 			"gprs_advanced" => "Section [gprs_advanced] controls more advanced GPRS features.\n
 			You normally don't need to make changes in this section.",
+			"calibration" => "Parameters used in configuration of radio calibration module.",
 			"ggsn" => "Section [ggsn] has internal GGSN function configuration.\n
 Used in 'GPRS with Local breakout setup'.\n
 Additionally, you need to have  IP Forwarding enabled and to define NAT rule that forwards the data coming from your phones to local internet connection.",
@@ -134,7 +135,8 @@ This parameters are ignored in Labkit units."
 			foreach ($hardware_settings as $section=>$section_def)
 				$res[$section] = $section_def;
 		}
-
+		
+		$this->storeCalibrationFields($response_fields, $res);
 		return $res;
 	}
 
@@ -284,7 +286,7 @@ This parameters are ignored in Labkit units."
 		//if no errors encountered on validate data fields then send API request
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
 
-		$c0 = $fields['gsm']['Radio.C0'];
+				$c0 = $fields['gsm']['Radio.C0'];
 		$c0 = explode("-",$c0);
 		$c0 = $c0[1];
 		$fields['gsm']['Radio.C0'] = $c0;
@@ -336,6 +338,8 @@ This parameters are ignored in Labkit units."
 			}
 			unset($fields["sdr"]["site_equipment"]["custom_parameters"]);
 		}
+		
+		$fields["calibrate"] = $this->setCalibrationFields($fields["ybts"]);
 
 		$res = make_request($fields, "set_bts_node");
 

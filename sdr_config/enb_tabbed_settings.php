@@ -50,7 +50,7 @@ class EnbTabbedSettings extends TabbedSettings
 		//The key is the MENU alias the sections from $fields 
 		//and for each menu is an array that has the submenu data with subsections 
 		$structure = array(
-			"Radio" => array("EnodeB"/*, "Bearers"*/),
+			"Radio" => array("EnodeB", "Calibration"/*, "Bearers"*/),
 			"Core" => array("GTP", "MME"/*, "S1AP"*/),
 			"Access channels" => array("PRACH",/* "PDSCH",*/ "PUSCH", "PUCCH", "PDCCH"),
 
@@ -77,6 +77,7 @@ class EnbTabbedSettings extends TabbedSettings
 They are gathered in this section to make them easy to find.", //basic section from file
 		//	"bearers" => "Bearer parameters (RLC and PDCP layers)",
 
+			"calibration" => "Parameters used in configuration of radio calibration module.", 
 			"gtp" => "S1-U interface parameters",
 			
 			"mme" => "Hand-configured MME. \n
@@ -180,6 +181,8 @@ This parameters are ignored in Labkit units."
 			if (!isset($res["general"]["mode"]))
 				$res["general"]["mode"] = "";
 		}
+
+		$this->storeCalibrationFields($response_fields, $res);
 
 		return $res;
 	}
@@ -347,6 +350,7 @@ This parameters are ignored in Labkit units."
 			$developers_tab = false;
 
 		$request_fields = array("yateenb"=>array("basic"=>array()));//, "gtp"=>array());
+		$request_fields["calibrate"] = $this->setCalibrationFields($fields);
 
 		$basic_sections = array("enodeb","system_information"/*,"pdsch"*/,"pusch","pucch","prach","pdcch");
 		foreach ($basic_sections as $basic_section) {

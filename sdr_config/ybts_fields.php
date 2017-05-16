@@ -496,8 +496,7 @@ Set to 0 to disable periodic registration.
 Should be smaller than SIP registration period.
 Allowed interval 0:1530(6)
 Defaults to 24."
-			)
-
+			),
 		),
 		"gprs" =>array(
 			"Enable" => array(
@@ -909,6 +908,20 @@ Defaults to 0"
 				"comment" => "Nonresponsive downlink TBF resource release timer, in milliseconds. See GSM04.60 Section 13
 Interval allowed 2500:7500(100)
 Defaults to 5000"
+			)
+		),
+		"calibration" => array(
+			"auto_calibration" => array(
+				"display" => "checkbox",
+				"value" => "off",
+				"comment" => "Enable auto calibration.
+This parameter is applied on reload."
+			),
+			"freqoffs_calibration" => array(
+				"display" => "checkbox",
+				"value" => "off",
+				"comment" => "Enable frequency offset calibration.
+This parameter is applied on reload."
 			)
 		)
 	);

@@ -182,6 +182,20 @@ but limits resource allocations to 16 RBs (2.88 MHz) in systems
 with LTE bandwidth of > 5 MHz.
 Default is false.",
     )
+),
+"calibration" => array(
+	"auto_calibration" => array(
+	"display" => "checkbox",
+	"value" => "off",
+	"comment" => "Enable auto calibration.
+This parameter is applied on reload."
+    ),
+	"freqoffs_calibration" => array(
+	"display" => "checkbox",
+	"value" => "off",
+	"comment" => "Enable frequency offset calibration.
+This parameter is applied on reload."
+    )
 )
 ),
 
