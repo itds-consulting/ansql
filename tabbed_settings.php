@@ -35,6 +35,7 @@ abstract class TabbedSettings
 	protected $menu_css             = "menu";
 	protected $skip_special_params = array();
 	protected $detected_invalidities_message = "";
+	protected $validated_fields = false;
 
 	protected $title;
 
@@ -62,6 +63,11 @@ abstract class TabbedSettings
 
 	//returns the modified value of the fields
 	abstract function buildParticularParam($data=null,$param=null,$request_fields=array());
+
+	//clean session data
+	function cleanSession() 
+	{
+	}
 
 	// Validate form result. Use field definition to do this: select/checkbox/Factory calibrated param/or call function to make callback specified in "validity" in field format
 	// Returns array(true/false, "fields"=>.. (fields to build form), "request_fields"=> .. (fields to be sent to API or written to file)
@@ -287,6 +293,12 @@ abstract class TabbedSettings
 	 */ 
 	function detectInvalidFields($structure,&$request_fields,$default_fields)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+
+		if ($this->validated_fields || getparam('action')=="database")
+			return;
+		$this->validated_fields = true;
+
 		foreach ($structure as $section=>$data) {
 			foreach ($data as $key=>$subsection) {
 				if (isset($request_fields[$subsection])) {
@@ -352,6 +364,8 @@ abstract class TabbedSettings
 	 */ 
 	function setCalibrationFields(&$fields)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+
 		$request_fields = array();
 		if (isset($fields["calibration"])) {
 			$request_fields["general"] = $fields["calibration"];
@@ -366,6 +380,8 @@ abstract class TabbedSettings
 	 */ 
 	function storeCalibrationFields(&$response_fields, &$res)
 	{
+		Debug::func_start(__METHOD__,func_get_args(),"tabs");
+
 		if (isset($response_fields["calibrate"])) {
 			$cal = $response_fields["calibrate"];
 			if (isset($cal["general"])) {
@@ -736,6 +752,7 @@ abstract class TabbedSettings
 					message("Warning! " . $this->warnings, "no");
 				$this->editForm($this->current_section, $this->current_subsection, $this->error, $error_fields);
 			} else {
+				$this->cleanSession();
 				$message = (!$fields_modified) ? "Finished editing sections. Nothing to update." : "Finished applying configuration.";
 				print "<div id=\"notice_" . $this->current_subsection . "\">";
 				message($message, "no");

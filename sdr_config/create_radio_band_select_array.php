@@ -1003,6 +1003,9 @@ INVALID|PCS1900
 	$band = array(850,900,1800,1900);
 	$index_particle = 0;
 
+	if (getparam("Radio_Band"))
+		$_SESSION["Radio.Band"] = getparam("Radio_Band");
+	$radio_band = (isset($_SESSION["Radio.Band"])) ? $_SESSION["Radio.Band"] : "850";
 	for ($j=0; $j<$count_options;$j++) {
 		$val_opt = $expl_valid[$j];
 		$expl_val_opt = explode("|",$val_opt);
@@ -1014,9 +1017,12 @@ INVALID|PCS1900
 			$opt_name = "------- $opt_name -------";
 			$particle = $band[$index_particle];
 			$index_particle++;
-			$vals[] = array($key."_id"=>"$expl_val_opt[0]",$key=>"$opt_name");
-		} else
-			$vals[] = array($key."_id"=>"$particle-$expl_val_opt[0]",$key=>"$opt_name");
+			if ($particle==$radio_band)
+				$vals[] = array($key."_id"=>"$expl_val_opt[0]",$key=>"$opt_name");
+		} else {
+			if ($particle==$radio_band)
+				$vals[] = array($key."_id"=>"$particle-$expl_val_opt[0]",$key=>"$opt_name");
+		}
 	}
 	return $vals;
 }

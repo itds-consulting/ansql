@@ -46,14 +46,15 @@ function get_default_fields_ybts()
 		"gsm" => array(
 			"Radio.Band"=>	array( 
 				array(array("Radio.Band_id"=>"850", "Radio.Band"=>"GSM850"), array("Radio.Band_id"=>"900", "Radio.Band"=>"EGSM900"),array("Radio.Band_id"=> "1800", "Radio.Band"=>"DCS1800"),array("Radio.Band_id"=>"1900", "Radio.Band"=>"PCS1900")),
-				"display" => "select",
+				"display" => "select_without_non_selected",
+				"javascript" => "onchange=\"make_request('pages.php?method=get_selected_band&radio_band='+this.value, {name: callback_request, param:'Radio.C0'})\"",
 				"comment" => "The GSM operating band.
 Valid values are 850 (GSM850), 900 (PGSM900), 1800 (DCS1800) and 1900 (PCS1900).
 For non-multiband units, this value is dictated by the hardware and should not be changed."
 			),
 			"Radio.C0" => array( 
 				$radio_c0,
-				"display" => "select",
+				"display" => "select_without_non_selected",
 				"comment" => "The C0 ARFCN. Also the base ARFCN for a multi-ARFCN configuration.Valid values depend on the selected Radio.Band.
   GSM850: 128..251.
   EGSM900: 0..124 or 975..1023.

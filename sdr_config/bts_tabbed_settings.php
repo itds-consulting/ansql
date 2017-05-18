@@ -135,6 +135,9 @@ This parameters are ignored in Labkit units."
 			foreach ($hardware_settings as $section=>$section_def)
 				$res[$section] = $section_def;
 		}
+
+		if (isset($res["gsm"]["Radio.Band"]))
+			$_SESSION["Radio.Band"] = $res["gsm"]["Radio.Band"];
 		
 		$this->storeCalibrationFields($response_fields, $res);
 		return $res;
@@ -217,7 +220,7 @@ This parameters are ignored in Labkit units."
 							continue;
 						}
 						
-						if (isset($fields[$section][$subsection][$param]["display"]) && $fields[$section][$subsection][$param]["display"] == "select") {
+						if (isset($fields[$section][$subsection][$param]["display"]) && ($fields[$section][$subsection][$param]["display"] == "select" || $fields[$section][$subsection][$param]["display"] == "select_without_non_selected")) {
 							if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
 								$data = "Factory calibrated";
 							$fields[$section][$subsection][$param][0]["selected"] = $data;
@@ -286,7 +289,7 @@ This parameters are ignored in Labkit units."
 		//if no errors encountered on validate data fields then send API request
 		Debug::func_start(__METHOD__, func_get_args(), "tabs_bts");
 
-				$c0 = $fields['gsm']['Radio.C0'];
+		$c0 = $fields['gsm']['Radio.C0'];
 		$c0 = explode("-",$c0);
 		$c0 = $c0[1];
 		$fields['gsm']['Radio.C0'] = $c0;
@@ -372,6 +375,12 @@ This parameters are ignored in Labkit units."
 			return array(true);
 		}
 	}
+
+	function cleanSession()
+	{
+		unset($_SESSION['Radio.Band']);
+	}
+	
 }
 
 ?>
