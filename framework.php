@@ -714,8 +714,13 @@ class Database
 					$type = "int4";
 				if ($type == "bigserial")
 					$type = "int8";
-				if ($type == "bigint(20) unsigned not null auto_increment")  
-					$type = "bigint(20)";
+				if ($type == "bigint(20) unsigned not null auto_increment") {
+					if ($db_type!="mysql" || strlen($var->_key)) {
+						$type = "bigint(20)";
+					} else {
+						$type .= ", ADD primary key ($name)";
+					}
+				}
 
 				Debug::Output('dbstruct', _("No field")." '$name' "._("in table")." '$table'".(", we'll create it"));
 
