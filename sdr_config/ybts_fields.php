@@ -48,6 +48,7 @@ function get_default_fields_ybts()
 				array(array("Radio.Band_id"=>"850", "Radio.Band"=>"GSM850"), array("Radio.Band_id"=>"900", "Radio.Band"=>"EGSM900"),array("Radio.Band_id"=> "1800", "Radio.Band"=>"DCS1800"),array("Radio.Band_id"=>"1900", "Radio.Band"=>"PCS1900")),
 				"display" => "select_without_non_selected",
 				"javascript" => "onchange=\"make_request('pages.php?method=get_selected_band&radio_band='+this.value, {name: callback_request, param:'Radio.C0'})\"",
+				"required" => true,
 				"comment" => "The GSM operating band.
 Valid values are 850 (GSM850), 900 (PGSM900), 1800 (DCS1800) and 1900 (PCS1900).
 For non-multiband units, this value is dictated by the hardware and should not be changed."
@@ -61,11 +62,13 @@ For non-multiband units, this value is dictated by the hardware and should not b
   DSC1800: 512..885.
   PCS1900: 512..810.
 THERE IS NO DEFAULT, YOU MUST SET A VALUE HERE!",
+  				"required" => true,
 				"validity" => array("check_radio_band", "Radio_Band")
 			),
 			"Identity.MCC" => array( 
 				"display" => "text",
 				"value" => "001",
+				"required" => true,
 				"comment" => "Mobile country code, must be three digits.
 The value 001 is reserved for for test networks.
 Defaults to 001 (Test Network)",
@@ -74,6 +77,7 @@ Defaults to 001 (Test Network)",
 			"Identity.MNC" => array( 
 				"display" => "text",
 				"value" => "01",
+				"required" => true,
 				"comment" => "Mobile network code, two or three digits.
 The value 01 is usual for test networks with MCC 001.
 Defaults to 01 (Test Network, only in association with Identity.MCC=001)",
@@ -82,6 +86,7 @@ Defaults to 01 (Test Network, only in association with Identity.MCC=001)",
 			"Identity.LAC" => array( 
 				"display" => "text",
 				"value" => "1000",
+				"required" => true,
 				"comment" => "Location area code, 16 bits, values 0xFFxx are reserved.
 For multi-BTS networks, assign a unique LAC to each BTS unit.
 Interval allowed: 0..65280.
@@ -91,6 +96,7 @@ Defaults to 1000 (arbitrary)",
 			"Identity.CI" => array(
 				"display" => "text",
 				"value" => "10",
+				"required" => true,
 				"comment" => "Cell ID, 16 bits, should be unique.
 Interval allowed: 0..65535.
 Defaults to 10 (arbitrary)",
@@ -99,7 +105,8 @@ Defaults to 10 (arbitrary)",
 
 			"Identity.BSIC.BCC"=> array(
 				array("selected"=>"2","0","1","2","3","4","5","6","7"),
-				"display" => "select",
+				"display" => "select_without_non_selected",
+				"required" => true,
 				"comment" => "GSM basestation color code; lower 3 bits of the BSIC.
 BCC values in a multi-BTS network should be assigned so that BTS units with overlapping coverage do not share a BCC.
 This value will also select the training sequence used for all slots on this unit.
@@ -108,22 +115,25 @@ Defaults to 2 (arbitrary).",
 			),
 			"Identity.BSIC.NCC" => array(
 				array("selected"=>"0","0","1","2","3","4","5","6","7"),
-				"display"=> "select",
+				"display"=> "select_without_non_selected",
+				"required" => true,
 				"comment" => "GSM network color code; upper 3 bits of the BSIC.
 Assigned by your national regulator, must be distinct from NCCs of other GSM operators in your area.
 Interval allowed: 0..7. Defaults to 0."
 		 	 ),
 			"Radio.PowerManager.MaxAttenDB" => array( 
 				array("selected" => "10","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80"),
-				"display" => "select",
+				"display" => "select_without_non_selected",
 				"value" => "10",
+				"required" => true,
 				"comment" => "Maximum transmitter attenuation level, in dB wrt full scale on the D/A output.
 This sets the minimum power output level in the output power control loop.
 Interval allowed: 0..80. Defaults to 10 (-10dB)"
 			),
 			"Radio.PowerManager.MinAttenDB" => array( 
 				array("selected" => "0","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80"),
-				"display" => "select",
+				"display" => "select_without_non_selected",
+				"required" => true,
 				"comment" => "Minimum transmitter attenuation level, in dB wrt full scale on the D/A output.
 This sets the maximum power output level in the output power control loop.
 Interval allowed: 0..80, must be less or equal to Radio.PowerManager.MaxAttenDB. 
