@@ -337,14 +337,15 @@ abstract class TabbedSettings
 											$allowed_values[] = $param_val[$param."_id"];
 									}
 									$new_data = $this->buildParticularParam($data, $param, $request_fields);
-									if (!in_array($new_data, $allowed_values)) {
+									if (!in_array($new_data, $allowed_values) && !in_array("Custom", $allowed_values)) {
 										$def_value = (isset($default_fields[$section][$subsection][$param][0]["selected"])) ? $default_fields[$section][$subsection][$param][0]["selected"] : "Not selected";
 										$this->detected_invalidities_message .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ". $def_value ."</br>";
 										$request_fields[$subsection][$param] = $def_value;
 										continue;
 
 									}
-								} elseif (!in_array($data, $default_fields[$section][$subsection][$param][0])) {
+								    } elseif (!in_array($data, $default_fields[$section][$subsection][$param][0]) &&
+									      !in_array("Custom",$default_fields[$section][$subsection][$param][0])) {
 									$def_value = (isset($default_fields[$section][$subsection][$param][0]["selected"])) ? $default_fields[$section][$subsection][$param][0]["selected"] : "Not selected";
 									$this->detected_invalidities_message .= "In $section, $subsection, the parameter: $param=$data. Automatically mapped to: ". $def_value ."</br>";
 									$request_fields[$subsection][$param] = $def_value;
