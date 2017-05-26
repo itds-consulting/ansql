@@ -605,7 +605,12 @@ function dump_session()
 		call_user_func($db_dump_session);
 	else {
 		print "<pre>";
-		var_dump($_SESSION);
+		$copy_session = $_SESSION;
+		$xdebug = $copy_session["xdebug"];
+		unset($copy_session["xdebug"]);
+		var_dump($copy_session);
+		print "xdebug: ";
+		var_dump($xdebug);
 		print "</pre>";
 	}
 }
