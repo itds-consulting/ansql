@@ -797,7 +797,7 @@ function editObject($object, $fields, $title, $submit="Submit", $compulsory_noti
 		}
 		if(!$variable)
 			continue;
-		if (($value && $variable->_type != "bool" && !$hide_advanced) || ($variable->_type == "bool" && ($value=="t" || $value=="1") && !$hide_advanced))
+		if (($value && $variable->_type!="bool" && !$hide_advanced) || ($variable->_type=="bool" && Database::boolValue($value) && !$hide_advanced))
 		{
 			$show_advanced = true;
 			break;
@@ -1039,7 +1039,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 	if (isset($field_format["required"]))
 		$field_format["compulsory"] = $field_format["required"];
 	if (isset($field_format["compulsory"]))
-		if($field_format["compulsory"] === true || $field_format["compulsory"] == "yes" || ($field_format["compulsory"] == "t" || $field_format["compulsory"] == "1") || $field_format["compulsory"] == "true")
+		if($field_format["compulsory"]===true || $field_format["compulsory"]=="yes" || Database::boolValue($field_format["compulsory"]) || $field_format["compulsory"]=="true")
 			print '<font class="compulsory">*</font>';
 	print '&nbsp;</td>';
 	print '<td class="'.$css.' right_td ';
@@ -1181,7 +1181,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "checkbox":
 		case "checkbox-readonly":
 			print '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
-			if ($value == "t" || $value == "on" || $value=="1")
+			if (Database::boolValue($value) || $value=="on")
 				print " CHECKED ";
 			if (isset($field_format["javascript"]))
 				print $field_format["javascript"];
@@ -1647,7 +1647,7 @@ function tableOfObjects($objects, $formats, $object_name, $object_actions=array(
 				$column_value = $objects[$i]->{$var_name};
 				$var = $objects[$i]->variable($use_vars[0]);
 				if($var->_type == "bool") {
-					if($column_value == "t" || $column_value == "1")
+					if (Database::boolValue($column_value))
 						$column_value = $db_true;
 					else
 						$column_value = $db_false;
@@ -3977,9 +3977,9 @@ function display_field($field_name,$field_format,$form_identifier='',$css=null)
 		case "checkbox":
 		case "checkbox-readonly":
 			$res .= '<input class="'.$css.'" type="checkbox" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
-			if($value == "t" || $value == "on" || $value=="1")
+			if (Database::boolValue($value) || $value=="on")
 				$res .= " CHECKED ";
-			if(isset($field_format["javascript"]))
+			if (isset($field_format["javascript"]))
 				$res .= $field_format["javascript"];
 			if ($display=="checkbox-readonly")
 				$res .= " readonly=''";

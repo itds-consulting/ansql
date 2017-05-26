@@ -961,6 +961,13 @@ class Database
 				break;
 		}
 	}
+	
+	public static function boolValue($value)
+	{
+		if ($value==="t" || $value==="1" || $value===1)
+			return true;
+		return false;
+	}
 }
 
 function esc($col)
