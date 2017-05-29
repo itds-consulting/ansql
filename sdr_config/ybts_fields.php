@@ -55,7 +55,7 @@ For non-multiband units, this value is dictated by the hardware and should not b
 			),
 			"Radio.C0" => array( 
 				$radio_c0,
-				"display" => "select_without_non_selected",
+				"display" => "select",
 				"comment" => "The C0 ARFCN. Also the base ARFCN for a multi-ARFCN configuration.Valid values depend on the selected Radio.Band.
   GSM850: 128..251.
   EGSM900: 0..124 or 975..1023.
