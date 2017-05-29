@@ -19,11 +19,9 @@ $enodeb_params = array(
 
     "enodebId" => array(
 	"column_name" => "eNodeB Id",
-	"comment" => "eNodeB ID
-20 bits
+	"comment" =>"eNodeB ID
 Unique to every eNodeB in the network.
-This value is concatinated with the PLMN ID to create a 44-bit global eNodeB identity.
-This value must be set; there is no default.",
+Must be 5 hex digits for a Macro ENB or 7 hex digits for a Home ENB",	
 	"required" => true,
 	"validity"=> array("check_valid_enodebid")
 	),
@@ -52,7 +50,7 @@ This value must be set. There is no default.",
 
     "CellIdentity" => array(
 	"column_name" => "Cell Identity",
-	"comment" => "Must 7 digits in length
+	"comment" => "Must be 7 hex digits
 Ex: 0000001",
 	"required" => true,
 	"validity" => array("validate_cell_identity")

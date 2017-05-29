@@ -21,9 +21,9 @@
 /* validate CellIdentity from [basic] section */
 function validate_cell_identity($field_name, $field_value)
 {
-	if (strlen($field_value)!=7 || !ctype_digit($field_value))
-		return array(false, "Field '" . $field_name . "' is not valid: " . $field_value .". Must be 7 digits in length.");
-
+	if (strlen($field_value)!=7 || !ctype_xdigit($field_value))
+		return array(false, "Field '" . $field_name . "' is not valid: " . $field_value .". Must be 7 hex digits.");
+	
 	return array(true);
 }
 
@@ -33,7 +33,7 @@ function validate_earfcn_band($field_name, $field_value, $restricted_value)
         // the first value is the band and the array is the range of the permitted EARFCNs for each band
 	$permitted_values = array( 
 		"1"  => array(0, 599), "2" => array(600, 1199),
-                "3"  => array(1200, 1949), "4" => array(1950, 2399),
+        "3"  => array(1200, 1949), "4" => array(1950, 2399),
 		"5"  => array(2400, 2649), "6" => array(2650, 2749), 
 		"7"  => array(2750, 3449), "8" => array(3450, 3799), 
 		"9"  => array(3780, 4149), "10" => array(4150, 4749),
@@ -137,9 +137,8 @@ function check_n1PucchAn($field_name, $field_value, $bandwidth)
 
 function check_valid_enodebid($field_name, $field_value)
 {
-	$valid = check_valid_number($field_name, $field_value);
-	if (!$valid[0])
-		return $valid;
+	if ((strlen($field_value)!=5 && strlen($field_value)!=7) || !ctype_xdigit($field_value)) 
+		return array(false, "Field '" . $field_name . "' is not valid: " . $field_value .". Must be 5 or 7 hex digits.");
 
 	return array(true);
 }
