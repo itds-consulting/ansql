@@ -413,9 +413,9 @@ function clean_node_types($installed_nodes)
  * Uses get_node_status API request to get the node status. 
  * Returns array("state":text,"color":red/green/yellow,"details":true/false)
  */ 
-function node_status()
+function node_status($out=array(), $url="get_node_status")
 {
-	$res = make_request(array(),"get_node_status");
+	$res = make_request($out,$url);
 
 	if ($res["code"] != 0)
 		return array("state"=>html_entity_decode(nl2br($res["message"])), "color"=>"red", "details"=>false);

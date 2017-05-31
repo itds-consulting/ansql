@@ -4519,7 +4519,7 @@ function display_query_stats($query_stats, $product_name)
 	if (!isset($query_stats["stats"]))
 		return;
 
-	if ($product_name == 'HLR') {
+	if ($product_name == 'hss') {
 		display_hlr($query_stats["stats"]);
 		return;
 	}
@@ -4541,10 +4541,11 @@ function display_query_stats($query_stats, $product_name)
 
 	$length = 1;
 	foreach ($stats as $stat_name=>$stat_props) {
-		if ($stat_name != "engine") {
-			if (count($stat_props)>$length)
-				$length = count($stat_props);
-		}
+		if ($stat_name == "engine") 
+			continue;
+
+		if (count($stat_props)>$length)
+			$length = count($stat_props);
 	}
 
 	$display_splitted_count = 8;
@@ -4573,32 +4574,42 @@ function display_query_stats($query_stats, $product_name)
 function display_splitted_props($stats,$stat_name, $display)
 {
 	$i=1;
-	$half_stats = count($stats)/2;
 	print "<table class='$display $stat_name' cellspacing='0' cellpadding='0'>";
-	print "<tr> <td class='prop_lev1'>".$stat_name." </td></tr>";
+	print "<tr> <td class='prop_lev1' colspan='4'>".$stat_name." </td></tr>";
 	foreach ($stats as $prop=>$val) {
 		$val = ($val===false) ? "false" : $val;
 		$val = ($val===true) ? "true" : $val;
-		if ($i==0 || $i==$half_stats-1)
+		if ($i%2==1)
 			print "<tr>";
 		print "<td class='cat_prop2'>".$prop."</td>";
 		print "<td class='cat_prop2_desc'>".$val."</td>";
-		if ($i==$half_stats || $i==count($stats) || $i%2==0)
+		if ($i%2==0)
 			print "</tr>";
 		$i++;
 	}
+	if (count($stats)%2!=0)
+		print "<td class='cat_prop2'>&nbsp;</td><td class='cat_prop2_desc'>&nbsp;</td></tr>";
 	print "</table>";
 }
 
+/**
+ * Display hss node stats
+ * The order logic of each line displayed:
+ *    line1: engine, match /hss/: hss_cluster, hss_repair, hss_gtt
+ *    line2: uptime, match /map/: auc_map, hss_map 
+ *    line3: match /diam/: diameter, auc_diam, hss_diam
+ *    line4: match /sig/: sig_routers, sig_links, sig_sccp
+ *    line5: the rest that don't match any of the above
+ */ 
 function display_hlr($stats)
 {
 	// reorder query_stats received from api
 	$max_length = 1;
 	foreach ($stats as $prop=>$details) {
 		if (preg_match("/engine/",$prop)) {
-			$split_stats["line1"]["engine"]=$details;
+			$split_stats["line1"]["engine"] = $details;
 		} elseif (preg_match("/uptime/",$prop)) {
-			$split_stats["line2"]["uptime"]=$details;
+			$split_stats["line2"]["uptime"] = $details;
 		} elseif (preg_match("/map/",$prop)) {
 			$split_stats["line2"][$prop] = $details;
 			$max_length = isset($length["line2"]) ? $length["line2"] : $max_length;
@@ -4637,7 +4648,8 @@ function display_hlr($stats)
 				print "<td class='$td_css'>&nbsp;</td>";
 			foreach ($stats as $stat_name=>$stat_props) {
 				print "<td class='$td_css'>";
-				display_stats_format(count($stat_props),$display_splitted_count,$stat_props,$stat_name,$table_css,$length[$line]);
+				$lgth = isset($length[$line]) ? $length[$line] : $max_length;
+				display_stats_format(count($stat_props),$display_splitted_count,$stat_props,$stat_name,$table_css,$lgth);
 				print "</td>";
 			}
 			print "</tr>";
