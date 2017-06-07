@@ -425,7 +425,19 @@ function node_status($out=array(), $url="get_node_status")
 		"state"=> html_entity_decode(nl2br($res["status"]["state"]))
 	);
 
-	if ($res["status"]["operational"]) {
+	if ($res["status"]["level"]) {
+		$all_colors = array(
+			"green"  => array("NOTE"), 
+			"red"    => array("WARN","FAIL","CRIT"), 
+			"yellow" => array("MILD")
+		);
+		foreach ($all_colors as $color=>$levels) {
+			if (!in_array($res["status"]["level"],$levels))
+				continue;
+			$node_status["color"] = $color;
+		}
+
+	} elseif ($res["status"]["operational"]) {
 		$node_status["color"] = "green";
 	} else {
 		$node_status["color"] = "red";
