@@ -67,7 +67,7 @@ THERE IS NO DEFAULT, YOU MUST SET A VALUE HERE!",
 			),
 			"Identity.MCC" => array( 
 				"display" => "text",
-				"value" => "001",
+				"value" => "",
 				"required" => true,
 				"comment" => "Mobile country code, must be three digits.
 The value 001 is reserved for for test networks.
@@ -76,7 +76,7 @@ Defaults to 001 (Test Network)",
 			),
 			"Identity.MNC" => array( 
 				"display" => "text",
-				"value" => "01",
+				"value" => "",
 				"required" => true,
 				"comment" => "Mobile network code, two or three digits.
 The value 01 is usual for test networks with MCC 001.
