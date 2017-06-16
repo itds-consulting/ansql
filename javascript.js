@@ -292,11 +292,11 @@ function show_docs(category_id, comment_id)
 
 	document.getElementById("page_id").style.width="78%";
 	if (iframe_doc.getElementById(reference_id))
-		iframe_doc.getElementById(reference_id).style.color = "red";
+		iframe_doc.getElementById(reference_id).className = "docs_focus";
 
 	if (document.last_comment_id && iframe_doc.getElementById(document.last_comment_id+"_id") &&
 			document.last_comment_id+"_id" != reference_id)
-		iframe_doc.getElementById(document.last_comment_id+"_id").style.color = "black";
+		iframe_doc.getElementById(document.last_comment_id+"_id").className = "docs_lost_focus";
 
 	/* set the new last_reference_id */
 	document.last_comment_id = comment_id;
