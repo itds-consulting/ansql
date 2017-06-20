@@ -546,8 +546,8 @@ function pages($total = NULL, $additional_url_elements=array())
 
 	if (!count($additional_url_elements))
 		$additional_url_elements = array("total");
-        elseif (!in_array("total", $additional_url_elements))
-                $additional_url_elements[] = "total";
+	elseif (!in_array("total", $additional_url_elements))
+		$additional_url_elements[] = "total";
 
 	$link = build_link_request(array("limit"), $additional_url_elements);
 
@@ -2998,7 +2998,7 @@ function explanations($logo, $title, $explanations, $style="explanation")
 /**
  * Builds the HTML dropdown
  */ 
-function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", $css = "", $javascript = "", $just_options = false, $hidden = false)
+function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", $css = "", $javascript = "", $just_options = false, $hidden = false, $set_not_selected = null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if (!$just_options) {
@@ -3009,8 +3009,12 @@ function build_dropdown($arr, $name, $show_not_selected = true, $disabled = "", 
 		$res .= $javascript.'>'."\n";
 	} else
 		$res = '';
-	if ($show_not_selected)
-		$res .= '<option value=""> - </option>'."\n";
+	if ($show_not_selected) {
+		$val = "";
+		if ($set_not_selected)
+			$val = $set_not_selected;
+		$res .= '<option value="'.$val.'"> - </option>'."\n";
+	}
 	$selected = (isset($arr["selected"]))? $arr["selected"] : "";
 	unset($arr["selected"]);
 	for ($i=0; $i<count($arr); $i++) {
