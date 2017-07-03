@@ -496,14 +496,14 @@ SatSite: 11 dB"
     ),
     
     "RxGain2" => array(
-	array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"12"),
+	array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "selected"=>"5"),
 	"display" => "select_without_non_selected",
 	"comment" => "Rx post-mixer gain in dB.
-\"Naked\" BladeRF or Lab Kit: 15 dB"
+\"Naked\" BladeRF or Lab Kit: 5 dB"
     ),
     
     'referenceSignalPower' => array(
-	"value" => -34,
+	"value" => -20,
 	"comment" => 'Total power transmitted in CSRS.
 Actual value in dBm, range -50 to +60
 Depends on hardware, crest factor adjustment and TX gain settings
@@ -1035,8 +1035,12 @@ Default is yes for all.
 	if (isset($_SESSION["enb_fields"]["error_get_net_interfaces"])) {
 		$enodeb_params["core"]["gtp"]["error_get_network"] = array("display"=>"message", "value"=> "<div class=\"notice\"><font class=\"error\">Error!! </font><font style=\"font-weight:bold;\">".$_SESSION["enb_fields"]["error_get_net_interfaces"]. " Please fix the error before setting the addresses.</font></div>");
 	} else {
-		$enodeb_params["core"]["gtp"]["addr4"] = array($ipv4,"display"=>"select", "comment" => "IPv4 address to use with the eNodeB tunnel end");
-		$enodeb_params["core"]["gtp"]["addr6"] = array($ipv6,"display"=>"select", "comment" => "IPv6 address to use with the eNodeB tunnel end");
+		$gtp_ipv4 = $ipv4;
+		$gtp_ipv4[] = "0.0.0.0";
+		$enodeb_params["core"]["gtp"]["addr4"] = array($gtp_ipv4,"display"=>"select", "comment" => "IPv4 address to use with the eNodeB tunnel end. <br/>0.0.0.0 - GTP listener on all ipv4 interfaces.");
+		$gtp_ipv6 = $ipv6;
+		$gtp_ipv6[] = "::";
+		$enodeb_params["core"]["gtp"]["addr6"] = array($gtp_ipv6,"display"=>"select", "comment" => "IPv6 address to use with the eNodeB tunnel end. <br/>:: - GTP listener on all ipv6 interfaces.");
 
 		$enodeb_params["core"]["mme"]["local"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1");
 		$enodeb_params["core"]["mme"]["local_2"] = array($interfaces_ips,"display"=>"select","comment"=>"Ex: 192.168.56.1","column_name"=>"Local", "triggered_by" => "2");

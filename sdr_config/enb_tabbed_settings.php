@@ -133,6 +133,10 @@ This parameters are ignored in Labkit units."
 		$res = $response_fields["yateenb"];
 		if (isset($response_fields["gtp"]["ran_u"])) {
 			$gtp_settings = $response_fields["gtp"]["ran_u"];
+			if (isset($gtp_settings["addr4"]) && ($gtp_settings["addr4"]=="false" || !$gtp_settings["addr4"]))
+				unset($gtp_settings["addr4"]);
+			if (isset($gtp_settings["addr6"]) && ($gtp_settings["addr6"]=="false" || !$gtp_settings["addr6"]))
+				unset($gtp_settings["addr6"]);
 		} else {
 			$gtp_settings = array();
 			Debug::xdebug("tabs_enb", "Could not retrieve gtp fields in " . __METHOD__);
