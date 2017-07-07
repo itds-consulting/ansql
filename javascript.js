@@ -113,6 +113,16 @@ function advanced(identifier)
 		show_hide("tr_"+elem_name);
 	}
 
+	// show objtitles that were marked as advanced and are not for objects with specific index (_$index)
+	// maximum 10 objtitles 
+	for (i=1; i<10; i++) {
+		var elem = document.getElementById("tr_" + identifier + i + "_objtitle");
+		if (elem == null || elem.style.display == null || elem.style.display == "")
+			continue;
+
+		show_hide("tr_" + identifier + i + "_objtitle");
+	}
+
 	var img = document.getElementById(identifier+"xadvanced");
 	
 	if (img!=null && img.tagName=="IMG") {
@@ -162,16 +172,16 @@ function parent_by_tag(element, tagname)
 {
 	if (element==null)
 		return;
-        while(true) {
-                parent_element = element.parentElement;
-                if (parent_element==null)
-                        return null;
-		
+	while(true) {
+		parent_element = element.parentElement;
+		if (parent_element==null)
+			return null;
+
 		if (parent_element.tagName.toLowerCase()==tagname)
 			return parent_element;
 
-                element = parent_element;
-        }
+		element = parent_element;
+	}
 }
 
 /*
@@ -484,10 +494,10 @@ function show_hide(element_id)
  */
 function make_request(url, cb, async)
 {
-        url = encodeURI(url);
-		if (typeof async === 'undefined')
-			async = true;
-        make_api_request(url, cb, async);
+	url = encodeURI(url);
+	if (typeof async === 'undefined')
+		async = true;
+	make_api_request(url, cb, async);
 }
 
 /**
@@ -515,7 +525,7 @@ function make_api_request(url, cb, async)
 			if (typeof cb != 'undefined' && cb !== null) 
 				call_function(cb,response);
 		}
-	}
+	};
 	if (typeof async === 'undefined')
 		async = true;
 	xmlhttp.open("GET", url, async);
@@ -546,19 +556,19 @@ function call_function(cb, param)
  */
 function GetXmlHttpObject()
 {
-        if (window.XMLHttpRequest)
-        {
-                /* code for IE7+, Firefox, Chrome, Opera, Safari*/
-                return new XMLHttpRequest();
-        }
-        if (window.ActiveXObject)
-        {
-                /* code for IE6, IE5*/
-                return new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        return null;
+	if (window.XMLHttpRequest)
+	{
+		/* code for IE7+, Firefox, Chrome, Opera, Safari*/
+		return new XMLHttpRequest();
+	}
+	if (window.ActiveXObject)
+	{
+		/* code for IE6, IE5*/
+		return new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	return null;
 }
-
+ 
 function insert_spinner()
 {
 	if (document.getElementById("spinner_id") != null)
@@ -693,9 +703,9 @@ function get_selected(id_name)
  */
 function set_html_obj(id, html)
 {
-        var obj = document.getElementById(id);
-        if (obj)
-                obj.innerHTML = (html == null) ? "" : html;
+	var obj = document.getElementById(id);
+	if (obj)
+		obj.innerHTML = (html == null) ? "" : html;
 }
 
 /**
@@ -718,6 +728,9 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields, 
 {
 	console.log("Entered fields_another_obj() ", arguments);
 
+	// global variable needed by wizard_advanced
+	current_object_index = link_index;
+
 	if (!is_numeric(link_index)) {
 		console.error("Called fields_another_obj with non numeric param link_index: "+link_index);
 		return;
@@ -739,7 +752,7 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields, 
 	// retrieve all elements from same form as the clicked link
 	var parentform = parent_by_tag(document.getElementById(current_link_id),"form");
 	if (parentform==null) {
-		console.error("Can't retrieve parent for for element with id" + current_link_id);
+		console.error("Can't retrieve parent for for element with id " + current_link_id);
 		return;
 	}
 	elems = parentform.elements;
@@ -832,8 +845,20 @@ function fields_another_obj(link_index, link_name, hidden_fields, level_fields, 
 			input.setAttribute("name", ''+hidden_fields[name]+'');
 			input.setAttribute("value", 'off');
 			tr_element_hidden = document.getElementById("tr_hidden_fields");
-        		tr_element_hidden.appendChild(input);
+			tr_element_hidden.appendChild(input);
 		}
+	}
+
+	// show objtitles that were marked as advanced and are not for objects with specific index (_$index)
+	// Ex: 1_objtitle1, 1_objtitle2,   -- first number is the nr of the objtitle, last is the object index
+	// 2_objtitle1, 2_objtitle2
+	// maximum 10 objtitles 
+	for (i=1; i<10; i++) {
+		var elem = document.getElementById("tr_" + i + "_objtitle" + link_index);
+		if (elem == null || elem.style.display == null || elem.style.display == "" || (elem.getAttribute("advanced")=="true" && show_advanced==false))
+			continue;
+
+		show("tr_" + i + "_objtitle" + link_index);
 	}
 }
 
@@ -961,6 +986,7 @@ function custom_value_dropdown(custom_value,dropdown_id)
 // Toggle menu build with TabbedSettings class. Show/hide (Advanced/Basic) tabs and buttons
 function toggle_menu()
 {
+	//var i = (typeof(open_tabs)==="undefined") ? 1 : open_tabs;
 	var i = (open_tabs==undefined) ? 1 : open_tabs;
 	var current_state = document.getElementById("section_"+i).style.display;
 	var next_state = (current_state!="none") ? "none" : "table-cell";
@@ -1039,7 +1065,7 @@ function set_cellid_dependencies()
 	var cellid = 3*parseInt(nid1) + parseInt(nid2);
 	var rootSequenceIndex = cellid + get_rand_int(0, 334); 
 //	var prachFreqOffset = cellid % 95;
-        var groupAssignmentPUSCH = cellid % 30;
+	var groupAssignmentPUSCH = cellid % 30;
 	var cyclicShift = cellid % 8;
 
 	var resourceAllocationOffset = cellid;
@@ -1052,7 +1078,7 @@ function set_cellid_dependencies()
 */
 	document.getElementById("rootSequenceIndex").value = rootSequenceIndex;
 //	document.getElementById("prach-FreqOffset").value = prachFreqOffset;
-        document.getElementById("groupAssignmentPUSCH").value = groupAssignmentPUSCH;
+	document.getElementById("groupAssignmentPUSCH").value = groupAssignmentPUSCH;
 	document.getElementById("cyclicShift").value = cyclicShift;
 	document.getElementById("n1Pucch-An").value = resourceAllocationOffset;
 //	document.getElementById("Pucch.CsAn").value = pucchCsAn;

@@ -241,8 +241,8 @@ function link_to_main_page($path, $return_text)
 	global $module;
 
 	if (isset($_SESSION["main"]))
-                $link = $_SESSION["main"];
-        else
+		$link = $_SESSION["main"];
+	else
 		$link = "main.php";
 	$link .=  "?module=".$module;
 
@@ -418,9 +418,9 @@ function dateCheck($year,$month,$day,$hour,$end)
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	if ("$year$month$day" == "") {
 		if ($hour == "")
-	    		return true;
+			return true;
 		if (($hour<0) || ($hour>23))
-	    		return false;
+			return false;
 		$hour = sprintf(" %02u:%02u:%02u",$hour,$end,$end);
 		return gmdate("Y-m-d") . $hour;
 	}
@@ -500,11 +500,11 @@ function items_on_page($nrs = array(20,50,100), $additional_url_elements=null)
 	Debug::func_start(__FUNCTION__,func_get_args(),"ansql");
 	global $limit;
 
-        if (!$nrs)
-                $nrs = array(20,50,100);
-        
-        if ($additional_url_elements)
-                $additional_url_elements = array_merge($additional_url_elements, array("total"));
+	if (!$nrs)
+		$nrs = array(20,50,100);
+
+	if ($additional_url_elements)
+		$additional_url_elements = array_merge($additional_url_elements, array("total"));
 	$link = build_link_request(array("limit"), $additional_url_elements);
 
 	print "<div class=\"items_on_page\">";
@@ -1193,7 +1193,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 		case "password":
 		case "file":
 		case "text-nonedit":
-                        print '<input  class="'.$css.'" type="'.($display=="text-nonedit"?"text":$display).'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
+			print '<input  class="'.$css.'" type="'.($display=="text-nonedit"?"text":$display).'" name="'.$form_identifier.$field_name.'" id="'.$form_identifier.$field_name.'"';
 			if ($display != "file" && $display != "password") {
 				if (!is_array($value)) {
 					if ($value && strpos('"',$value)!==false)
@@ -2061,8 +2061,8 @@ function table($array, $formats, $element_name, $id_name, $element_actions = arr
 		}
 		$link = '';
 		foreach ($array[$i] as $col_name => $col_value) {
-                        if ($col_name=="password")
-                                continue;
+			if ($col_name=="password")
+				continue;
 			if (is_array($col_value))
 				continue;
 			if (count($build_link_elements)) {
@@ -2974,7 +2974,7 @@ function explanations($logo, $title, $explanations, $style="explanation")
 ?>
 <div class="<?php print $style; ?>">
     <table class="fillall" cellspacing="0" cellpadding="0">
-        <tr>
+	<tr>
 	    <td class="logo_wizard" style="padding:5px;">
 <?php	if ($logo && $logo != "") {?>
 		<img src="<?php $logo; ?>" />
@@ -2982,14 +2982,14 @@ function explanations($logo, $title, $explanations, $style="explanation")
 ?>
 	    </td>
 	    <td class="title_wizard" style="padding:5px;">
-               <div class="title_wizard"><?php print $title; ?></div>
+		<div class="title_wizard"><?php print $title; ?></div>
 	    </td>';	
-         </tr>
-	 <tr>
+	</tr>
+	<tr>
 	    <td class="step_description" style="font-size:13px;padding:5px;" colspan="2">
 <?php		print $text; ?>
-            </td>
-        </tr>
+	    </td>
+	</tr>
     </table>
 </div>
 <?php
@@ -4090,8 +4090,8 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 	if (!$form_name)
 		$form_name = $module;
 
-        print '<table class="sections '.$custom_css.'" cellspacing="0" cellpadding="0">'."\n";
-        print '<tr>'."\n";
+	print '<table class="sections '.$custom_css.'" cellspacing="0" cellpadding="0">'."\n";
+	print '<tr>'."\n";
 	$total_options = count($options);
 	$disp_show = "";
 	$disp_hide = ' style="display:none;"';
@@ -4107,7 +4107,7 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 		break;
 	}
 
-        for ($i=0; $i<$total_options; $i++) {
+	for ($i=0; $i<$total_options; $i++) {
 		$name = $options[$i];
 		$js_name = $specif_ind.$i;
 
@@ -4138,13 +4138,13 @@ function generic_tabbed_settings($options,$config,$section_to_open=array(),$show
 		}
 
 		print '</div></td>'."\n";
-                print '<td class="space_section">&nbsp;</td>'."\n";
-        }
+		print '<td class="space_section">&nbsp;</td>'."\n";
+	}
 	print '<td class="fillspace_section">&nbsp;</td>'."\n";
-        print '</tr>'."\n";
-        print '<tr>'."\n";
+	print '</tr>'."\n";
+	print '<tr>'."\n";
 	$colspan = $total_options*2+1;
-        print '<td class="section_content" colspan="'.$colspan.'">'."\n";
+	print '<td class="section_content" colspan="'.$colspan.'">'."\n";
 
 	for ($i=0; $i<$total_options; $i++) {
 		$name = $options[$i];
@@ -4705,6 +4705,24 @@ function bool_value($value)
 	if ($value==="t" || $value==="1" || $value===1)
 		return true;
 	return false;
+}
+
+function suffix_index($index)
+{
+	switch (substr($index,-1)) {
+		case 1:
+			$suffix = "st";
+			break;
+		case 2:
+			$suffix = "nd";
+			break;
+		case 3:
+			$suffix = "rd";
+			break;
+		default:
+			$suffix = "th";
+	}
+	return $suffix;
 }
 /* vi: set ts=8 sw=4 sts=4 noet: */
 ?>
