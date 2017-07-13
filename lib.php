@@ -1054,7 +1054,7 @@ function display_pair($field_name, $field_format, $object, $form_identifier, $cs
 
 	switch($display) {
 		case "textarea":
-			print '<textarea class="'.$css.'" name="'.$form_identifier.$field_name.'" cols="20" rows="5">';
+			print '<textarea class="'.$css.'" id="'.$form_identifier.$field_name.'" name="'.$form_identifier.$field_name.'" cols="20" rows="5">';
 			print $value;
 			print '</textarea>'.$field_comment;
 			break;
