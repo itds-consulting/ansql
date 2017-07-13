@@ -606,6 +606,11 @@ function check_required_fields()
 		if ((tr_field.getAttribute("trigger") == "\\\"true\\\"" || tr_field.getAttribute("trigger")=="true") && tr_field.style.display=="none")
 			continue;
 
+		if (document.getElementById(field_name)==null) {
+			console.log("The required field: "+field_name+" has not an ID defined!");
+			return false;
+		}
+
 		field_value = document.getElementById(field_name).value;
 		if (field_value=="")
 			err += "Please set "+required_fields[field_name]+"! ";
